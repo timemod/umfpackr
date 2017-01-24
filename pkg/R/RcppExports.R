@@ -13,3 +13,7 @@ umf_solve <- function(a, b) {
     .Call('umfpackr_umf_solve', PACKAGE = 'umfpackr', a, b)
 }
 
+umf_solve_nl_ <- function(start, fn, jac, control) {
+    .Call('umfpackr_umf_solve_nl_', PACKAGE = 'umfpackr', start, fn, jac, control)
+}
+

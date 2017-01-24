@@ -8,4 +8,5 @@ umfpack.Rcheck
 umfpack*zip
 umfpack*tar.gz
 tmp/
+.Rd2pdf*
 

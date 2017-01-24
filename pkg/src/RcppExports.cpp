@@ -17,3 +17,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// umf_solve_nl_
+List umf_solve_nl_(NumericVector start, Function fn, Function jac, List control);
+RcppExport SEXP umfpackr_umf_solve_nl_(SEXP startSEXP, SEXP fnSEXP, SEXP jacSEXP, SEXP controlSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type start(startSEXP);
+    Rcpp::traits::input_parameter< Function >::type fn(fnSEXP);
+    Rcpp::traits::input_parameter< Function >::type jac(jacSEXP);
+    Rcpp::traits::input_parameter< List >::type control(controlSEXP);
+    rcpp_result_gen = Rcpp::wrap(umf_solve_nl_(start, fn, jac, control));
+    return rcpp_result_gen;
+END_RCPP
+}

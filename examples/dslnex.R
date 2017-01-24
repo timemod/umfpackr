@@ -23,7 +23,8 @@ jacdsln <- function(x, c) {
 xstart <- c(2,3)
 print(dslnex(xstart, c = 2))
 
-print(umf_solve_nl(xstart, dslnex, jacdsln, c = 2))
+print(umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
+                   control = list(cnmtrx = 0.4)))
 quit()
 
 

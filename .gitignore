@@ -1,0 +1,11 @@
+.Rproj.user
+.Rhistory
+.RData
+pkg/inst/doc
+pkg.pdf
+pkg.log
+umfpack.Rcheck
+umfpack*zip
+umfpack*tar.gz
+tmp/
+

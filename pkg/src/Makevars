@@ -1,0 +1,39 @@
+# -*- Makefile -*-
+
+PKG_CPPFLAGS = -DNTIMER -I UFconfig -I UMFPACK/Include -I AMD/Include
+## we use the BLAS and the LAPACK library:
+PKG_LIBS = $(SUBLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
+
+MkInclude = $(R_HOME)/etc${R_ARCH}/Makeconf
+
+#OBJECTS = $(SOURCES_C:.c=.o)
+SUBDIRS = AMD UMFPACK
+SUBLIBS = AMD/Lib/libamd.a UMFPACK/Lib/libumfpack.a AMD/Lib/libamd.a
+
+all: $(SHLIB)
+## making src/*.o and in sublibs can be done simultaneously
+# for development
+$(SHLIB): $(OBJECTS) sublibs
+# for real:
+#$(SHLIB): $(OBJECTS) subclean sublibs
+#
+
+sublibs: 
+	 @(cd AMD && $(MAKE) \
+	  CC="$(CC)" \
+          CFLAGS="$(CFLAGS) $(R_XTRA_CPPFLAGS) $(PKG_CCFLAGS) $(CPICFLAGS) $(CLINK_CPPFLAGS)" \
+          AR="$(AR)" RANLIB="$(RANLIB)")
+	 @(cd UMFPACK && $(MAKE) \
+	  CC="$(CC)" \
+          CFLAGS="$(CFLAGS) $(R_XTRA_CPPFLAGS) $(PKG_CCFLAGS) $(CPICFLAGS) $(CLINK_CPPFLAGS)" \
+          AR="$(AR)" RANLIB="$(RANLIB)")
+
+clean: subclean
+	@-rm -rf .libs _libs
+	@-rm -f *.o $(SHLIB)
+
+subclean:
+	@-rm -f *.a
+	@for d in $(SUBDIRS); do \
+	  (cd $${d} && MkInclude="$(MkInclude)" $(MAKE) clean) || exit 1; \
+	done

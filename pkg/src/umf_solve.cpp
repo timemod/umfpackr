@@ -7,11 +7,11 @@ using namespace Rcpp;
 #include <time.h>
 #endif
 
-//' Solve linear equation using UMFPACK
+//' Solves the system of linear equations \eqn{A x = b} using UMFPACK
 //'
-//' @param A a \code{dgCMatrix}
-//' @param b the right hand side of A x = b
-//' @return x the solution x.
+//' @param a a \code{dgCMatrix}
+//' @param b the vector \eqn{b}
+//' @return x the solution \eqn{x}
 //' @export
 //' @useDynLib umfpackr
 //' @importFrom Rcpp sourceCpp

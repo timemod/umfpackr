@@ -4,9 +4,9 @@
 pkg/inst/doc
 pkg.pdf
 pkg.log
-umfpack.Rcheck
-umfpack*zip
-umfpack*tar.gz
+umfpackr.Rcheck
+umfpackr*zip
+umfpackr*tar.gz
 tmp/
 .Rd2pdf*
 

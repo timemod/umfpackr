@@ -9,7 +9,6 @@ List umf_solve_nl_(NumericVector start, Function fn, Function jac,
     bool trace    = control["trace"];
     double ftol   = control["ftol"];
     int maxiter   = control["maxiter"];
-    double cnmtrx = control["cnmtrx"];
 
     //initialize initial convergence speed threshold
 
@@ -18,50 +17,53 @@ List umf_solve_nl_(NumericVector start, Function fn, Function jac,
     if (trace) {
         Rprintf("\nIteration report\n");
         Rprintf("----------------\n");
-        Rprintf("%5s%20s%20s%20s%20s\n", "Iter", "inv. cond. jac.",
-                    "Largest |f|", "Index largest |f|", "Fcrit");
+        Rprintf("%5s%20s%20s%20s\n", "Iter", "inv. cond. jac.",
+                    "Largest |f|", "Index largest |f|");
     }
 
-    double cond;
     int iter;
 
-    // fmax  largest scaled change in feedback variables
-    // fquot  ratio of current and previous fmax
-    // fcrit  geometric mean current and previous Fquot
-    double fstart = cnmtrx > 0.5 ?  0.5 : 0.5 * cnmtrx;
-    double fquot  = fstart;
-    double fquotp = fstart;
-    double fcrit  = fstart;
-    double fmax = 0, fmaxp = 0;
-    bool calc_matrix = true;
-    bool matrix_calculated = false;
-
-    void *Symbolic = NULL, *Numeric = NULL;
-    IntegerVector dims, Ap, Ai;
-    NumericVector Ax;
     double *null = (double *) NULL;
+    double info[UMFPACK_INFO];
+    double cond;
 
     int n = start.size();
     NumericVector f;
     NumericVector x(n), dx(n);
     x = start;
 
-
     for (iter = 0; iter < maxiter; iter++) {
-
-        fmaxp = fmax;
-        fquotp = fquot;
 
         f = fn(x);
         NumericVector f_abs = abs(f);
-        fmax = max(f_abs);
-        int i = which_max(f_abs);
-        // TODO: handle NA values
+        double fmax = max(f_abs);
 
-        if (matrix_calculated) {
-            Rprintf("%5d%20.2e%20.3e%20d%20.2f\n", iter, cond, fmax, i, fcrit);
-        } else {
-            Rprintf("%5d%20s%20.3e%20d%20.2f\n", iter, "", fmax, i, fcrit);
+        // TODO: handle NA values
+        if (R_IsNA(fmax)) {
+            int i_na;
+            for (int i = 0; i < n; i++) {
+                if (R_IsNA(f[i])) {
+                    i_na = i + 1;
+                    break;
+                }                
+            }
+            if (iter == 0) {
+                Rprintf("Initial value of function contains " 
+                       "non-finite values (starting at index=%d)\n", i_na);
+            } else {
+                Rprintf("Function value contains "
+                    "non-finite values (starting at index=%d)\n", i_na);
+            }
+            break;
+        }
+
+        if (trace) {
+            int i = which_max(f_abs);
+            if (iter > 0) {
+                Rprintf("%5d%20.2e%20.3e%20d\n", iter, cond, fmax, i);
+            } else {
+                Rprintf("%5d%20s%20.3e%20d\n", iter, "", fmax, i);
+            }
         }
 
         if (fmax < ftol) {
@@ -69,53 +71,37 @@ List umf_solve_nl_(NumericVector start, Function fn, Function jac,
             break;
         }
 
-        if (iter > 0) {
-            fquot = fmax / fmaxp;
-            fcrit = sqrt(fquot * fquotp);
-            calc_matrix = fcrit > cnmtrx;
-        }
+        S4 a = jac(x);
+        NumericVector dims = a.slot("Dim");
+        IntegerVector Ap = a.slot("p");
+        IntegerVector Ai = a.slot("i");
+        NumericVector Ax = a.slot("x");
 
+        // TODO: check that dims[0] == dims[1] = n
+    
+        // LU factorization
+        void *Symbolic, *Numeric;
+        (void) umfpack_di_symbolic (n, n, INTEGER(Ap), INTEGER(Ai), 
+                                    REAL(Ax), &Symbolic, null, null) ;
+        (void) umfpack_di_numeric (INTEGER(Ap), INTEGER(Ai), REAL(Ax),
+                                    Symbolic, &Numeric, null, info) ;
+        umfpack_di_free_symbolic (&Symbolic);
+        cond = info[UMFPACK_RCOND];
 
-        if (calc_matrix) {
-
-            // TODO: separate function
-    
-            if (Numeric != NULL) {
-                umfpack_di_free_numeric (&Numeric) ;
-            }
-            S4 a = jac(start);
-            dims = a.slot("Dim");
-            Ap = a.slot("p");
-            Ai = a.slot("i");
-            Ax = a.slot("x");
-    
-            // TODO: check that dims[0] == dims[1] = n?
-    
-            // LU factorization
-            (void) umfpack_di_symbolic (n, n, INTEGER(Ap), INTEGER(Ai), 
-                                        REAL(Ax), &Symbolic, null, null) ;
-            (void) umfpack_di_numeric (INTEGER(Ap), INTEGER(Ai), REAL(Ax),
-                                       Symbolic, &Numeric, null, null) ;
-            umfpack_di_free_symbolic (&Symbolic) ;
-    
-            // TODO: compute the inverse condition of the matrix
-            cond = NA_REAL;
-        
-            calc_matrix = false;
-            matrix_calculated = true;
-        } else {
-            matrix_calculated = false;
-        }
-
-        // solve
         (void) umfpack_di_solve (UMFPACK_A, INTEGER(Ap), INTEGER(Ai), REAL(Ax),
-                                 REAL(dx), REAL(f), Numeric, null, null) ;
+                                 REAL(dx), REAL(f), Numeric, null, null);
 
         x = x - dx;
+
+        umfpack_di_free_numeric(&Numeric);
     }
 
-    if (Numeric != NULL) {
-        umfpack_di_free_numeric(&Numeric);
+    if (!control["silent"]) {
+        if (solved) {
+            Rprintf("Convergence after %d iterations\n", iter);
+        } else {
+            Rprintf("No convergence after %d iterations\n", iter);
+        }
     }
 
     return List::create(Named("solved") = solved,

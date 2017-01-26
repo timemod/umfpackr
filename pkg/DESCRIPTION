@@ -1,16 +1,15 @@
 Package: umfpackr
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Sparse linear algebra with UMFPACK
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: Rob van Harrevelt [aut, cre]
+Maintainer: Rob van Harrevelt <rvanharrevelt@gmail.com>
+Description: This package contains methods for solving linear and non-linear
+    systems of equations using the sparse linear algebra package UMFPACK.
+License:  GPL-3
 Encoding: UTF-8
 LazyData: true
 LinkingTo: Rcpp
-Imports:
-    Rcpp
-Depends: Matrix, methods
+Imports: Rcpp
+Depends: methods, Matrix
 RoxygenNote: 5.0.1

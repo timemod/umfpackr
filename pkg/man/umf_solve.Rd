@@ -2,19 +2,19 @@
 % Please edit documentation in R/RcppExports.R
 \name{umf_solve}
 \alias{umf_solve}
-\title{Solve linear equation using UMFPACK}
+\title{Solves the system of linear equations \eqn{A x = b} using UMFPACK}
 \usage{
 umf_solve(a, b)
 }
 \arguments{
-\item{b}{the right hand side of A x = b}
+\item{a}{a \code{dgCMatrix}}
 
-\item{A}{a \code{dgCMatrix}}
+\item{b}{the vector \eqn{b}}
 }
 \value{
-x the solution x.
+x the solution \eqn{x}
 }
 \description{
-Solve linear equation using UMFPACK
+Solves the system of linear equations \eqn{A x = b} using UMFPACK
 }
 

@@ -41,7 +41,8 @@ List umf_solve_nl_(NumericVector start, Function fn, Function jac,
 
     int n = start.size();
     NumericVector f;
-    NumericVector x(clone(start)), dx(n);
+    NumericVector x(clone(start));
+    double *dx = new double[n];
 
 #ifdef TIMER
     t_f = 0.0;
@@ -132,13 +133,15 @@ List umf_solve_nl_(NumericVector start, Function fn, Function jac,
         t_solve_begin = clock();
 #endif
         (void) umfpack_di_solve (UMFPACK_A, INTEGER(Ap), INTEGER(Ai), REAL(Ax),
-                                 REAL(dx), REAL(f), Numeric, null, null);
+                                 dx, REAL(f), Numeric, null, null);
 #ifdef TIMER
         t_solve_end = clock();
         t_solve +=  double(t_solve_end - t_solve_begin) / CLOCKS_PER_SEC;
 #endif
-
-        x = x - dx;
+    
+        for (int i = 0; i < n; i++) {
+           x[i] -= dx[i];
+        }
 
         umfpack_di_free_numeric(&Numeric);
     }
@@ -161,6 +164,8 @@ List umf_solve_nl_(NumericVector start, Function fn, Function jac,
     Rprintf("timing solve:                %g\n", t_solve);
 
 #endif
+
+    delete[] dx;
 
     return List::create(Named("solved") = solved,
                         Named("iter")   = iter,

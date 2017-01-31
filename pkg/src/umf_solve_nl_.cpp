@@ -37,7 +37,7 @@ List umf_solve_nl_(NumericVector start, Function fn, Function jac,
 
     double *null = (double *) NULL;
     double info[UMFPACK_INFO];
-    double cond;
+    double cond = NA_REAL;
 
     int n = start.size();
     NumericVector f;
@@ -66,7 +66,7 @@ List umf_solve_nl_(NumericVector start, Function fn, Function jac,
 
         // TODO: handle NA values
         if (R_IsNA(fmax)) {
-            int i_na;
+            int i_na = NA_INTEGER;
             for (int i = 0; i < n; i++) {
                 if (R_IsNA(f[i])) {
                     i_na = i + 1;

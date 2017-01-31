@@ -1,17 +1,14 @@
 # -*- Makefile -*-
+#
+SUBDIRS = SuiteSparse_config AMD UMFPACK
+SUBLIBS =  UMFPACK/Lib/libumfpack.a AMD/Lib/libamd.a \
+           SuiteSparse_config/SuiteSparse_config.a
 
 PKG_CPPFLAGS = -DNTIMER -I SuiteSparse_config -I UMFPACK/Include -I AMD/Include
 ## we use the BLAS and the LAPACK library:
 PKG_LIBS = $(SUBLIBS) $(BLAS_LIBS)
 
-MkInclude = $(R_HOME)/etc${R_ARCH}/Makeconf
-
 #OBJECTS = $(SOURCES_C:.c=.o)
-SUBDIRS = SuiteSparse_config AMD UMFPACK SuiteSparse_config
-SUBLIBS = SuiteSparse_config/SuiteSparse_config.a AMD/Lib/libamd.a \
-          UMFPACK/Lib/libumfpack.a AMD/Lib/libamd.a  \
-          SuiteSparse_config/SuiteSparse_config.a 
-
 all: $(SHLIB)
 ## making src/*.o and in sublibs can be done simultaneously
 # for development

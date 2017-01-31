@@ -69,7 +69,7 @@ SUITESPARSE_VERSION = 4.5.4
 
     # The CF macro is used by SuiteSparse Makefiles as a combination of
     # CFLAGS, CPPFLAGS, TARGET_ARCH, and system-dependent settings.
-    CF ?= $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) $(OPTIMIZATION) -fexceptions -fPIC
+    CF ?= $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) $(OPTIMIZATION) -fexceptions
 
     #---------------------------------------------------------------------------
     # OpenMP is used in CHOLMOD

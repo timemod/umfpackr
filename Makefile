@@ -7,7 +7,7 @@ INSTALL_FLAGS=--no-multiarch --with-keep.source
 RCHECKARG=--no-multiarch
 R_HOME=$(shell R RHOME)
 PKG_CXXFLAGS = `"$(R_HOME)/bin/Rscript" -e "Rcpp:::CxxFlags()"` \
-	       -I pkg/src/UFconfig -I pkg/src/UMFPACK/Include -I pkg/src/AMD/Include
+	       -I pkg/src/SuiteSparse_config -I pkg/src/UMFPACK/Include -I pkg/src/AMD/Include
 
 
 

@@ -6,10 +6,11 @@ Author: Rob van Harrevelt [aut, cre]
 Maintainer: Rob van Harrevelt <rvanharrevelt@gmail.com>
 Description: This package contains methods for solving linear and non-linear
     systems of equations using the sparse linear algebra package UMFPACK.
-License:  GPL-3
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 LinkingTo: Rcpp
 Imports: Rcpp
 Depends: methods, Matrix
 RoxygenNote: 5.0.1
+Suggests: testthat

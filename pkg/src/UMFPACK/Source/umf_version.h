@@ -3,17 +3,16 @@
 /* ========================================================================== */
 
 /* -------------------------------------------------------------------------- */
-/* UMFPACK Copyright (c) Timothy A. Davis, CISE,                              */
-/* Univ. of Florida.  All Rights Reserved.  See ../Doc/License for License.   */
-/* web: http://www.cise.ufl.edu/research/sparse/umfpack                       */
+/* Copyright (c) 2005-2012 by Timothy A. Davis, http://www.suitesparse.com.   */
+/* All Rights Reserved.  See ../Doc/License.txt for License.                  */
 /* -------------------------------------------------------------------------- */
 
 /*
    Define routine names, depending on version being compiled.
 
    DINT:	double precision, int's as integers
-   DLONG:	double precision, UF_long's as integers
-   ZLONG:	complex double precision, UF_long's as integers
+   DLONG:	double precision, SuiteSparse_long's as integers
+   ZLONG:	complex double precision, SuiteSparse_long's as integers
    ZINT:	complex double precision, int's as integers
 */
 
@@ -28,7 +27,7 @@
 #endif
 
 /* -------------------------------------------------------------------------- */
-/* integer type (Int is int or UF_long) now defined in amd_internal.h */
+/* integer type (Int is int or SuiteSparse_long) defined in amd_internal.h */
 /* -------------------------------------------------------------------------- */
 
 #if defined (DLONG) || defined (ZLONG)
@@ -353,7 +352,8 @@ typedef struct
 /* c = a/b, using function pointer */
 #define DIV(c,a,b) \
 { \
-    (void) umfpack_divcomplex ((a).Real, (a).Imag, (b).Real, (b).Imag, \
+    (void) SuiteSparse_config.divcomplex_func \
+        ((a).Real, (a).Imag, (b).Real, (b).Imag, \
 	&((c).Real), &((c).Imag)) ; \
 }
 
@@ -362,7 +362,8 @@ typedef struct
 /* c = a/conjugate(b), using function pointer */
 #define DIV_CONJ(c,a,b) \
 { \
-    (void) umfpack_divcomplex ((a).Real, (a).Imag, (b).Real, (-(b).Imag), \
+    (void) SuiteSparse_config.divcomplex_func \
+        ((a).Real, (a).Imag, (b).Real, (-(b).Imag), \
 	&((c).Real), &((c).Imag)) ; \
 }
 
@@ -379,7 +380,7 @@ typedef struct
 /* exact absolute value, s = sqrt (a.real^2 + a.imag^2) */
 #define ABS(s,a) \
 { \
-    (s) = umfpack_hypot ((a).Real, (a).Imag) ; \
+    (s) = SuiteSparse_config.hypot_func ((a).Real, (a).Imag) ; \
 }
 
 /* -------------------------------------------------------------------------- */
@@ -475,7 +476,7 @@ typedef struct
 #define UMF_triplet_map_nox	 umfdi_triplet_map_nox
 #define UMF_triplet_nomap_x	 umfdi_triplet_nomap_x
 #define UMF_triplet_nomap_nox	 umfdi_triplet_nomap_nox
-#define UMF_2by2		 umfdi_2by2
+#define UMF_cholmod		 umf_i_cholmod
 
 #define UMFPACK_col_to_triplet	 umfpack_di_col_to_triplet
 #define UMFPACK_defaults	 umfpack_di_defaults
@@ -487,6 +488,7 @@ typedef struct
 #define UMFPACK_get_determinant	 umfpack_di_get_determinant
 #define UMFPACK_numeric		 umfpack_di_numeric
 #define UMFPACK_qsymbolic	 umfpack_di_qsymbolic
+#define UMFPACK_fsymbolic	 umfpack_di_fsymbolic
 #define UMFPACK_report_control	 umfpack_di_report_control
 #define UMFPACK_report_info	 umfpack_di_report_info
 #define UMFPACK_report_matrix	 umfpack_di_report_matrix
@@ -529,7 +531,7 @@ typedef struct
 #endif
 
 /* -------------------------------------------------------------------------- */
-/* Double precision, with UF_long's as integers */
+/* Double precision, with SuiteSparse_long's as integers */
 /* -------------------------------------------------------------------------- */
 
 #ifdef DLONG
@@ -590,7 +592,7 @@ typedef struct
 #define UMF_triplet_map_nox	 umfdl_triplet_map_nox
 #define UMF_triplet_nomap_x	 umfdl_triplet_nomap_x
 #define UMF_triplet_nomap_nox	 umfdl_triplet_nomap_nox
-#define UMF_2by2		 umfdl_2by2
+#define UMF_cholmod		 umf_l_cholmod
 
 #define UMFPACK_col_to_triplet	 umfpack_dl_col_to_triplet
 #define UMFPACK_defaults	 umfpack_dl_defaults
@@ -602,6 +604,7 @@ typedef struct
 #define UMFPACK_get_determinant	 umfpack_dl_get_determinant
 #define UMFPACK_numeric		 umfpack_dl_numeric
 #define UMFPACK_qsymbolic	 umfpack_dl_qsymbolic
+#define UMFPACK_fsymbolic	 umfpack_dl_fsymbolic
 #define UMFPACK_report_control	 umfpack_dl_report_control
 #define UMFPACK_report_info	 umfpack_dl_report_info
 #define UMFPACK_report_matrix	 umfpack_dl_report_matrix
@@ -705,7 +708,7 @@ typedef struct
 #define UMF_triplet_map_nox	 umfzi_triplet_map_nox
 #define UMF_triplet_nomap_x	 umfzi_triplet_nomap_x
 #define UMF_triplet_nomap_nox	 umfzi_triplet_nomap_nox
-#define UMF_2by2		 umfzi_2by2
+#define UMF_cholmod		 umf_i_cholmod
 
 #define UMFPACK_col_to_triplet	 umfpack_zi_col_to_triplet
 #define UMFPACK_defaults	 umfpack_zi_defaults
@@ -717,6 +720,7 @@ typedef struct
 #define UMFPACK_get_determinant	 umfpack_zi_get_determinant
 #define UMFPACK_numeric		 umfpack_zi_numeric
 #define UMFPACK_qsymbolic	 umfpack_zi_qsymbolic
+#define UMFPACK_fsymbolic	 umfpack_zi_fsymbolic
 #define UMFPACK_report_control	 umfpack_zi_report_control
 #define UMFPACK_report_info	 umfpack_zi_report_info
 #define UMFPACK_report_matrix	 umfpack_zi_report_matrix
@@ -759,7 +763,7 @@ typedef struct
 #endif
 
 /* -------------------------------------------------------------------------- */
-/* Complex double precision, with UF_long's as integers */
+/* Complex double precision, with SuiteSparse_long's as integers */
 /* -------------------------------------------------------------------------- */
 
 #ifdef ZLONG
@@ -820,7 +824,7 @@ typedef struct
 #define UMF_triplet_map_nox	 umfzl_triplet_map_nox
 #define UMF_triplet_nomap_x	 umfzl_triplet_nomap_x
 #define UMF_triplet_nomap_nox	 umfzl_triplet_nomap_nox
-#define UMF_2by2		 umfzl_2by2
+#define UMF_cholmod		 umf_l_cholmod
 
 #define UMFPACK_col_to_triplet	 umfpack_zl_col_to_triplet
 #define UMFPACK_defaults	 umfpack_zl_defaults
@@ -832,6 +836,7 @@ typedef struct
 #define UMFPACK_get_determinant	 umfpack_zl_get_determinant
 #define UMFPACK_numeric		 umfpack_zl_numeric
 #define UMFPACK_qsymbolic	 umfpack_zl_qsymbolic
+#define UMFPACK_fsymbolic	 umfpack_zl_fsymbolic
 #define UMFPACK_report_control	 umfpack_zl_report_control
 #define UMFPACK_report_info	 umfpack_zl_report_info
 #define UMFPACK_report_matrix	 umfpack_zl_report_matrix

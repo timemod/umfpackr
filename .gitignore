@@ -9,4 +9,6 @@ umfpackr*zip
 umfpackr*tar.gz
 tmp/
 .Rd2pdf*
+*.o
+*.a
 

@@ -135,3 +135,9 @@ clean:
 	rm -f $(PKGTAR)
 	rm -f $(PKGDIR).pdf
 	rm -f $(PKGDIR).log
+	rm -f $(PKGDIR)/src/*.o
+	rm -f $(PKGDIR)/src/*.a
+	$(MAKE) -C $(PKGDIR)/src/SuiteSparse_config clean
+	$(MAKE) -C $(PKGDIR)/src/AMD clean
+	$(MAKE) -C $(PKGDIR)/src/UMFPACK clean
+

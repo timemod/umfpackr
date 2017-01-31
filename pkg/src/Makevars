@@ -1,14 +1,16 @@
 # -*- Makefile -*-
 
-PKG_CPPFLAGS = -DNTIMER -I UFconfig -I UMFPACK/Include -I AMD/Include
+PKG_CPPFLAGS = -DNTIMER -I SuiteSparse_config -I UMFPACK/Include -I AMD/Include
 ## we use the BLAS and the LAPACK library:
-PKG_LIBS = $(SUBLIBS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
+PKG_LIBS = $(SUBLIBS) $(BLAS_LIBS)
 
 MkInclude = $(R_HOME)/etc${R_ARCH}/Makeconf
 
 #OBJECTS = $(SOURCES_C:.c=.o)
-SUBDIRS = AMD UMFPACK
-SUBLIBS = AMD/Lib/libamd.a UMFPACK/Lib/libumfpack.a AMD/Lib/libamd.a
+SUBDIRS = SuiteSparse_config AMD UMFPACK SuiteSparse_config
+SUBLIBS = SuiteSparse_config/SuiteSparse_config.a AMD/Lib/libamd.a \
+          UMFPACK/Lib/libumfpack.a AMD/Lib/libamd.a  \
+          SuiteSparse_config/SuiteSparse_config.a 
 
 all: $(SHLIB)
 ## making src/*.o and in sublibs can be done simultaneously
@@ -16,17 +18,14 @@ all: $(SHLIB)
 $(SHLIB): $(OBJECTS) sublibs
 # for real:
 #$(SHLIB): $(OBJECTS) subclean sublibs
-#
+
 
 sublibs: 
-	 @(cd AMD && $(MAKE) \
-	  CC="$(CC)" \
-          CFLAGS="$(CFLAGS) $(R_XTRA_CPPFLAGS) $(PKG_CCFLAGS) $(CPICFLAGS) $(CLINK_CPPFLAGS)" \
-          AR="$(AR)" RANLIB="$(RANLIB)")
-	 @(cd UMFPACK && $(MAKE) \
-	  CC="$(CC)" \
-          CFLAGS="$(CFLAGS) $(R_XTRA_CPPFLAGS) $(PKG_CCFLAGS) $(CPICFLAGS) $(CLINK_CPPFLAGS)" \
-          AR="$(AR)" RANLIB="$(RANLIB)")
+	@for d in $(SUBDIRS); do \
+	  (cd $${d} && $(MAKE) CC="$(CC)" \
+           CFLAGS="$(CFLAGS) $(R_XTRA_CPPFLAGS) $(PKG_CCFLAGS) $(CPICFLAGS)" \
+           AR="$(AR)" RANLIB="$(RANLIB)"); \
+	done
 
 clean: subclean
 	@-rm -rf .libs _libs
@@ -35,5 +34,5 @@ clean: subclean
 subclean:
 	@-rm -f *.a
 	@for d in $(SUBDIRS); do \
-	  (cd $${d} && MkInclude="$(MkInclude)" $(MAKE) clean) || exit 1; \
+	  (cd $${d} && $(MAKE) clean) || exit 1; \
 	done

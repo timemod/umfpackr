@@ -3,7 +3,7 @@
 
 #' Solves the system of linear equations \eqn{A x = b} using UMFPACK
 #'
-#' @param a a \code{dgCMatrix}
+#' @param a a \code{\link[Matrix]{dgCMatrix}} 
 #' @param b the vector \eqn{b}
 #' @return x the solution \eqn{x}
 #' @export

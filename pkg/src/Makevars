@@ -20,8 +20,7 @@ $(SHLIB): $(OBJECTS) sublibs
 sublibs: 
 	@for d in $(SUBDIRS); do \
 	  (cd $${d} && $(MAKE) CC="$(CC)" \
-           CFLAGS="$(CFLAGS) $(R_XTRA_CPPFLAGS) $(PKG_CCFLAGS) $(CPICFLAGS)" \
-           AR="$(AR)" RANLIB="$(RANLIB)"); \
+           CPICFLAGS="$(CPICFLAGS)" AR="$(AR)" RANLIB="$(RANLIB)"); \
 	done
 
 clean: subclean

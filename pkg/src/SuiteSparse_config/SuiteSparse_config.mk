@@ -69,7 +69,9 @@ SUITESPARSE_VERSION = 4.5.4
 
     # The CF macro is used by SuiteSparse Makefiles as a combination of
     # CFLAGS, CPPFLAGS, TARGET_ARCH, and system-dependent settings.
-    CF ?= $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) $(OPTIMIZATION) -fexceptions
+    #CF ?= $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) $(OPTIMIZATION) $(CPICFLAGS) \
+    #	  -fexceptions
+    CF ?= $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) $(OPTIMIZATION) $(CPICFLAGS)
 
     #---------------------------------------------------------------------------
     # OpenMP is used in CHOLMOD
@@ -77,7 +79,7 @@ SUITESPARSE_VERSION = 4.5.4
 
     # with gcc, enable OpenMP directives via -fopenmp
     # This is not supported on Darwin, so this string is cleared, below.
-    CFOPENMP ?= -fopenmp
+    #CFOPENMP ?= -fopenmp
 
     #---------------------------------------------------------------------------
     # compiler
@@ -230,7 +232,12 @@ SUITESPARSE_VERSION = 4.5.4
     UMFPACK_CONFIG ?=
 
     # For example, uncomment this line to compile UMFPACK without CHOLMOD:
-    UMFPACK_CONFIG = -DNCHOLMOD
+    #UMFPACK_CONFIG = -DNCHOLMOD
+
+    # We use -DNBLAS, because on some platforms (e.g. Windows or
+    # Ubuntu 16.04 LTS), the version with BLAS is about a factor of
+    # two slower. 
+    UMFPACK_CONFIG = -DNBLAS -DNCHOLMOD
     # or use 'make UMFPACK_CONFIG=-DNCHOLMOD'
 
     #---------------------------------------------------------------------------

@@ -21,7 +21,7 @@ all: static
 OBJ = SuiteSparse_config.o
 
 SuiteSparse_config.o: SuiteSparse_config.c SuiteSparse_config.h
-	$(CC) $(CFLAGS) -c SuiteSparse_config.c
+	$(CC) $(CF) -c SuiteSparse_config.c
 
 static: $(AR_TARGET)
 

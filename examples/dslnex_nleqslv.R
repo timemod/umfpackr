@@ -19,7 +19,7 @@ jacdsln <- function(x) {
 }
 
 
-xstart <- c(2,3)
+xstart <- c(2,0.5)
 ret <- nleqslv(xstart, fn = dslnex, jac = jacdsln, method = "Newton", 
-               control = list(trace = TRUE))
+               control = list(trace = TRUE), global = "cline")
 print(ret$x)

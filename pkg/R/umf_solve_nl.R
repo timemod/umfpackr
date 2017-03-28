@@ -45,28 +45,29 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list()) {
   if (control_$trace) {
     cat("\nIteration report\n");
     cat("----------------\n");
-    cat(sprintf("%5s%20s%20s%20s\n", "Iter", "inv. cond. jac.",
+    cat(sprintf("%5s%15s%20s%20s\n", "Iter", "Jac",
             "Largest |f|", "Index largest |f|"))
   }
 
   x <- start
   cond <- NA_real_
+  iter <- 0
+  while (TRUE) {
 
-  for (iter in 1:control_$maxiter) {
     f <- fn(x, ...)
     f_abs <- abs(f)
     f_max <- max(f_abs)
 
     if (is.na(f_max)) {
-      handle_na_in_fval(f)
+      handle_na_in_fval(f, iter)
       break
     }
     if (control_$trace) {
       i <- which.max(f_abs);
       if (iter > 1) {
-        cat(sprintf("%5d%20.2e%20.3e%20d\n", iter, cond, f_max, i))
+        cat(sprintf("%5d%15.2e%20.3e%20d\n", iter, cond, f_max, i))
       } else {
-        cat(sprintf("%5d%20s%20.3e%20d\n", iter, "", f_max, i))
+        cat(sprintf("%5d%15s%20.3e%20d\n", iter, "", f_max, i))
       }
     }
 
@@ -75,10 +76,15 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list()) {
       break
     }
 
-    sol <- umf_solve_(jac(x, ...), f)
+    iter <- iter + 1
+    if (iter > control_$maxiter) {
+      break
+    }
+
+    # do new newton step
+    sol <-umf_solve_(jac(x, ...), f)
     dx <- sol$x
     cond <- sol$cond
-
     x <- x - dx
   }
 
@@ -96,7 +102,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list()) {
 
 handle_na_in_fval <- function(f, iter) {
   first_na <- Position(function(x) {x}, is.na(f))
-  if (iter == 1) {
+  if (iter == 0) {
     cat(sprintf(paste("Initial value of function contains",
             "non-finite values (starting at index=%d)\n"), first_na))
   } else {

@@ -20,10 +20,7 @@ jacdsln <- function(x, c) {
 
 
 
-xstart <- c(2,3)
-
-j <- jacdsln(xstart, c = 2)
-print(j)
+xstart <- c(2,0.5)
 
 print(dslnex(xstart, c = 2))
 

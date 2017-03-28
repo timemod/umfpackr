@@ -50,4 +50,3 @@ xstart <- c(2,3)
 print(umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
                   control = list(trace = TRUE)))
 }
-

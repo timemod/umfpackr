@@ -21,6 +21,10 @@ jacdsln <- function(x, c) {
 
 
 xstart <- c(2,3)
+
+j <- jacdsln(xstart, c = 2)
+print(j)
+
 print(dslnex(xstart, c = 2))
 
 print(umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
@@ -28,6 +32,6 @@ print(umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
 quit()
 
 
-#ret <- nleqslv(xstart, fn = dslnex, jac = jacdsln, method = "Newton", 
+#ret <- nleqslv(xstart, fn = dslnex, jac = jacdsln, method = "Newton",
 #               control = list(trace = TRUE))
 #print(ret$x)

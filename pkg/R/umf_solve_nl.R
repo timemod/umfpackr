@@ -35,17 +35,73 @@
 #' @export
 umf_solve_nl <- function(start, fn, jac, ..., control = list()) {
 
-    control_ <- list(ftol = 1e-8, maxiter = 20, trace = FALSE,
-                     cndtol = 1e-12, silent = FALSE)
+  control_ <- list(ftol = 1e-8, maxiter = 20, trace = FALSE,
+                   cndtol = 1e-12, silent = FALSE)
 
-    control_[names(control)] <- control
+  control_[names(control)] <- control
 
-    fun <- function(x) {
-        return(fn(x, ...))
+  solved <- FALSE
+
+  if (control_$trace) {
+    cat("\nIteration report\n");
+    cat("----------------\n");
+    cat(sprintf("%5s%20s%20s%20s\n", "Iter", "inv. cond. jac.",
+            "Largest |f|", "Index largest |f|"))
+  }
+
+  x <- start
+  cond <- NA_real_
+
+  for (iter in 1:control_$maxiter) {
+    f <- fn(x, ...)
+    f_abs <- abs(f)
+    f_max <- max(f_abs)
+
+    if (is.na(f_max)) {
+      handle_na_in_fval(f)
+      break
     }
-    jacob <- function(x) {
-        return(jac(x, ...))
+    if (control_$trace) {
+      i <- which.max(f_abs);
+      if (iter > 1) {
+        cat(sprintf("%5d%20.2e%20.3e%20d\n", iter, cond, f_max, i))
+      } else {
+        cat(sprintf("%5d%20s%20.3e%20d\n", iter, "", f_max, i))
+      }
     }
 
-    return(umf_solve_nl_(start, fun, jacob, control_))
+    if (f_max < control_$ftol) {
+      solved <- TRUE
+      break
+    }
+
+    sol <- umf_solve_(jac(x, ...), f)
+    dx <- sol$x
+    cond <- sol$cond
+
+    x <- x - dx
+  }
+
+  if (!control_$silent) {
+    if (solved) {
+      cat(sprintf("Convergence after %d iterations\n", iter))
+    } else {
+      cat(sprintf("No convergence after %d iterations\n", iter))
+    }
+  }
+
+  return(list(solved = solved, iter = iter, x = x, fval = f))
+}
+
+
+handle_na_in_fval <- function(f, iter) {
+  first_na <- Position(function(x) {x}, is.na(f))
+  if (iter == 1) {
+    cat(sprintf(paste("Initial value of function contains",
+            "non-finite values (starting at index=%d)\n"), first_na))
+  } else {
+    cat(sprintf(paste("Function value contains",
+            "non-finite values (starting at index=%d)\n"), first_na))
+  }
+  return(invisible(NULL))
 }

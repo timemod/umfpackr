@@ -20,12 +20,14 @@ jacdsln <- function(x, c) {
 
 
 
-xstart <- c(2,0.5)
+#xstart <- c(2,0.5)
+xstart <- c(2, 0.5)
 
 print(dslnex(xstart, c = 2))
 
 print(umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
-                   control = list(trace = TRUE)))
+                   control = list(trace = TRUE, maxiter = 1),
+                   global = "cline"))
 quit()
 
 

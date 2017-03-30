@@ -2,5 +2,6 @@
 
 export(umf_solve)
 export(umf_solve_nl)
+importFrom(Matrix,t)
 importFrom(Rcpp,sourceCpp)
 useDynLib(umfpackr)

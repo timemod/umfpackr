@@ -32,8 +32,12 @@
 #'xstart <- c(2,3)
 #'print(umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
 #'                   control = list(trace = TRUE)))
+#' @importFrom Matrix t
 #' @export
-umf_solve_nl <- function(start, fn, jac, ..., control = list()) {
+umf_solve_nl <- function(start, fn, jac, ..., control = list(),
+                         global = c("no", "cline")) {
+
+  global <- match.arg(global)
 
   control_ <- list(ftol = 1e-8, maxiter = 20, trace = FALSE,
                    cndtol = 1e-12, silent = FALSE)
@@ -52,9 +56,11 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list()) {
   x <- start
   cond <- NA_real_
   iter <- 0
+
+  f <- fn(x, ...)
+
   while (TRUE) {
 
-    f <- fn(x, ...)
     f_abs <- abs(f)
     f_max <- max(f_abs)
 
@@ -62,6 +68,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list()) {
       handle_na_in_fval(f, iter)
       break
     }
+
     if (control_$trace) {
       i <- which.max(f_abs);
       if (iter > 1) {
@@ -82,10 +89,20 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list()) {
     }
 
     # do new newton step
-    sol <-umf_solve_(jac(x, ...), f)
-    dx <- sol$x
+    j <- jac(x, ...)
+    sol <-umf_solve_(j, f)
+    dx <- - sol$x
     cond <- sol$cond
-    x <- x - dx
+
+    if (global == "no") {
+      ret <- pure_newton_step(x, dx, fn, ...)
+    } else if (global == "cline") {
+      g <- t(j) %*% f
+      ret <- cublic_linesearch(x, dx, g, fn, ...)
+    }
+
+    x <- ret$x_new
+    f <- ret$f_new
   }
 
   if (!control_$silent) {

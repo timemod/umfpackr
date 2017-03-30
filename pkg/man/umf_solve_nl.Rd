@@ -4,7 +4,8 @@
 \alias{umf_solve_nl}
 \title{Solves a system of non-linear equations \eqn{F(x) = 0} using UMFPACK}
 \usage{
-umf_solve_nl(start, fn, jac, ..., control = list())
+umf_solve_nl(start, fn, jac, ..., control = list(), global = c("no",
+  "cline"))
 }
 \arguments{
 \item{start}{initial guess of the solution \eqn{x}}

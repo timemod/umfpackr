@@ -44,6 +44,13 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
 
   control_[names(control)] <- control
 
+  fun <- function(x) {
+    return(fn(x, ...))
+  }
+  jacfun <- function(x) {
+    return(jac(x, ...))
+  }
+
   solved <- FALSE
 
   if (control_$trace) {
@@ -57,28 +64,29 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
   cond <- NA_real_
   iter <- 0
 
-  f <- fn(x, ...)
+
+  Fx <- fun(x)
 
   while (TRUE) {
 
-    f_abs <- abs(f)
-    f_max <- max(f_abs)
+    Fx_abs <- abs(Fx)
+    Fx_max <- max(Fx_abs)
 
-    if (is.na(f_max)) {
-      handle_na_in_fval(f, iter)
+    if (is.na(Fx_max)) {
+      handle_na_in_fval(Fx, iter)
       break
     }
 
     if (control_$trace) {
-      i <- which.max(f_abs);
+      i <- which.max(Fx_abs);
       if (iter > 1) {
-        cat(sprintf("%5d%15.2e%20.3e%20d\n", iter, cond, f_max, i))
+        cat(sprintf("%5d%15.2e%20.3e%20d\n", iter, cond, Fx_max, i))
       } else {
-        cat(sprintf("%5d%15s%20.3e%20d\n", iter, "", f_max, i))
+        cat(sprintf("%5d%15s%20.3e%20d\n", iter, "", Fx_max, i))
       }
     }
 
-    if (f_max < control_$ftol) {
+    if (Fx_max < control_$ftol) {
       solved <- TRUE
       break
     }
@@ -89,20 +97,20 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
     }
 
     # do new newton step
-    j <- jac(x, ...)
-    sol <-umf_solve_(j, f)
+    j <- jacfun(x)
+    sol <-umf_solve_(j, Fx)
     dx <- - sol$x
     cond <- sol$cond
 
     if (global == "no") {
-      ret <- pure_newton_step(x, dx, fn, ...)
+      ret <- pure_newton_step(x, dx, fun)
     } else if (global == "cline") {
-      g <- t(j) %*% f
-      ret <- cublic_linesearch(x, dx, g, fn, ...)
+      g <- t(j) %*% Fx
+      ret <- cublic_linesearch(x, Fx, g, dx, fun, control_)
     }
 
     x <- ret$x_new
-    f <- ret$f_new
+    Fx <- ret$Fx_new
   }
 
   if (!control_$silent) {
@@ -113,7 +121,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
     }
   }
 
-  return(list(solved = solved, iter = iter, x = x, fval = f))
+  return(list(solved = solved, iter = iter, x = x, fval = Fx))
 }
 
 

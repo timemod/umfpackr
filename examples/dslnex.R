@@ -25,10 +25,10 @@ xstart <- c(2, 0.5)
 
 print(dslnex(xstart, c = 2))
 
-print(umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
-                   control = list(trace = TRUE, maxiter = 1),
-                   global = "cline"))
-quit()
+x <- umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
+                  control = list(trace = TRUE, maxiter = 10),
+                  global = "cline")
+
 
 
 #ret <- nleqslv(xstart, fn = dslnex, jac = jacdsln, method = "Newton",

@@ -54,10 +54,8 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
   solved <- FALSE
 
   if (control_$trace) {
-    cat("\nIteration report\n");
-    cat("----------------\n");
-    cat(sprintf("%5s%15s%20s%20s\n", "Iter", "Jac",
-            "Largest |f|", "Index largest |f|"))
+    cat("\nIteration report\n")
+    cat("----------------\n")
   }
 
   x <- start
@@ -77,12 +75,11 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
       break
     }
 
-    if (control_$trace) {
-      i <- which.max(Fx_abs);
-      if (iter > 1) {
-        cat(sprintf("%5d%15.2e%20.3e%20d\n", iter, cond, Fx_max, i))
-      } else {
-        cat(sprintf("%5d%15s%20.3e%20d\n", iter, "", Fx_max, i))
+    if (iter == 0 && control_$trace) {
+      if (global == "cline") {
+        report_cline(iter, cond, FALSE, 1, Fx)
+      } else if (global == "no") {
+        report_pure_newton(iter, cond, Fx)
       }
     }
 
@@ -103,13 +100,13 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
     cond <- sol$cond
 
     if (global == "no") {
-      ret <- pure_newton_step(x, dx, fun)
+      ret <- pure_newton_step(x, dx, iter, cond, fun, control_)
     } else if (global == "cline") {
       g <- t(j) %*% Fx
-      ret <- cublic_linesearch(x, Fx, g, dx, fun, control_)
+      ret <- cline(x, Fx, g, dx, iter, cond, fun, control_)
     }
 
-    x <- ret$x_new
+    x  <- ret$x_new
     Fx <- ret$Fx_new
   }
 

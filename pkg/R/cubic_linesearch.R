@@ -1,4 +1,5 @@
-cublic_linesearch <- function(x, Fx, g, dx, fun, control, ...) {
+# cubic linesearch
+cline <- function(x, Fx, g, dx, iter, cond, fun, control) {
 
   ALPHA <- 1e-4
 
@@ -18,32 +19,15 @@ cublic_linesearch <- function(x, Fx, g, dx, fun, control, ...) {
   while (TRUE) {
 
     x_new <- x + lambda * dx
-    Fx_new <- fun(x_new, ...)
+    Fx_new <- fun(x_new)
     # TODO: check NA values
     f_lambda <- get_fnorm(Fx_new)
 
-    ready <-  f_lambda <= f_0 + ALPHA * lambda * deriv
-
-    if (ready && first) {
-      # do not start line search
-      break
-   }
-
     if (control$trace) {
-      if (first) {
-        cat(sprintf(paste0("%20s", paste(rep("#", 60), collapse = ""), "\n"),
-                    ""))
-        cat(sprintf("%20s Cublic line search\n", ""))
-        cat(sprintf("%20s %15s%20s%20s\n", "", "Lambda",
-                    "Largest |f|", "Index largest |f|"))
-      }
-      Fx_abs <- abs(Fx_new)
-      Fx_max <- max(Fx_abs)
-      i_max <- which.max(Fx_abs)
-      cat(sprintf("%20s %15.2e%20.3e%20d\n", "", lambda, Fx_max, i_max))
-     }
+        report_cline(iter, cond, first, lambda, Fx_new)
+    }
 
-    if (ready) {
+    if (f_lambda <= f_0 + ALPHA * lambda * deriv) {
       # satisfactory x found
       break;
     } else if (lambda < LAMBDA_MIN)
@@ -84,10 +68,25 @@ cublic_linesearch <- function(x, Fx, g, dx, fun, control, ...) {
     lambda <- max(lambda_new, lambda / 10)
   }
 
-  if (linesearch && control$trace) {
-    cat(sprintf(paste0("%20s", paste(rep("#", 60), collapse = ""), "\n"),
-        ""))
+  return(list(x_new = x_new, Fx_new = Fx_new))
+}
+
+# print an iteration report for the cubic line search
+report_cline <- function(iter, cond, jac, lambda, Fx) {
+
+  if (iter == 0) {
+    cat(sprintf("%5s%15s%15s%20s%20s\n", "Iter", "Jac", "Lambda", "Largest |f|",
+                "Index largest |f|"))
   }
 
-  return(list(x_new = x_new, Fx_new = Fx_new))
+  Fx_abs <- abs(Fx)
+  Fx_max <- max(Fx_abs)
+  i_max  <- which.max(Fx_abs)
+
+  if (jac) {
+    cat(sprintf("%5d%15.2e%15.2e%20.3e%20d\n", iter, cond, lambda, Fx_max,
+                i_max))
+  } else {
+    cat(sprintf("%5d%15s%15.2e%20.3e%20d\n", iter, "", lambda, Fx_max, i_max))
+  }
 }

@@ -18,6 +18,8 @@ as a \code{dgCMatrix} object}
 \item{...}{arguments passed to \code{fn} and \code{jac}}
 
 \item{control}{a list with control parameters}
+
+\item{global}{The global strategy.}
 }
 \value{
 a list with information about the solution

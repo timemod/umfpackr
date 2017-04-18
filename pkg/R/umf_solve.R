@@ -1,6 +1,7 @@
 #' Solves the system of linear equations \eqn{A x = b} using UMFPACK
 #'
-#' @param a a \code{\link[Matrix]{dgCMatrix}} 
+#' @param a an object of class  \code{dgCMatrix}
+#' (see \code{\link[Matrix]{dgCMatrix-class}})
 #' @param b the vector \eqn{b}
 #' @return the solution \eqn{x}
 #' @export

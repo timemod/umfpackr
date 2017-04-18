@@ -6,6 +6,7 @@
 #' as a \code{dgCMatrix} object
 #' @param ... arguments passed to \code{fn} and \code{jac}
 #' @param control a list with control parameters
+#' @param global The global strategy.
 #' @return a list with information about the solution
 #' @examples
 #'library(umfpackr)
@@ -39,8 +40,8 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
 
   global <- match.arg(global)
 
-  control_ <- list(ftol = 1e-8, maxiter = 20, trace = FALSE,
-                   cndtol = 1e-12, silent = FALSE)
+  control_ <- list(ftol = 1e-8, xtol = 1e-8, maxiter = 20,
+                   trace = FALSE, cndtol = 1e-12, silent = FALSE)
 
   control_[names(control)] <- control
 
@@ -88,6 +89,11 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
       break
     }
 
+    if (iter > 0 && get_step_crit(dx, x) < control_$xtol) {
+        solved <- TRUE
+        break
+    }
+
     iter <- iter + 1
     if (iter > control_$maxiter) {
       break
@@ -106,6 +112,12 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
       ret <- cline(x, Fx, g, dx, iter, cond, fun, control_)
     }
 
+    if (is.null(ret)) {
+      cat(sprintf("No better point found\n", iter))
+      break
+    }
+
+    dx <- x - ret$x_new
     x  <- ret$x_new
     Fx <- ret$Fx_new
   }

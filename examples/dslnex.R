@@ -24,7 +24,7 @@ xstart <- c(2, 0.5)
 print(dslnex(xstart, c = 2))
 
 x <- umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
-                  control = list(trace = FALSE, maxiter = 10),
+                  control = list(trace = TRUE, maxiter = 10, xtol = 1e-8),
                   global = "cline")
 
 #ret <- nleqslv(xstart, fn = dslnex, jac = jacdsln, method = "Newton",

@@ -7,7 +7,8 @@
 umf_solve(a, b)
 }
 \arguments{
-\item{a}{a \code{\link[Matrix]{dgCMatrix}}}
+\item{a}{an object of class  \code{dgCMatrix}
+(see \code{\link[Matrix]{dgCMatrix-class}})}
 
 \item{b}{the vector \eqn{b}}
 }

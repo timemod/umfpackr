@@ -2,10 +2,7 @@
 cline <- function(x, Fx, g, dx, iter, cond, fun, control) {
 
   ALPHA <- 1e-4
-
-  # TODO: compute LAMBDA_MIN as suggested by Dennis and Schnabel,
-  # then we also need an xtol
-  LAMBDA_MIN <- 1e-8
+  LAMBDA_MIN <- control$xtol / get_step_crit(dx, x)
 
   deriv <- as.numeric(t(g) %*% dx)
 
@@ -20,7 +17,7 @@ cline <- function(x, Fx, g, dx, iter, cond, fun, control) {
 
     x_new <- x + lambda * dx
     Fx_new <- fun(x_new)
-    # TODO: check NA values
+    # TODO: what about NA function values
     f_lambda <- get_fnorm(Fx_new)
 
     if (control$trace) {

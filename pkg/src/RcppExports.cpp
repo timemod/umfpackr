@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // umf_solve_
 List umf_solve_(S4 a, NumericVector b);
-RcppExport SEXP umfpackr_umf_solve_(SEXP aSEXP, SEXP bSEXP) {
+RcppExport SEXP _umfpackr_umf_solve_(SEXP aSEXP, SEXP bSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -16,4 +16,14 @@ BEGIN_RCPP
     rcpp_result_gen = Rcpp::wrap(umf_solve_(a, b));
     return rcpp_result_gen;
 END_RCPP
+}
+
+static const R_CallMethodDef CallEntries[] = {
+    {"_umfpackr_umf_solve_", (DL_FUNC) &_umfpackr_umf_solve_, 2},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_umfpackr(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
 }

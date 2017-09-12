@@ -104,6 +104,12 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
     sol <-umf_solve_(j, Fx)
     dx <- - sol$x
     cond <- sol$cond
+  
+    if (cond < .Machine$double.eps) {
+      cat(sprintf(paste("The Jacobian is (nearly) singular.",
+                        "The inverse condition is %g.\n"), cond))
+      break
+    }
 
     if (global == "no") {
       ret <- pure_newton_step(x, dx, iter, cond, fun, control_)

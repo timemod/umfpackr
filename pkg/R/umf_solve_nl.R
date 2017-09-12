@@ -34,6 +34,8 @@
 #'print(umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
 #'                   control = list(trace = TRUE)))
 #' @importFrom Matrix t
+#' @importFrom Matrix norm
+#' @importFrom Matrix Diagonal
 #' @export
 umf_solve_nl <- function(start, fn, jac, ..., control = list(),
                          global = c("no", "cline")) {
@@ -41,7 +43,8 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
   global <- match.arg(global)
 
   control_ <- list(ftol = 1e-8, xtol = 1e-8, maxiter = 20,
-                   trace = FALSE, cndtol = 1e-12, silent = FALSE)
+                   allow_singular = FALSE, trace = FALSE, cndtol = 1e-12,
+                   silent = FALSE)
 
   control_[names(control)] <- control
 
@@ -101,14 +104,30 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
 
     # do new newton step
     j <- jacfun(x)
-    sol <-umf_solve_(j, Fx)
+    sol <- umf_solve_(j, Fx)
     dx <- - sol$x
     cond <- sol$cond
-  
     if (cond < .Machine$double.eps) {
-      cat(sprintf(paste("The Jacobian is (nearly) singular.",
-                        "The inverse condition is %g.\n"), cond))
-      break
+      if (!control_$allow_singular) {
+        cat(sprintf(paste("The Jacobian is (nearly) singular.",
+                          "The inverse condition is %g.\n"), cond))
+        break
+      }
+      # Use a small perturbation of the Jacobian, See Dennis and Schnabel (1996)
+      # on page 151
+      n <- length(x)
+      h <- t(j) %*% j
+      mu <- sqrt(n * .Machine$double.eps * norm(h, type = "1"))
+      h <- h + mu * Diagonal(n)
+      b <- as.numeric(t(j) %*% Fx)
+      sol <- umf_solve_(h, b)
+      if (sol$cond < .Machine$double.eps) {
+        # this situation should theoretically not happen
+        cat(sprintf(paste("The perturbed Jacobian is still (nearly) singular.",
+                          "The inverse condition is %g.\n"), sol$cond))
+        break
+      }
+      dx <- - sol$x
     }
 
     if (global == "no") {

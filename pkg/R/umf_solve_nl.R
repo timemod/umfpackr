@@ -42,6 +42,8 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
 
   global <- match.arg(global)
 
+  message <- "???"
+
   control_ <- list(ftol = 1e-8, xtol = 1e-8, maxiter = 20,
                    allow_singular = FALSE, trace = FALSE, cndtol = 1e-12,
                    silent = FALSE)
@@ -109,8 +111,8 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
     cond <- sol$cond
     if (cond < .Machine$double.eps) {
       if (!control_$allow_singular) {
-        cat(sprintf(paste("The Jacobian is (nearly) singular.",
-                          "The inverse condition is %g.\n"), cond))
+        message <- sprintf(paste("The Jacobian is (nearly) singular.",
+                          "The inverse condition is %g.\n"), cond)
         break
       }
       # Use a small perturbation of the Jacobian, See Dennis and Schnabel (1996)
@@ -123,8 +125,9 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
       sol <- umf_solve_(h, b)
       if (sol$cond < .Machine$double.eps) {
         # this situation should theoretically not happen
-        cat(sprintf(paste("The perturbed Jacobian is still (nearly) singular.",
-                          "The inverse condition is %g.\n"), sol$cond))
+        message <- sprintf(
+              paste("The perturbed Jacobian is still (nearly) singular.",
+                    "The inverse condition is %g.\n"), sol$cond)
         break
       }
       dx <- - sol$x
@@ -138,7 +141,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
     }
 
     if (is.null(ret)) {
-      cat(sprintf("No better point found\n", iter))
+      message <- sprintf("No better point found at iter\n", iter)
       break
     }
 
@@ -147,6 +150,9 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
     Fx <- ret$Fx_new
   }
 
+  if (solved) {
+    message <- "ok"
+  }
   if (!control_$silent) {
     if (solved) {
       cat(sprintf("Convergence after %d iterations\n", iter))
@@ -155,7 +161,8 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
     }
   }
 
-  return(list(solved = solved, iter = iter, x = x, fval = Fx))
+  return(list(solved = solved, iter = iter, x = x, fval = Fx,
+              message = message))
 }
 
 

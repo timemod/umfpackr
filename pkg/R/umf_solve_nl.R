@@ -77,7 +77,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
     Fx_max <- max(Fx_abs)
 
     if (is.na(Fx_max)) {
-      handle_na_in_fval(Fx, iter)
+      message <- handle_na_in_fval(Fx, iter)
       break
     }
 
@@ -101,6 +101,8 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
 
     iter <- iter + 1
     if (iter > control_$maxiter) {
+      message <- sprintf(paste("The maximum number of iterations (%d) has been",
+                                "reached"), control_$maxiter)
       break
     }
 
@@ -169,11 +171,10 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
 handle_na_in_fval <- function(f, iter) {
   first_na <- Position(function(x) {x}, is.na(f))
   if (iter == 0) {
-    cat(sprintf(paste("Initial value of function contains",
+    return(sprintf(paste("Initial value of function contains",
             "non-finite values (starting at index=%d)\n"), first_na))
   } else {
-    cat(sprintf(paste("Function value contains",
+    return(sprintf(paste("Function value contains",
             "non-finite values (starting at index=%d)\n"), first_na))
   }
-  return(invisible(NULL))
 }

@@ -17,14 +17,15 @@ cline <- function(x, Fx, g, dx, iter, cond, fun, control) {
 
     x_new <- x + lambda * dx
     Fx_new <- fun(x_new)
-    # TODO: what about NA function values
     f_lambda <- get_fnorm(Fx_new)
 
     if (control$trace) {
         report_cline(iter, cond, first, lambda, Fx_new)
     }
 
-    if (f_lambda <= f_0 + ALPHA * lambda * deriv) {
+    if (is.na(f_lambda)) {
+      lambda_new <- lambda / 2
+    } else if (f_lambda <= f_0 + ALPHA * lambda * deriv) {
       # satisfactory x found
       break;
     } else if (lambda < LAMBDA_MIN)

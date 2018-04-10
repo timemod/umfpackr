@@ -32,6 +32,8 @@ test_that("result of umf_solve is correct", {
   expect_true(sum(abs(ret$fval)) < 1e-8)
 })
 
+
+
 test_that("result of umf_solve with cublic line search is correct", {
   xstart <- c(2, 0.5)
   ret <- umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
@@ -41,3 +43,14 @@ test_that("result of umf_solve with cublic line search is correct", {
   expect_equal(ret$x, c(1, 1))
   expect_true(sum(abs(ret$fval)) < 1e-8)
 })
+
+test_that("result of umf_solve without cublic line search is correct", {
+  xstart <- c(2, 0.5)
+  ret <- umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
+                      control = list(trace = FALSE, silent = TRUE),
+                      global = "no")
+  expect_false(ret$solved)
+})
+
+
+

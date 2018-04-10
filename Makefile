@@ -119,7 +119,7 @@ bin: install_deps
 
 document: install_deps
 	-@rm -f $(PKGDIR).pdf
-	R -e "roxygen2::update_collate('"$(PKGDIR)"'); devtools::document('"$(PKGDIR)"')"
+	R -e "devtools::document('"$(PKGDIR)"')"
 	R CMD Rd2pdf --batch $(PKGDIR) 2>$(PKGDIR).log
 
 install: install_deps

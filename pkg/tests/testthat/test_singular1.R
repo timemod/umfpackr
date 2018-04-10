@@ -13,6 +13,8 @@ library(Matrix)
 
 context("Test option allow_singular for umfpack_solve_nl")
 
+rm(list = ls())
+
 f <- function(X, a, b, c1, c2, c3) {
   Y <- numeric(3)
   x <- X[1]

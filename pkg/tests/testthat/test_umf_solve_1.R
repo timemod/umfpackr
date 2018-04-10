@@ -1,6 +1,8 @@
 library(umfpackr)
 library(testthat)
 
+rm(list = ls())
+
 context("Test umf_solve with simple matrix")
 
 # create a sparse matrix
@@ -11,5 +13,5 @@ b  <- c(8, 45, -3, 3, 19)
 a  <- sparseMatrix(i = ai, p = ap,  x = ax,  dims = c(5, 5))
 
 test_that("result of umf_solve is correct", {
-    expect_equal(umf_solve(a, b), 1:5)
+  expect_equal(umf_solve(a, b), 1:5)
 })

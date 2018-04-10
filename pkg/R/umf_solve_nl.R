@@ -6,7 +6,8 @@
 #' as a \code{dgCMatrix} object
 #' @param ... arguments passed to \code{fn} and \code{jac}
 #' @param control a list with control parameters
-#' @param global The global strategy. Default is \code{"cline"}
+#' @param global The global strategy. Possible values are \code{"no"}
+#' (no global strategy, the default) and \code{"cline"} (cubic line search)
 #' (cubic line search)
 #' @return a list with information about the solution
 #' @examples
@@ -39,7 +40,7 @@
 #' @importFrom Matrix Diagonal
 #' @export
 umf_solve_nl <- function(start, fn, jac, ..., control = list(),
-                         global = c("cline", "no")) {
+                         global = c("no", "cline")) {
 
   global <- match.arg(global)
 

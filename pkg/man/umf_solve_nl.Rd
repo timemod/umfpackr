@@ -4,8 +4,8 @@
 \alias{umf_solve_nl}
 \title{Solves a system of non-linear equations \eqn{F(x) = 0} using UMFPACK}
 \usage{
-umf_solve_nl(start, fn, jac, ..., control = list(), global = c("cline",
-  "no"))
+umf_solve_nl(start, fn, jac, ..., control = list(), global = c("no",
+  "cline"))
 }
 \arguments{
 \item{start}{initial guess of the solution \eqn{x}}
@@ -19,7 +19,8 @@ as a \code{dgCMatrix} object}
 
 \item{control}{a list with control parameters}
 
-\item{global}{The global strategy. Default is \code{"cline"}
+\item{global}{The global strategy. Possible values are \code{"no"}
+(no global strategy, the default) and \code{"cline"} (cubic line search)
 (cubic line search)}
 }
 \value{

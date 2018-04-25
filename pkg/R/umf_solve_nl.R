@@ -78,8 +78,8 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
     Fx_abs <- abs(Fx)
     Fx_max <- max(Fx_abs)
 
-    if (is.na(Fx_max)) {
-      message <- handle_na_in_fval(Fx, iter)
+    if (!is.finite(Fx_max)) {
+      message <- handle_not_finite_fval(Fx, iter)
       break
     }
 
@@ -170,8 +170,8 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
 }
 
 
-handle_na_in_fval <- function(f, iter) {
-  first_na <- Position(function(x) {x}, is.na(f))
+handle_not_finite_fval <- function(f, iter) {
+  first_na <- Position(function(x) {x}, !is.finite(f))
   if (iter == 0) {
     return(sprintf(paste("Initial value of function contains",
             "non-finite values (starting at index=%d)\n"), first_na))

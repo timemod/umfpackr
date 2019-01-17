@@ -101,12 +101,14 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
         break
     }
 
-    iter <- iter + 1
-    if (iter > control_$maxiter) {
+    if (iter >= control_$maxiter) {
       message <- sprintf(paste("The maximum number of iterations (%d) has been",
-                                "reached"), control_$maxiter)
+                               "reached"), control_$maxiter)
       break
     }
+
+    iter <- iter + 1
+
 
     # do new newton step
     j <- jacfun(x)

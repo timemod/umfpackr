@@ -11,4 +11,4 @@ tmp/
 .Rd2pdf*
 *.o
 *.a
-
+archive

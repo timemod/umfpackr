@@ -147,7 +147,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
     }
 
     if (is.null(ret)) {
-      message <- sprintf("No better point found at iter\n", iter)
+      message <- sprintf("No better point found at iter %d\n", iter)
       break
     }
 

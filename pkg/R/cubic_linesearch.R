@@ -46,6 +46,13 @@ cline <- function(x, Fx, g, dx, iter, cond, fun, control) {
         b <- b / (lambda - lambda_prev)
         # TODO: check situation a approx. 0
 
+        if (is.na(a)) {
+          # no satisfactory x_new can be found sufficiently distinct from x
+          # TODO: what is going on here
+          return(NULL)
+
+        }
+
         disc <- b^2 - 3 * a * deriv
         t1 <- -(b + sign(b) * sqrt(disc)) / (3 * a)
         t2 <- deriv / (3 * a) / t1

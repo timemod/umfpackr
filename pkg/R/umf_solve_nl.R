@@ -126,8 +126,9 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
     }
     if (cond < control_$cndtol) {
       if (!control_$allow_singular) {
-        message <- sprintf(paste("The Jacobian is (nearly) singular.",
-                          "The inverse condition is %g.\n"), cond)
+        message <- sprintf(paste("The Jacobian is (nearly) singular at",
+                          "iteration %d.",
+                          "The inverse condition is %g.\n"), iter, cond)
         break
       }
       # Use a small perturbation of the Jacobian, See Dennis and Schnabel (1996)
@@ -172,7 +173,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
     if (solved) {
       cat(sprintf("Convergence after %d iterations\n", iter))
     } else {
-      cat(sprintf("No convergence after %d iterations\n", iter))
+      cat(message)
     }
   }
 

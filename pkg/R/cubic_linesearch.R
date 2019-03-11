@@ -11,7 +11,6 @@ cline <- function(x, Fx, g, dx, iter, cond, fun, control) {
 
   f_0 <- get_fnorm(Fx)
   first <- TRUE
-  linesearch <- FALSE
 
   while (TRUE) {
 
@@ -23,35 +22,32 @@ cline <- function(x, Fx, g, dx, iter, cond, fun, control) {
         report_cline(iter, cond, first, lambda, Fx_new)
     }
 
-    if (is.na(f_lambda)) {
+    f_lambda_na <- is.na(f_lambda)
+
+    if (f_lambda_na) {
       lambda_new <- lambda / 2
+      first <- FALSE
     } else if (f_lambda <= f_0 + ALPHA * lambda * deriv) {
       # satisfactory x found
-      break;
-    } else if (lambda < LAMBDA_MIN) {
+      break
+    } else if (lambda <= LAMBDA_MIN) {
       # no satisfactory x_new can be found sufficiently distinct from x
       return(NULL)
     } else {
-      linesearch <- TRUE
-      if (first) {
+      if (first || f_lambda_prev_na) {
         # first is quadratic
         lambda_new <- - deriv / (2 * (f_lambda - f_0 - deriv))
+        if (!first) lambda_new <- min(lambda_new, lambda / 2)
         first <- FALSE
       } else {
         fac      <- f_lambda       - f_0 - lambda * deriv
         fac_prev <- f_lambda_prev  - f_0 - lambda_prev * deriv
         a <- fac / lambda^2 - fac_prev / lambda_prev^2
+
         b <- -lambda_prev * fac / lambda^2 + lambda * fac_prev / lambda_prev^2
         a <- a / (lambda - lambda_prev)
         b <- b / (lambda - lambda_prev)
         # TODO: check situation a approx. 0
-
-        if (is.na(a)) {
-          # no satisfactory x_new can be found sufficiently distinct from x
-          # TODO: what is going on here
-          return(NULL)
-
-        }
 
         disc <- b^2 - 3 * a * deriv
         t1 <- -(b + sign(b) * sqrt(disc)) / (3 * a)
@@ -69,6 +65,7 @@ cline <- function(x, Fx, g, dx, iter, cond, fun, control) {
 
     lambda_prev   <- lambda
     f_lambda_prev <- f_lambda
+    f_lambda_prev_na <- f_lambda_na
 
     lambda <- max(lambda_new, lambda / 10)
   }

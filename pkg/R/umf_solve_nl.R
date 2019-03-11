@@ -38,6 +38,7 @@
 #' @importFrom Matrix t
 #' @importFrom Matrix norm
 #' @importFrom Matrix Diagonal
+#' @importFrom Matrix condest
 #' @export
 umf_solve_nl <- function(start, fn, jac, ..., control = list(),
                          global = c("no", "cline")) {
@@ -48,9 +49,11 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
 
   control_ <- list(ftol = 1e-8, xtol = 1e-8, maxiter = 20,
                    allow_singular = FALSE, trace = FALSE, cndtol = 1e-12,
-                   silent = FALSE)
+                   acc_cnd = FALSE, silent = FALSE)
 
   control_[names(control)] <- control
+
+  control_$cndtol <- max(control_$cndtol, .Machine$double.eps)
 
   fun <- function(x) {
     return(fn(x, ...))
@@ -114,8 +117,14 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
     j <- jacfun(x)
     sol <- umf_solve_(j, Fx)
     dx <- - sol$x
-    cond <- sol$cond
-    if (cond < .Machine$double.eps) {
+    if (control_$acc_cnd) {
+      # estimate the condition number using the Matrix package
+      cond <- 1 / condest(j)$est
+    } else {
+      # use a rough estimate of the condition number of UMFPACK.
+      cond <- sol$cond
+    }
+    if (cond < control_$cndtol) {
       if (!control_$allow_singular) {
         message <- sprintf(paste("The Jacobian is (nearly) singular.",
                           "The inverse condition is %g.\n"), cond)

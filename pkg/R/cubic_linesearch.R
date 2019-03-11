@@ -28,10 +28,10 @@ cline <- function(x, Fx, g, dx, iter, cond, fun, control) {
     } else if (f_lambda <= f_0 + ALPHA * lambda * deriv) {
       # satisfactory x found
       break;
-    } else if (lambda < LAMBDA_MIN)
+    } else if (lambda < LAMBDA_MIN) {
       # no satisfactory x_new can be found sufficiently distinct from x
       return(NULL)
-    else {
+    } else {
       linesearch <- TRUE
       if (first) {
         # first is quadratic

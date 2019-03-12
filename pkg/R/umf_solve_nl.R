@@ -115,15 +115,20 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
 
     # do new newton step
     j <- jacfun(x)
-    sol <- umf_solve_(j, Fx)
-    dx <- - sol$x
+
     if (control_$acc_cnd) {
-      # estimate the condition number using the Matrix package
+      # Estimate the condition number using the Matrix package
+      # This may cost considerable CPU time.
       cond <- 1 / condest(j)$est
     } else {
+      # call umf_solve_ first to obtain a rough estimate of the condition number.
+      # actually, cond < cndtol, we do not accept the solution anyway so we
+      # could skip solving the model.
+      sol <- umf_solve_(j, Fx, control_$cndtol)
       # use a rough estimate of the condition number of UMFPACK.
       cond <- sol$cond
     }
+
     if (cond < control_$cndtol) {
       if (!control_$allow_singular) {
         message <- sprintf(paste("The Jacobian is (nearly) singular at",
@@ -135,10 +140,10 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
       # on page 151
       n <- length(x)
       h <- t(j) %*% j
-      mu <- sqrt(n * .Machine$double.eps * norm(h, type = "1"))
+      mu <- sqrt(n * .Machine$double.eps) * norm(h, type = "1")
       h <- h + mu * Diagonal(n)
       b <- as.numeric(t(j) %*% Fx)
-      sol <- umf_solve_(h, b)
+      sol <- umf_solve_(h, b, 0)
       if (sol$cond < .Machine$double.eps) {
         # this situation should theoretically not happen
         message <- sprintf(
@@ -146,8 +151,13 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
                     "The inverse condition is %g.\n"), sol$cond)
         break
       }
-      dx <- - sol$x
+
+    } else {
+      # for acc_cnd, wew still need to solve
+      sol <- umf_solve_(j, Fx, 0)
     }
+
+    dx <- - sol$x
 
     if (global == "no") {
       ret <- pure_newton_step(x, dx, iter, cond, fun, control_)

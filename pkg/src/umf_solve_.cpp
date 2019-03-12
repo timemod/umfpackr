@@ -7,8 +7,17 @@ using namespace Rcpp;
 #include <time.h>
 #endif
 
+/*
+ * This function solves x in the linear equation a  x = b
+ * INPUT:
+ * a        a sparse Matrix (a dgCMatrix object)
+ * b        the right hand side of the equation.
+ * cndtol   condition tolerance: if the rough estimate of the condition 
+ *          is smaller than cndtol, then we wil not solve.
+ */
+
 // [[Rcpp::export]]
-List umf_solve_(S4 a, NumericVector b) {
+List umf_solve_(S4 a, NumericVector b, const double cndtol) {
 
     IntegerVector dims = a.slot("Dim");
     IntegerVector Ap = a.slot("p");
@@ -24,6 +33,7 @@ List umf_solve_(S4 a, NumericVector b) {
     double info[UMFPACK_INFO];
 
 //  LU factorisation
+
 #ifdef TIMER
     clock_t begin, end;
     begin = clock();
@@ -40,11 +50,14 @@ List umf_solve_(S4 a, NumericVector b) {
 #endif
 
 // solving
+//
 #ifdef TIMER
     begin = clock();
 #endif
-    (void) umfpack_di_solve (UMFPACK_A, INTEGER(Ap), INTEGER(Ai), REAL(Ax), 
-            REAL(x), REAL(b), Numeric, null, null) ;
+    if (cond >= cndtol) {
+        (void) umfpack_di_solve (UMFPACK_A, INTEGER(Ap), INTEGER(Ai), REAL(Ax), 
+                                 REAL(x), REAL(b), Numeric, null, null) ;
+    }
     umfpack_di_free_numeric (&Numeric) ;
 #ifdef TIMER
     end = clock();
@@ -52,6 +65,9 @@ List umf_solve_(S4 a, NumericVector b) {
             double(end - begin) / CLOCKS_PER_SEC);
 #endif
 
-    return List::create(Named("x")    = x,
-                        Named("cond") = cond);
+    if (cond >= cndtol) {
+        return List::create(Named("x")    = x, Named("cond") = cond);
+    } else {
+        return List::create(Named("cond") = cond);
+    }
 }

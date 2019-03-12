@@ -6,20 +6,21 @@
 using namespace Rcpp;
 
 // umf_solve_
-List umf_solve_(S4 a, NumericVector b);
-RcppExport SEXP _umfpackr_umf_solve_(SEXP aSEXP, SEXP bSEXP) {
+List umf_solve_(S4 a, NumericVector b, const double cndtol);
+RcppExport SEXP _umfpackr_umf_solve_(SEXP aSEXP, SEXP bSEXP, SEXP cndtolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< S4 >::type a(aSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type b(bSEXP);
-    rcpp_result_gen = Rcpp::wrap(umf_solve_(a, b));
+    Rcpp::traits::input_parameter< const double >::type cndtol(cndtolSEXP);
+    rcpp_result_gen = Rcpp::wrap(umf_solve_(a, b, cndtol));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_umfpackr_umf_solve_", (DL_FUNC) &_umfpackr_umf_solve_, 2},
+    {"_umfpackr_umf_solve_", (DL_FUNC) &_umfpackr_umf_solve_, 3},
     {NULL, NULL, 0}
 };
 

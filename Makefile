@@ -5,11 +5,6 @@
 PKGDIR=pkg
 INSTALL_FLAGS=--no-multiarch --with-keep.source
 RCHECKARG=--no-multiarch
-R_HOME=$(shell R RHOME)
-PKG_CXXFLAGS = `"$(R_HOME)/bin/Rscript" -e "Rcpp:::CxxFlags()"` \
-	       -I pkg/src/SuiteSparse_config -I pkg/src/UMFPACK/Include -I pkg/src/AMD/Include
-
-
 
 # Package name, Version and date from DESCIPTION
 PKG=$(shell grep 'Package:' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2)
@@ -17,13 +12,11 @@ PKGTAR=$(PKG)_$(shell grep 'Version' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2).t
 PKGDATE=$(shell grep 'Date' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2)
 TODAY=$(shell date "+%Y-%m-%d")
 
-OSNAME := $(shell uname | tr A-Z a-z)
-ifeq ($(findstring windows, $(OSNAME)), windows)
-    OSTYPE = windows
-else
-    # Linux or MAC OSX
-    OSTYPE = unix
-endif
+OSTYPE=$(shell Rscript -e "cat(.Platform[['OS.type']])")
+RCPP_CXXFLAGS = $(shell Rscript -e "Rcpp:::CxxFlags()")
+
+PKG_CXXFLAGS = $(RCPP_CXXFLAGS) -I pkg/src/SuiteSparse_config \
+	       -I pkg/src/UMFPACK/Include -I pkg/src/AMD/Include
 
 help:
 	@echo
@@ -50,20 +43,18 @@ CXX=$(shell R CMD config CXX)
 CPP_FLAGS=$(shell R CMD config --cppflags)
 
 flags:
-	@echo "R_HOME=$(R_HOME)"
 	@echo "OSTYPE=$(OSTYPE)"
-	@echo "SHELL=$(SHELL)"
 	@echo "CPP_FLAGS=$(CPP_FLAGS)"
+	@echo "RCPP_CXXFLAGS=$(RCPP_CXXFLAGS)"
 	@echo "PKG_CXXFLAGS=$(PKG_CXXFLAGS)"
 	@echo "PKGDIR=$(PKGDIR)"
 	@echo "PKG=$(PKG)"
 	@echo "PKGTAR=$(PKGTAR)"
 	@echo "PKGDATE=$(PKGDATE)"
-	@echo "FC=$(FC)"
-	@echo "F77=$(F77)"
 	@echo "CC=$(CC)"
 	@echo "CPP=$(CPP)"
 	@echo "CPP_FLAGS=$(CPP_FLAGS)"
+	@echo ".libPaths():"
 	@R --no-save --quiet --slave -e '.libPaths()'
 
 test:
@@ -83,14 +74,7 @@ check: cleanx syntax
 	@echo ""
 
 syntax:
-ifneq ($(findstring windows, $(OSNAME)), windows)
-	$(CXX) "$(CPP_FLAGS)" $(PKG_CXXFLAGS) -c -fsyntax-only -Wall -pedantic $(PKGDIR)/src/*.c*
-else
-        # On Windows, the compiler complains about misssig Rcpp.h.
-        # I have no idea why (the path to the Rcpp headers is added, see PKG_CXXFLAGS).
-        # It appears to have something to do with the make system of Rtools.
-	@echo syntax checking does not work yet on Windows
-endif
+	$(CXX) $(CPP_FLAGS) $(PKG_CXXFLAGS) -c -fsyntax-only -Wall -pedantic $(PKGDIR)/src/*.c*
 
 cleanx:
 ifneq ($(findstring windows, $(OSNAME)), windows)

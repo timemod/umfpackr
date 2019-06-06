@@ -55,6 +55,8 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
 
   control_$cndtol <- max(control_$cndtol, .Machine$double.eps)
 
+  if (control_$silent) control_$trace <- FALSE
+
   fun <- function(x) {
     return(fn(x, ...))
   }
@@ -100,7 +102,9 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
     }
 
     if (iter > 0 && get_step_crit(dx, x) < control_$xtol) {
-        solved <- TRUE
+        solved <- FALSE
+        message <- sprintf("Relative step size smaller than xtol (%g)\n",
+                           control_$xtol)
         break
     }
 
@@ -129,7 +133,9 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
       cond <- sol$cond
     }
 
+
     if (cond < control_$cndtol) {
+
       if (!control_$allow_singular) {
         message <- sprintf(paste("The Jacobian is (nearly) singular at",
                           "iteration %d.",
@@ -144,6 +150,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
       h <- h + mu * Diagonal(n)
       b <- as.numeric(t(j) %*% Fx)
       sol <- umf_solve_(h, b, 0)
+
       if (sol$cond < .Machine$double.eps) {
         # this situation should theoretically not happen
         message <- sprintf(
@@ -179,6 +186,9 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
   if (solved) {
     message <- "ok"
   }
+
+
+
   if (!control_$silent) {
     if (solved) {
       cat(sprintf("Convergence after %d iterations\n", iter))
@@ -199,6 +209,7 @@ handle_not_finite_fval <- function(f, iter) {
             "non-finite values (starting at index=%d)\n"), first_na))
   } else {
     return(sprintf(paste("Function value contains",
-            "non-finite values (starting at index=%d)\n"), first_na))
+            "non-finite values (starting at index=%d) at iteration %d\n"),
+            first_na, iter))
   }
 }

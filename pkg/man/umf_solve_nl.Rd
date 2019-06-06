@@ -17,17 +17,60 @@ as a \code{dgCMatrix} object}
 
 \item{...}{arguments passed to \code{fn} and \code{jac}}
 
-\item{control}{a list with control parameters}
+\item{control}{a list with control parameters. See Details.}
 
 \item{global}{The global strategy. Possible values are \code{"no"}
 (no global strategy, the default) and \code{"cline"} (cubic line search)
 (cubic line search)}
 }
 \value{
-a list with information about the solution
+a list with the following components:
+\item{\code{solved}}{A logical equal to \code{TRUE} if convergence
+of the function values has been achieved.}
+\item{\code{iter}}{the number of iterations}
+\item{\code{x}}{the final values of \eqn{x}}
+\item{\code{fval}}{the function value }
+\item{\code{message}}{A string equal to \code{"ok"} if a solution
+has been found. Otherwise it describes the reason why the iteration
+was stopped without sucess}
 }
 \description{
 Solves a system of non-linear equations \eqn{F(x) = 0} using UMFPACK
+}
+\details{
+\subsection{Control options}{
+Argument \code{control} is a named list containing one or more of
+the following components:
+\describe{
+\item{\code{ftol}}{The function value tolerance. Convergence is reached
+if the largest function value is smaller than \code{ftol}. The default
+value is \code{1e-8}.}
+\item{\code{xtol}}{The relative step size tolerance. When the relative
+step size is smaller than \code{xtol}, then the iteration is stopped.
+The default value is \code{1e-8}.}
+\item{\code{maxiter}}{The maximum number of iterations. The default is 20.}
+\item{\code{trace}}{A logical. If \code{TRUE}  then the progress of the
+iteraton is printed. The default is \code{FALSE}.}
+\item{\code{silent}}{A logical. If \code{TRUE}  then all output is suppressed.
+The default is \code{FALSE}.}
+\item{\code{cndtol}}{The tolerance of the test for ill conditioning of the
+Jacobian. If less than the machine precision it will be silently set to
+the machine precision. When the estimated inverse condition of the
+Jacobian matrix is less than or equal to the value of \code{cndtol}
+then the iteration is stopped if the \code{allow_singular} option is set
+to \code{FALSE}. The default value is 1e-12.}
+ \item{\code{allow_singular}}{A logical value (default \code{FALSE})
+ indicating if a small
+ correction to the Jacobian is applied when it is singular or too ill-conditioned.
+ The method used is similar to a Levenberg-Marquardt correction
+ and is explained in Dennis and Schnabel (1996) on page 151.
+ The correction is only applied if the estimated inverse condition
+ of the Jacobian is smaller than \code{cndtol}.}
+ \item{\code{acc_cnd}}{A logical (default \code{FALSE}) indicating if the
+ inverse condition is estimated accurately or approximately. For large
+ matrices an accurate calculation can require a lot of time.}
+}
+}
 }
 \examples{
 library(umfpackr)

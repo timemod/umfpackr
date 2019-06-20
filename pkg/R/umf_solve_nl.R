@@ -153,7 +153,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
 
     if (iter >= control_$maxiter) {
       message <- sprintf(paste("The maximum number of iterations (%d) has been",
-                               "reached"), control_$maxiter)
+                               "reached\n"), control_$maxiter)
       break
     }
 
@@ -202,8 +202,8 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
         break
       }
 
-    } else {
-      # for acc_cnd, wew still need to solve
+    } else if (control_$acc_cnd) {
+      # for acc_cnd, we still need to solve
       sol <- umf_solve_(j, Fx, 0)
     }
 

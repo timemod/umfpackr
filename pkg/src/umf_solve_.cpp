@@ -32,42 +32,80 @@ List umf_solve_(S4 a, NumericVector b, const double cndtol) {
     void *Symbolic, *Numeric ;
     double info[UMFPACK_INFO];
 
+//
 //  LU factorisation
+//  
 
 #ifdef TIMER
     clock_t begin, end;
     begin = clock();
 #endif
+
     (void) umfpack_di_symbolic (n, n, INTEGER(Ap), INTEGER(Ai), REAL(Ax),
-                               &Symbolic, null, null) ;
+                               &Symbolic, null, info) ;
+    if (info[UMFPACK_STATUS] != UMFPACK_OK) {
+        umfpack_di_free_symbolic(&Symbolic);
+        if (info[UMFPACK_STATUS] == UMFPACK_ERROR_out_of_memory) {
+            Rf_error("Not enough memory for symbolic factorization");
+        } else {
+            Rf_error("Unknown error in symbolic factorization");
+        }
+        return R_NilValue;
+    }
+
     (void) umfpack_di_numeric (INTEGER(Ap), INTEGER(Ai), REAL(Ax), Symbolic, 
                                &Numeric, null, info) ;
     umfpack_di_free_symbolic (&Symbolic) ;
+    double stat = info[UMFPACK_STATUS]; 
+    if (stat != UMFPACK_OK && stat != UMFPACK_WARNING_singular_matrix) {
+        umfpack_di_free_numeric(&Numeric);
+        if (stat == UMFPACK_ERROR_out_of_memory) {
+            Rf_error("Not enough memory for numeric factorization");
+        } else {
+            Rf_error("Unknown error in numeric factorization");
+        }
+        return R_NilValue;
+    }
     double cond = info[UMFPACK_RCOND];
 #ifdef TIMER
     end = clock();
     Rprintf("Elapsed time for LU %g\n", double(end - begin) / CLOCKS_PER_SEC);
 #endif
 
+//
 // solving
 //
+
 #ifdef TIMER
     begin = clock();
 #endif
+
     if (cond >= cndtol) {
         (void) umfpack_di_solve (UMFPACK_A, INTEGER(Ap), INTEGER(Ai), REAL(Ax), 
-                                 REAL(x), REAL(b), Numeric, null, null) ;
+                                 REAL(x), REAL(b), Numeric, null, info) ;
+        if (info[UMFPACK_STATUS] != UMFPACK_OK) {
+            umfpack_di_free_numeric (&Numeric) ;
+            if (info[UMFPACK_STATUS] == UMFPACK_ERROR_out_of_memory) {
+                Rf_error("Not enough memory to solve to linear system");
+            } else {
+                Rf_error("Unknown error while solving the linear system");
+            }
+            return R_NilValue;
+        }
     }
+
     umfpack_di_free_numeric (&Numeric) ;
+
+
 #ifdef TIMER
     end = clock();
     Rprintf("Elapsed time for solving %g\n", 
             double(end - begin) / CLOCKS_PER_SEC);
 #endif
 
-    if (cond >= cndtol) {
-        return List::create(Named("x")    = x, Named("cond") = cond);
-    } else {
-        return List::create(Named("cond") = cond);
-    }
+   if (cond >= cndtol) {
+       return List::create(Named("x") = x, Named("cond") = cond);
+   } else {
+       return List::create(Named("cond") = cond);
+   }
 }

@@ -32,7 +32,7 @@ of the function values has been achieved.}
 \item{\code{fval}}{the function value }
 \item{\code{message}}{A string equal to \code{"ok"} if a solution
 has been found. Otherwise it describes the reason why the iteration
-was stopped without sucess}
+was stopped without success}
 }
 \description{
 Solves a system of non-linear equations \eqn{F(x) = 0} using UMFPACK

@@ -179,7 +179,11 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
 
     if (cond < control_$cndtol) {
 
-      if (!control_$allow_singular) {
+      if (any(!is.finite(j@x))) {
+        message <- sprintf(paste("The Jacobian contains non-finite values at",
+                                "iteration %d.\n"), iter)
+        break
+      } else if (!control_$allow_singular) {
         message <- sprintf(paste("The Jacobian is (nearly) singular at",
                           "iteration %d.",
                           "The inverse condition is %g.\n"), iter, cond)
@@ -192,6 +196,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
       mu <- sqrt(n * .Machine$double.eps) * norm(h, type = "1")
       h <- h + mu * Diagonal(n)
       b <- as.numeric(t(j) %*% Fx)
+
       sol <- umf_solve_(h, b, 0)
 
       if (sol$cond < .Machine$double.eps) {

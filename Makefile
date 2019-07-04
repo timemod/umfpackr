@@ -104,7 +104,7 @@ bin: install_deps
 	R CMD INSTALL $(INSTALL_FLAGS) -l ./tmp --build $(PKGDIR)
 
 document: install_deps
-	-@rm -f $(PKGDIR).pdf
+	-@rm -f umfpackr.pdf
 	R -e "devtools::document('"$(PKGDIR)"')"
 	R CMD Rd2pdf --batch $(PKGDIR) -o umfpackr.pdf 2>$(PKGDIR).log
 

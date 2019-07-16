@@ -1,0 +1,7 @@
+
+Iteration report
+----------------
+ Iter            Jac         Largest |f|   Index largest |f|
+    0                          4.162e-01                   1
+    1       1.00e+00                 NaN                   1
+Function value contains non-finite values (starting at index=1) at iteration 1

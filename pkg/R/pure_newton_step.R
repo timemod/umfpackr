@@ -21,7 +21,12 @@ report_pure_newton <- function(iter, cond, Fx) {
 
   Fx_abs <- abs(Fx)
   Fx_max <- max(Fx_abs)
-  i_max  <- which.max(Fx_abs)
+  if (is.na(Fx_max)) {
+    i_max <- Position(is.na, Fx_abs)
+  } else {
+    i_max  <- which.max(Fx_abs)
+  }
+
 
   if (iter == 0) {
     cat(sprintf("%5d%15s%20.3e%20d\n", iter, "", Fx_max, i_max))

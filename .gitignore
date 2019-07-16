@@ -2,7 +2,7 @@
 .Rhistory
 .RData
 pkg/inst/doc
-pkg.pdf
+umfpackr.pdf
 pkg.log
 umfpackr.Rcheck
 umfpackr*zip

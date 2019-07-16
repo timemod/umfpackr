@@ -83,7 +83,11 @@ report_cline <- function(iter, cond, jac, lambda, Fx) {
 
   Fx_abs <- abs(Fx)
   Fx_max <- max(Fx_abs)
-  i_max  <- which.max(Fx_abs)
+  if (is.na(Fx_max)) {
+    i_max <- Position(is.na, Fx_abs)
+  } else {
+    i_max <- which.max(Fx_abs)
+  }
 
   if (jac) {
     cat(sprintf("%5d%15.2e%15.2e%20.3e%20d\n", iter, cond, lambda, Fx_max,

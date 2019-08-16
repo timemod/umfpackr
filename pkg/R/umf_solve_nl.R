@@ -9,6 +9,7 @@
 #' @param global The global strategy. Possible values are \code{"no"}
 #' (no global strategy, the default) and \code{"cline"} (cubic line search)
 #' (cubic line search)
+#' @param scaling The scaling method. The default is no scaling. See Details.
 #' @return a list with the following components:
 #' \item{\code{solved}}{A logical equal to \code{TRUE} if convergence
 #' of the function values has been achieved.}
@@ -51,7 +52,9 @@
 #'  \item{\code{acc_cnd}}{A logical (default \code{FALSE}) indicating if the
 #'  inverse condition is estimated accurately or approximately. For large
 #'  matrices an accurate calculation can require a lot of time.}
-#' }
+#' }}
+#' \subsection{Scaling}{
+#' TODO:  DESCRIBE SCALING METHODS
 #' }
 #' @examples
 #'library(umfpackr)
@@ -84,9 +87,11 @@
 #' @importFrom Matrix condest
 #' @export
 umf_solve_nl <- function(start, fn, jac, ..., control = list(),
-                         global = c("no", "cline")) {
+                         global = c("no", "cline"),
+                         scaling = c("no", "col")) {
 
   global <- match.arg(global)
+  scaling <- match.arg(scaling)
 
   message <- "???"
 
@@ -114,12 +119,18 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
     cat("----------------\n")
   }
 
+  n <- length(start)
+
   x <- start
   cond <- NA_real_
   iter <- 0
 
 
   Fx <- fun(x)
+  # TODO: check length Fx: length must be equal to n
+
+  # initialize scale with zeros
+  if (scaling != "no") scale <- numeric(n)
 
   while (TRUE) {
 
@@ -162,6 +173,12 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
 
     # do new newton step
     j <- jacfun(x)
+
+    # TODO: check dimensions j
+
+    if (scaling == "col") {
+      scale <- scale_mat_col(j, scale)
+    }
 
     if (control_$acc_cnd) {
       # Estimate the condition number using the Matrix package
@@ -212,7 +229,8 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
       sol <- umf_solve_(j, Fx, 0)
     }
 
-    dx <- - sol$x
+    dx <- -sol$x
+    if (scaling == "col") dx = dx / scale
 
     if (global == "no") {
       ret <- pure_newton_step(x, dx, iter, cond, fun, control_)
@@ -234,8 +252,6 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
   if (solved) {
     message <- "ok"
   }
-
-
 
   if (!control_$silent) {
     if (solved) {

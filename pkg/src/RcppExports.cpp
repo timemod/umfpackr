@@ -5,6 +5,18 @@
 
 using namespace Rcpp;
 
+// scale_mat_col
+NumericVector scale_mat_col(S4 mat, NumericVector scale);
+RcppExport SEXP _umfpackr_scale_mat_col(SEXP matSEXP, SEXP scaleSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type mat(matSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type scale(scaleSEXP);
+    rcpp_result_gen = Rcpp::wrap(scale_mat_col(mat, scale));
+    return rcpp_result_gen;
+END_RCPP
+}
 // umf_solve_
 List umf_solve_(S4 a, NumericVector b, const double cndtol);
 RcppExport SEXP _umfpackr_umf_solve_(SEXP aSEXP, SEXP bSEXP, SEXP cndtolSEXP) {
@@ -20,6 +32,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_umfpackr_scale_mat_col", (DL_FUNC) &_umfpackr_scale_mat_col, 2},
     {"_umfpackr_umf_solve_", (DL_FUNC) &_umfpackr_umf_solve_, 3},
     {NULL, NULL, 0}
 };

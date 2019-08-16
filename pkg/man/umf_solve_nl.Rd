@@ -5,7 +5,7 @@
 \title{Solves a system of non-linear equations \eqn{F(x) = 0} using UMFPACK}
 \usage{
 umf_solve_nl(start, fn, jac, ..., control = list(), global = c("no",
-  "cline"))
+  "cline"), scaling = c("no", "col"))
 }
 \arguments{
 \item{start}{initial guess of the solution \eqn{x}}
@@ -22,6 +22,8 @@ as a \code{dgCMatrix} object}
 \item{global}{The global strategy. Possible values are \code{"no"}
 (no global strategy, the default) and \code{"cline"} (cubic line search)
 (cubic line search)}
+
+\item{scaling}{The scaling method. The default is no scaling. See Details.}
 }
 \value{
 a list with the following components:
@@ -69,7 +71,9 @@ to \code{FALSE}. The default value is 1e-12.}
  \item{\code{acc_cnd}}{A logical (default \code{FALSE}) indicating if the
  inverse condition is estimated accurately or approximately. For large
  matrices an accurate calculation can require a lot of time.}
-}
+}}
+\subsection{Scaling}{
+TODO:  DESCRIBE SCALING METHODS
 }
 }
 \examples{

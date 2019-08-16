@@ -13,4 +13,4 @@ LinkingTo: Rcpp
 Imports: Rcpp
 Depends: methods, Matrix
 RoxygenNote: 6.1.1
-Suggests: testthat
+Suggests: testthat, nleqslv

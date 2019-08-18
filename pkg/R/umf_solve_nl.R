@@ -9,7 +9,6 @@
 #' @param global The global strategy. Possible values are \code{"no"}
 #' (no global strategy, the default) and \code{"cline"} (cubic line search)
 #' (cubic line search)
-#' @param scaling The scaling method. The default is no scaling. See Details.
 #' @return a list with the following components:
 #' \item{\code{solved}}{A logical equal to \code{TRUE} if convergence
 #' of the function values has been achieved.}
@@ -43,10 +42,6 @@
 #'  and is explained in Dennis and Schnabel (1996) on page 151.
 #'}
 #' }}
-#' \subsection{Scaling}{
-#' TODO:  DESCRIBE SCALING METHOD (col)
-# NOTE THAT UMFPACK, BY DEFAULT, APPLIES ROW SCALING TO SOLVE A J = B.
-#' }
 #' @examples
 #'library(umfpackr)
 #'
@@ -77,11 +72,14 @@
 #' @importFrom Matrix Diagonal
 #' @export
 umf_solve_nl <- function(start, fn, jac, ..., control = list(),
-                         global = c("no", "cline"),
-                         scaling = c("no", "col")) {
+                         global = c("no", "cline")) {
 
   global <- match.arg(global)
-  scaling <- match.arg(scaling)
+
+  # Do no use column scaling. In principle, column scaling (scaling = "col")
+  # is possible. but I have not found any example yet where it is beneficial.
+  # Note that umfpack, by default, employs row scaling of the Jacobian.
+  scaling <- "no"
 
   message <- "???"
 

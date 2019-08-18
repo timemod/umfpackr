@@ -56,22 +56,14 @@ iteraton is printed. The default is \code{FALSE}.}
 \item{\code{silent}}{A logical. If \code{TRUE}  then all output is suppressed.
 The default is \code{FALSE}.}
  \item{\code{allow_singular}}{A logical value (default \code{FALSE})
- indicating if a small
- correction to the Jacobian is applied when it is singular or too ill-conditioned.
+ indicating if a small correction to the Jacobian is applied when it is
+ singular or too ill-conditioned.
  The method used is similar to a Levenberg-Marquardt correction
  and is explained in Dennis and Schnabel (1996) on page 151.
- The correction is only applied if the estimated inverse condition
- of the Jacobian is smaller than or equal to \code{cndtol} (see below).}
- \item{\code{cndtol}}{The tolerance of test for ill conditioning of the
- Jacobian when applying a correction of the Jacobian (see above).
- The default value is 0, which means that the correction
- is only applied if the jacobian is exactly singular}.
- \item{\code{acc_cnd}}{A logical (default \code{FALSE}) indicating if the
- inverse condition is estimated accurately or approximately. For large
- matrices an accurate calculation can require a lot of time.}
+}
 }}
 \subsection{Scaling}{
-TODO:  DESCRIBE SCALING METHODS
+TODO:  DESCRIBE SCALING METHOD (col)
 }
 }
 \examples{

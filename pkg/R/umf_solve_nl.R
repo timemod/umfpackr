@@ -37,23 +37,15 @@
 #' \item{\code{silent}}{A logical. If \code{TRUE}  then all output is suppressed.
 #' The default is \code{FALSE}.}
 #'  \item{\code{allow_singular}}{A logical value (default \code{FALSE})
-#'  indicating if a small
-#'  correction to the Jacobian is applied when it is singular or too ill-conditioned.
+#'  indicating if a small correction to the Jacobian is applied when it is
+#'  singular or too ill-conditioned.
 #'  The method used is similar to a Levenberg-Marquardt correction
 #'  and is explained in Dennis and Schnabel (1996) on page 151.
-#'  The correction is only applied if the estimated inverse condition
-#'  of the Jacobian is smaller than or equal to \code{cndtol} (see below).}
-#'  \item{\code{cndtol}}{The tolerance of the test for ill conditioning of the
-#'  Jacobian for the correction of the Jacobian (see argument \code{allow_singular}
-#'  above). The default value is 0, which means that the correction
-#'  is only applied if the jacobian is exactly singular}.
-
-#'  \item{\code{acc_cnd}}{A logical (default \code{FALSE}) indicating if the
-#'  inverse condition is estimated accurately or approximately. For large
-#'  matrices an accurate calculation can require a lot of time.}
+#'}
 #' }}
 #' \subsection{Scaling}{
-#' TODO:  DESCRIBE SCALING METHODS
+#' TODO:  DESCRIBE SCALING METHOD (col)
+# NOTE THAT UMFPACK, BY DEFAULT, APPLIES ROW SCALING TO SOLVE A J = B.
 #' }
 #' @examples
 #'library(umfpackr)
@@ -83,7 +75,6 @@
 #' @importFrom Matrix t
 #' @importFrom Matrix norm
 #' @importFrom Matrix Diagonal
-#' @importFrom Matrix condest
 #' @export
 umf_solve_nl <- function(start, fn, jac, ..., control = list(),
                          global = c("no", "cline"),
@@ -96,7 +87,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
 
   control_ <- list(ftol = 1e-8, xtol = 1e-8, maxiter = 20,
                    allow_singular = FALSE,
-                   trace = FALSE, cndtol = 0, acc_cnd = FALSE, silent = FALSE)
+                   trace = FALSE, silent = FALSE)
 
   control_[names(control)] <- control
 
@@ -179,59 +170,45 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
       scale <- scale_mat_col(j, scale)
     }
 
-    if (control_$acc_cnd) {
-      # Estimate the condition number using the Matrix package
-      # This may cost considerable CPU time.
-      cond <- 1 / condest(j)$est
-    } else {
-      # call umf_solve_ first to obtain a rough estimate of the condition number.
-      # actually, cond < cndtol, we do not accept the solution anyway so we
-      # could skip solving the model.
-      sol <- umf_solve_(j, Fx, control_$cndtol)
-      # use a rough estimate of the condition number of UMFPACK.
-      cond <- sol$cond
-    }
+    # call umf_solve_  to solve j  x = -Fx
+    sol <- umf_solve_(j, Fx)
 
-    if (cond == 0 && any(!is.finite(j@x))) {
-      message <- sprintf(paste("The Jacobian contains non-finite values at",
-                               "iteration %d.\n"), iter)
-      break
-    }
+    # use a rough estimate of the condition number of UMFPACK.
+    cond <- sol$cond
 
-    if (control_$allow_singular && cond <= control_$cndtol) {
+    if (sol$status == "singular matrix") {
 
-      # Use a small perturbation of the Jacobian, See Dennis and Schnabel (1996)
-      # on page 151
-      n <- length(x)
-      h <- t(j) %*% j
-      mu <- sqrt(n * .Machine$double.eps) * norm(h, type = "1")
-      h <- h + mu * Diagonal(n)
-      b <- as.numeric(t(j) %*% Fx)
-
-      sol <- umf_solve_(h, b, 0)
-
-      if (sol$status == "singular matrix") {
-        message <- sprintf(
-              paste("The perturbed Jacobian is still (nearly) singular.",
-                    "The inverse condition is %g.\n"), sol$cond)
+      if (any(!is.finite(j@x))) {
+        message <- sprintf(paste("The Jacobian contains non-finite values at",
+                                 "iteration %d.\n"), iter)
         break
       }
 
-    } else {
+      if (control_$allow_singular) {
+        # Use a small perturbation of the Jacobian, See Dennis and Schnabel
+        # (1996) on page 151
+        n <- length(x)
+        h <- t(j) %*% j
+        mu <- sqrt(n * .Machine$double.eps) * norm(h, type = "1")
+        h <- h + mu * Diagonal(n)
+        b <- as.numeric(t(j) %*% Fx)
 
-      # no fix of the jacobian
+        sol <- umf_solve_(h, b)
 
-      if (control_$acc_cnd) {
-        # for acc_cnd, we still need to solve
-        sol <- umf_solve_(j, Fx, 0)
-      }
+        if (sol$status == "singular matrix") {
+          message <- sprintf(
+                paste("The perturbed Jacobian is still (nearly) singular.",
+                      "The inverse condition is %g.\n"), sol$cond)
+          break
+        }
 
-      if (sol$status == "singular matrix") {
-        message <- sprintf(paste("The Jacobian is (nearly) singular at",
-                                 "iteration %d.",
+     } else {
+
+       message <- sprintf(paste("The Jacobian is (nearly) singular at",
+                                "iteration %d.",
                                  "The inverse condition is %g.\n"), iter, cond)
-        break
-      }
+       break
+     }
     }
 
     dx <- -sol$x

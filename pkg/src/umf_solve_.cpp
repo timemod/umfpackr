@@ -12,12 +12,10 @@ using namespace Rcpp;
  * INPUT:
  * a        a sparse Matrix (a dgCMatrix object)
  * b        the right hand side of the equation.
- * cndtol   condition tolerance: if the rough estimate of the condition 
- *          is smaller than cndtol, then we wil not solve.
  */
 
 // [[Rcpp::export]]
-List umf_solve_(S4 a, NumericVector b, const double cndtol) {
+List umf_solve_(S4 a, NumericVector b) {
 
     IntegerVector dims = a.slot("Dim");
     IntegerVector Ap = a.slot("p");
@@ -58,7 +56,7 @@ List umf_solve_(S4 a, NumericVector b, const double cndtol) {
     umfpack_di_free_symbolic (&Symbolic) ;
     double stat = info[UMFPACK_STATUS]; 
     double cond = info[UMFPACK_RCOND];
-    if (stat == UMFPACK_WARNING_singular_matrix || cond < cndtol) {
+    if (stat == UMFPACK_WARNING_singular_matrix) {
       return List::create(Named("status") = "singular matrix", 
                           Named("cond") = info[UMFPACK_RCOND]);
     } else if (stat != UMFPACK_OK) {
@@ -82,20 +80,19 @@ List umf_solve_(S4 a, NumericVector b, const double cndtol) {
 #ifdef TIMER
     begin = clock();
 #endif
-        (void) umfpack_di_solve (UMFPACK_A, INTEGER(Ap), INTEGER(Ai), REAL(Ax), 
-                                 REAL(x), REAL(b), Numeric, null, info) ;
-        if (info[UMFPACK_STATUS] != UMFPACK_OK) {
-            umfpack_di_free_numeric (&Numeric) ;
-            if (info[UMFPACK_STATUS] == UMFPACK_ERROR_out_of_memory) {
-                Rf_error("Not enough memory to solve to linear system");
-            } else {
-                Rf_error("Unknown error while solving the linear system");
-            }
-            return R_NilValue;
+   (void) umfpack_di_solve (UMFPACK_A, INTEGER(Ap), INTEGER(Ai), REAL(Ax), 
+                             REAL(x), REAL(b), Numeric, null, info) ;
+    if (info[UMFPACK_STATUS] != UMFPACK_OK) {
+        umfpack_di_free_numeric (&Numeric) ;
+        if (info[UMFPACK_STATUS] == UMFPACK_ERROR_out_of_memory) {
+            Rf_error("Not enough memory to solve to linear system");
+        } else {
+            Rf_error("Unknown error while solving the linear system");
         }
+        return R_NilValue;
+    }
 
     umfpack_di_free_numeric (&Numeric) ;
-
 
 #ifdef TIMER
     end = clock();
@@ -104,10 +101,4 @@ List umf_solve_(S4 a, NumericVector b, const double cndtol) {
 #endif
     return List::create(Named("status") = "OK", Named("x") = x, 
                         Named("cond") = cond);
-
-//if (cond >= cndtol) {
-//       return List::create(Named("x") = x, Named("cond") = cond);
-//   } else {
-//       return List::create(Named("cond") = cond);
-//   }
 }

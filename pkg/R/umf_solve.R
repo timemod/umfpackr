@@ -8,5 +8,5 @@
 #' @useDynLib umfpackr
 #' @importFrom Rcpp sourceCpp
 umf_solve <- function(a, b) {
-  return(umf_solve_(a, b, 0)$x)
+  return(umf_solve_(a, b)$x)
 }

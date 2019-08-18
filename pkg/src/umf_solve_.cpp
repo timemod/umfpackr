@@ -57,7 +57,11 @@ List umf_solve_(S4 a, NumericVector b, const double cndtol) {
                                &Numeric, null, info) ;
     umfpack_di_free_symbolic (&Symbolic) ;
     double stat = info[UMFPACK_STATUS]; 
-    if (stat != UMFPACK_OK && stat != UMFPACK_WARNING_singular_matrix) {
+    double cond = info[UMFPACK_RCOND];
+    if (stat == UMFPACK_WARNING_singular_matrix || cond < cndtol) {
+      return List::create(Named("status") = "singular matrix", 
+                          Named("cond") = info[UMFPACK_RCOND]);
+    } else if (stat != UMFPACK_OK) {
         umfpack_di_free_numeric(&Numeric);
         if (stat == UMFPACK_ERROR_out_of_memory) {
             Rf_error("Not enough memory for numeric factorization");
@@ -66,7 +70,6 @@ List umf_solve_(S4 a, NumericVector b, const double cndtol) {
         }
         return R_NilValue;
     }
-    double cond = info[UMFPACK_RCOND];
 #ifdef TIMER
     end = clock();
     Rprintf("Elapsed time for LU %g\n", double(end - begin) / CLOCKS_PER_SEC);
@@ -79,8 +82,6 @@ List umf_solve_(S4 a, NumericVector b, const double cndtol) {
 #ifdef TIMER
     begin = clock();
 #endif
-
-    if (cond >= cndtol) {
         (void) umfpack_di_solve (UMFPACK_A, INTEGER(Ap), INTEGER(Ai), REAL(Ax), 
                                  REAL(x), REAL(b), Numeric, null, info) ;
         if (info[UMFPACK_STATUS] != UMFPACK_OK) {
@@ -92,7 +93,6 @@ List umf_solve_(S4 a, NumericVector b, const double cndtol) {
             }
             return R_NilValue;
         }
-    }
 
     umfpack_di_free_numeric (&Numeric) ;
 
@@ -102,10 +102,12 @@ List umf_solve_(S4 a, NumericVector b, const double cndtol) {
     Rprintf("Elapsed time for solving %g\n", 
             double(end - begin) / CLOCKS_PER_SEC);
 #endif
+    return List::create(Named("status") = "OK", Named("x") = x, 
+                        Named("cond") = cond);
 
-   if (cond >= cndtol) {
-       return List::create(Named("x") = x, Named("cond") = cond);
-   } else {
-       return List::create(Named("cond") = cond);
-   }
+//if (cond >= cndtol) {
+//       return List::create(Named("x") = x, Named("cond") = cond);
+//   } else {
+//       return List::create(Named("cond") = cond);
+//   }
 }

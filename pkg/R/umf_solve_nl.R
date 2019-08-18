@@ -36,19 +36,18 @@
 #' iteraton is printed. The default is \code{FALSE}.}
 #' \item{\code{silent}}{A logical. If \code{TRUE}  then all output is suppressed.
 #' The default is \code{FALSE}.}
-#' \item{\code{cndtol}}{The tolerance of the test for ill conditioning of the
-#' Jacobian. If less than the machine precision it will be silently set to
-#' the machine precision. When the estimated inverse condition of the
-#' Jacobian matrix is less than or equal to the value of \code{cndtol}
-#' then the iteration is stopped if the \code{allow_singular} option is set
-#' to \code{FALSE}. The default value is 1e-12.}
 #'  \item{\code{allow_singular}}{A logical value (default \code{FALSE})
 #'  indicating if a small
 #'  correction to the Jacobian is applied when it is singular or too ill-conditioned.
 #'  The method used is similar to a Levenberg-Marquardt correction
 #'  and is explained in Dennis and Schnabel (1996) on page 151.
 #'  The correction is only applied if the estimated inverse condition
-#'  of the Jacobian is smaller than \code{cndtol}.}
+#'  of the Jacobian is smaller than or equal to \code{cndtol} (see below).}
+#'  \item{\code{cndtol}}{The tolerance of the test for ill conditioning of the
+#'  Jacobian for the correction of the Jacobian (see argument \code{allow_singular}
+#'  above). The default value is 0, which means that the correction
+#'  is only applied if the jacobian is exactly singular}.
+
 #'  \item{\code{acc_cnd}}{A logical (default \code{FALSE}) indicating if the
 #'  inverse condition is estimated accurately or approximately. For large
 #'  matrices an accurate calculation can require a lot of time.}
@@ -96,12 +95,12 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
   message <- "???"
 
   control_ <- list(ftol = 1e-8, xtol = 1e-8, maxiter = 20,
-                   allow_singular = FALSE, trace = FALSE, cndtol = 1e-12,
-                   acc_cnd = FALSE, silent = FALSE)
+                   allow_singular = FALSE,
+                   trace = FALSE, cndtol = 0, acc_cnd = FALSE, silent = FALSE)
 
   control_[names(control)] <- control
 
-  control_$cndtol <- max(control_$cndtol, .Machine$double.eps)
+  #control_$cndtol <- max(control_$cndtol, .Machine$double.eps)
 
   if (control_$silent) control_$trace <- FALSE
 
@@ -193,19 +192,14 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
       cond <- sol$cond
     }
 
+    if (cond == 0 && any(!is.finite(j@x))) {
+      message <- sprintf(paste("The Jacobian contains non-finite values at",
+                               "iteration %d.\n"), iter)
+      break
+    }
 
-    if (cond < control_$cndtol) {
+    if (control_$allow_singular && cond <= control_$cndtol) {
 
-      if (any(!is.finite(j@x))) {
-        message <- sprintf(paste("The Jacobian contains non-finite values at",
-                                "iteration %d.\n"), iter)
-        break
-      } else if (!control_$allow_singular) {
-        message <- sprintf(paste("The Jacobian is (nearly) singular at",
-                          "iteration %d.",
-                          "The inverse condition is %g.\n"), iter, cond)
-        break
-      }
       # Use a small perturbation of the Jacobian, See Dennis and Schnabel (1996)
       # on page 151
       n <- length(x)
@@ -216,17 +210,28 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
 
       sol <- umf_solve_(h, b, 0)
 
-      if (sol$cond < .Machine$double.eps) {
-        # this situation should theoretically not happen
+      if (sol$status == "singular matrix") {
         message <- sprintf(
               paste("The perturbed Jacobian is still (nearly) singular.",
                     "The inverse condition is %g.\n"), sol$cond)
         break
       }
 
-    } else if (control_$acc_cnd) {
-      # for acc_cnd, we still need to solve
-      sol <- umf_solve_(j, Fx, 0)
+    } else {
+
+      # no fix of the jacobian
+
+      if (control_$acc_cnd) {
+        # for acc_cnd, we still need to solve
+        sol <- umf_solve_(j, Fx, 0)
+      }
+
+      if (sol$status == "singular matrix") {
+        message <- sprintf(paste("The Jacobian is (nearly) singular at",
+                                 "iteration %d.",
+                                 "The inverse condition is %g.\n"), iter, cond)
+        break
+      }
     }
 
     dx <- -sol$x

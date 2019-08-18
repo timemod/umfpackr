@@ -132,21 +132,19 @@ xstart[1:6] <- xstart[1:6] * scale
 
 test_that("scale 1e-12)", {
 
-  result <- umf_solve_nl(xstart, fun, jac,
-                      control = list(trace = FALSE, silent = TRUE))
-  expect_false(result$solved)
-  expect_true(grepl(paste("^The Jacobian is \\(nearly\\) singular at iteration",
-                          "1. The inverse condition is "),
-                    result$message))
-
-  result <- umf_solve_nl(xstart, fun, jac, scaling = "col",
+  result_1 <- umf_solve_nl(xstart, fun, jac,
                       control = list(trace = TRUE, silent = TRUE))
-
-  expect_true(result_scale1$solved)
+  expect_true(result_1$solved)
 
   expected_result <- result_scale1$x
   expected_result[1:6] <- scale * expected_result[1:6]
-  expect_equal(result$x, expected_result)
+  expect_equal(result_1$x, expected_result)
+
+  result_2 <- umf_solve_nl(xstart, fun, jac, scaling = "col",
+                      control = list(trace = TRUE, silent = TRUE))
+
+  expect_true(result_2$solved)
+  expect_equal(result_2$x, expected_result)
 })
 
 

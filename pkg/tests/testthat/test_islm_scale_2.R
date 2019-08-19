@@ -5,6 +5,9 @@ library(nleqslv)
 rm(list = ls())
 
 context("islm model (row scaling)")
+
+source("tools/read_rconds.R")
+
 #
 # parameter values
 #
@@ -98,29 +101,28 @@ scale <- 1e32
 
 test_that("scale 1e32)", {
 
-  silent <- TRUE
+  report1 <- capture.output(
+    result1 <- umf_solve_nl(xstart, fun, jac, control = list(trace = TRUE)))
+  expect_true(result1$solved)
+  expect_equal(result1$x, result_scale1$x)
+  rconds <- read_rconds(report1)
+  expect_true(all(rconds > 1e-3))
 
-  result_1 <- umf_solve_nl(xstart, fun, jac,
-                      control = list(trace = TRUE, silent = silent))
-  expect_true(result_1$solved)
+  report2 <- capture.output(
+    result2 <- umf_solve_nl(xstart, fun, jac,
+                           control = list(trace = TRUE), scaling = "col"))
+  expect_true(result2$solved)
+  expect_equal(result1$x, result_scale1$x)
+  rconds <- read_rconds(report2)
+  expect_true(all(rconds < 1e-32))
 
-  expect_equal(result_1$x, result_scale1$x)
-
-  result_2 <- umf_solve_nl(xstart, fun, jac,
-                           control = list(trace = TRUE, silent = silent),
-                           scaling = "col")
-  expect_true(result_2$solved)
-
-  expect_equal(result_1$x, result_scale1$x)
-
-  result_3 <- umf_solve_nl(xstart, fun, jac,
-                           control = list(trace = TRUE, silent = silent),
-                           scaling = "no")
-  expect_true(result_3$solved)
-
-  expect_equal(result_3$x, result_scale1$x)
-
-
+  report3 <- capture.output(
+    result3 <- umf_solve_nl(xstart, fun, jac,
+                           control = list(trace = TRUE), scaling = "no"))
+  expect_true(result3$solved)
+  expect_equal(result3$x, result_scale1$x)
+  rconds <- read_rconds(report3)
+  expect_true(all(rconds < 1e-32))
 })
 
 

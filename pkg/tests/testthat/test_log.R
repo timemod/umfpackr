@@ -61,7 +61,7 @@ test_that("starting at singular point x = 2", {
 
   ret <- umf_solve_nl(c(2, 1.1),f, jacf, control = list(silent = TRUE))
   expect_equal(ret$message,
-      paste("The Jacobian is (nearly) singular at iteration 1. The inverse",
+      paste("The Jacobian is singular at iteration 1. The inverse",
             "condition is 0.\n"))
   expect_false(ret$solved)
 

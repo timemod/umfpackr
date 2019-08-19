@@ -60,7 +60,7 @@ xsol <- c(x, y ,z)
 x_start <- c(1, 2 , 3)
 
 test_that("without allow_singular", {
-  msg <- paste("The Jacobian is \\(nearly\\) singular at iteration 1.",
+  msg <- paste("The Jacobian is singular at iteration 1.",
               "The inverse condition is 0.")
   expect_output(z1 <- umf_solve_nl(x_start, f, Jac, a = a, b = b, c1 = c1,
                                    c2 = c2, c3 = c3,
@@ -68,7 +68,7 @@ test_that("without allow_singular", {
                 msg)
   expect_false(z1$solved)
   expect_equal(z1$message,
-            paste("The Jacobian is (nearly) singular at iteration 1.",
+            paste("The Jacobian is singular at iteration 1.",
                   "The inverse condition is 0.\n"))
 })
 

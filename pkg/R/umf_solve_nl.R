@@ -45,13 +45,13 @@
 #' }
 #' \item{\code{allow_singular}}{A logical value (default \code{FALSE})
 #' indicating if a small correction to the Jacobian is applied when it is
-#' singular or too ill-conditioned.
-#' The method used is similar to a Levenberg-Marquardt correction
+#' singular. The method used is similar to a Levenberg-Marquardt correction
 #' and is explained in Dennis and Schnabel (1996) on page 151.
 #'}}}
 #'\subsection{Scaling}{
 #' TODO
 #'}
+#' @references
 #' @examples
 #'library(umfpackr)
 #'
@@ -203,15 +203,14 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
 
         if (sol$status == "singular matrix") {
           message <- sprintf(
-                paste("The perturbed Jacobian is still (nearly) singular.",
+                paste("The perturbed Jacobian is still singular.",
                       "The inverse condition is %g.\n"), sol$cond)
           break
         }
 
      } else {
 
-       message <- sprintf(paste("The Jacobian is (nearly) singular at",
-                                "iteration %d.",
+       message <- sprintf(paste("The Jacobian is singular at iteration %d.",
                                  "The inverse condition is %g.\n"), iter, cond)
        break
      }

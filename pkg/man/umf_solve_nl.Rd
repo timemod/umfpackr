@@ -65,8 +65,7 @@ and is explained in Dennis and Schnabel (1996) on page 151.
 }
 \item{\code{allow_singular}}{A logical value (default \code{FALSE})
 indicating if a small correction to the Jacobian is applied when it is
-singular or too ill-conditioned.
-The method used is similar to a Levenberg-Marquardt correction
+singular. The method used is similar to a Levenberg-Marquardt correction
 and is explained in Dennis and Schnabel (1996) on page 151.
 }}}
 \subsection{Scaling}{

@@ -9,6 +9,9 @@
 #' @param global The global strategy. Possible values are \code{"no"}
 #' (no global strategy, the default) and \code{"cline"} (cubic line search)
 #' (cubic line search)
+#' @param scaling Scaling method. Possible values are
+#' \code{"row"}. \code{"col"} and \code{"none"}. The default is \code{row}.
+#' See Details.
 #' @return a list with the following components:
 #' \item{\code{solved}}{A logical equal to \code{TRUE} if convergence
 #' of the function values has been achieved.}
@@ -18,7 +21,6 @@
 #' \item{\code{message}}{A string equal to \code{"ok"} if a solution
 #' has been found. Otherwise it describes the reason why the iteration
 #' was stopped without success}
-#'
 #' @details
 #' \subsection{Control options}{
 #' Argument \code{control} is a named list containing one or more of
@@ -35,13 +37,21 @@
 #' iteraton is printed. The default is \code{FALSE}.}
 #' \item{\code{silent}}{A logical. If \code{TRUE}  then all output is suppressed.
 #' The default is \code{FALSE}.}
-#'  \item{\code{allow_singular}}{A logical value (default \code{FALSE})
-#'  indicating if a small correction to the Jacobian is applied when it is
-#'  singular or too ill-conditioned.
-#'  The method used is similar to a Levenberg-Marquardt correction
-#'  and is explained in Dennis and Schnabel (1996) on page 151.
+#' \item{\code{allow_simgular}}{A logical value (default \code{FALSE})
+#' indicating if a small correction to the Jacobian is applied when it is
+#' singular or too ill-conditioned.
+#' The method used is similar to a Levenberg-Marquardt correction
+#' and is explained in Dennis and Schnabel (1996) on page 151.
+#' }
+#' \item{\code{allow_singular}}{A logical value (default \code{FALSE})
+#' indicating if a small correction to the Jacobian is applied when it is
+#' singular or too ill-conditioned.
+#' The method used is similar to a Levenberg-Marquardt correction
+#' and is explained in Dennis and Schnabel (1996) on page 151.
+#'}}}
+#'\subsection{Scaling}{
+#' TODO
 #'}
-#' }}
 #' @examples
 #'library(umfpackr)
 #'
@@ -72,14 +82,11 @@
 #' @importFrom Matrix Diagonal
 #' @export
 umf_solve_nl <- function(start, fn, jac, ..., control = list(),
-                         global = c("no", "cline")) {
+                         global = c("no", "cline"),
+                         scaling = c("row", "col", "none")) {
 
   global <- match.arg(global)
-
-  # Do no use column scaling. In principle, column scaling (scaling = "col")
-  # is possible. but I have not found any example yet where it is beneficial.
-  # Note that umfpack, by default, employs row scaling of the Jacobian.
-  scaling <- "no"
+  scaling <- match.arg(scaling)
 
   message <- "???"
 
@@ -88,8 +95,6 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
                    trace = FALSE, silent = FALSE)
 
   control_[names(control)] <- control
-
-  #control_$cndtol <- max(control_$cndtol, .Machine$double.eps)
 
   if (control_$silent) control_$trace <- FALSE
 
@@ -117,8 +122,11 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
   Fx <- fun(x)
   # TODO: check length Fx: length must be equal to n
 
+  colscal <- scaling == "col"
+  rowscal <- scaling == "row"
+
   # initialize scale with zeros
-  if (scaling != "no") scale <- numeric(n)
+  if (colscal) scale <- numeric(n)
 
   while (TRUE) {
 
@@ -169,7 +177,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
     }
 
     # call umf_solve_  to solve j  x = -Fx
-    sol <- umf_solve_(j, Fx)
+    sol <- umf_solve_(j, Fx, rowscal)
 
     # use a rough estimate of the condition number of UMFPACK.
     cond <- sol$cond
@@ -191,7 +199,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
         h <- h + mu * Diagonal(n)
         b <- as.numeric(t(j) %*% Fx)
 
-        sol <- umf_solve_(h, b)
+        sol <- umf_solve_(h, b, rowscal)
 
         if (sol$status == "singular matrix") {
           message <- sprintf(

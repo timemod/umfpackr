@@ -1,6 +1,6 @@
 #include <Rcpp.h>
+#include <cmath>
 #include "umfpack.h"
-#include "R_ext/BLAS.h"
 #include <algorithm>
 using namespace Rcpp;
 
@@ -11,8 +11,6 @@ using namespace Rcpp;
 // INPUT AND OUTPUT (the input values are modified):
 //    mat    a matrix in compressed column format
 //    scale  a list with dimension n (size of the matrix).
-//           the input values are used as the minimal scaling 
-//           vectors.
 //  RETURNS
 //   scale
 // [[Rcpp::export]]
@@ -28,21 +26,22 @@ NumericVector scale_mat_col(S4 mat, NumericVector scale) {
 
     int n = dims[0];
 
-    double work[n];
-    int inc = 1;
-
     for (int c = 0; c < n; c++) {
         int i1 = Ap[c];
         int i2 = Ap[c + 1];
-        int nval = i2 - i1;
+        double s = 0;
         for (int i = i1; i < i2; i++) {
-            work[i - i1] = Ax[i];
+            double value = Ax[i];
+            if (ISNAN(value)) {
+                s = value;
+                break;
+            }
+            s = s + std::abs(value);
         }
-        double s = F77_CALL(dnrm2)(&nval, work, &inc);
-        if (s <= std::numeric_limits<double>::epsilon()) {
+        if (ISNAN(s) || s == 0) {
             s = 1;
         }
-        scale[c] = std::max(s, scale[c]);
+        scale[c] = s;
     }
 
     // scale the matrix

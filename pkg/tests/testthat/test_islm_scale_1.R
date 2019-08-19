@@ -4,7 +4,7 @@ library(nleqslv)
 
 rm(list = ls())
 
-context("islm model with scaling factor")
+context("islm model (column scaling)")
 #
 # parameter values
 #
@@ -122,7 +122,7 @@ test_that("check results scale 1", {
 
 
 #
-# scale 1e12
+# scale 1e32
 #
 scale <- 1e32
 g <- g_scale_1 * scale
@@ -132,13 +132,22 @@ xstart[1:6] <- xstart[1:6] * scale
 
 test_that("scale 1e-12)", {
 
-  result <- umf_solve_nl(xstart, fun, jac,
+  result_1 <- umf_solve_nl(xstart, fun, jac,
                       control = list(trace = TRUE, silent = TRUE))
-  expect_true(result$solved)
+  expect_true(result_1$solved)
 
   expected_result <- result_scale1$x
   expected_result[1:6] <- scale * expected_result[1:6]
-  expect_equal(result$x, expected_result)
+  expect_equal(result_1$x, expected_result)
+
+  result_2 <- umf_solve_nl(xstart, fun, jac,
+                           control = list(trace = TRUE, silent = TRUE),
+                           scaling = "col")
+  expect_true(result_2$solved)
+
+  expected_result <- result_scale1$x
+  expected_result[1:6] <- scale * expected_result[1:6]
+  expect_equal(result_2$x, expected_result)
 })
 
 

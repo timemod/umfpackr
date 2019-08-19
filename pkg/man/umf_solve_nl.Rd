@@ -5,7 +5,7 @@
 \title{Solves a system of non-linear equations \eqn{F(x) = 0} using UMFPACK}
 \usage{
 umf_solve_nl(start, fn, jac, ..., control = list(), global = c("no",
-  "cline"))
+  "cline"), scaling = c("row", "col", "none"))
 }
 \arguments{
 \item{start}{initial guess of the solution \eqn{x}}
@@ -22,6 +22,10 @@ as a \code{dgCMatrix} object}
 \item{global}{The global strategy. Possible values are \code{"no"}
 (no global strategy, the default) and \code{"cline"} (cubic line search)
 (cubic line search)}
+
+\item{scaling}{Scaling method. Possible values are
+\code{"row"}. \code{"col"} and \code{"none"}. The default is \code{row}.
+See Details.}
 }
 \value{
 a list with the following components:
@@ -53,13 +57,21 @@ The default value is \code{1e-8}.}
 iteraton is printed. The default is \code{FALSE}.}
 \item{\code{silent}}{A logical. If \code{TRUE}  then all output is suppressed.
 The default is \code{FALSE}.}
- \item{\code{allow_singular}}{A logical value (default \code{FALSE})
- indicating if a small correction to the Jacobian is applied when it is
- singular or too ill-conditioned.
- The method used is similar to a Levenberg-Marquardt correction
- and is explained in Dennis and Schnabel (1996) on page 151.
+\item{\code{allow_simgular}}{A logical value (default \code{FALSE})
+indicating if a small correction to the Jacobian is applied when it is
+singular or too ill-conditioned.
+The method used is similar to a Levenberg-Marquardt correction
+and is explained in Dennis and Schnabel (1996) on page 151.
 }
-}}
+\item{\code{allow_singular}}{A logical value (default \code{FALSE})
+indicating if a small correction to the Jacobian is applied when it is
+singular or too ill-conditioned.
+The method used is similar to a Levenberg-Marquardt correction
+and is explained in Dennis and Schnabel (1996) on page 151.
+}}}
+\subsection{Scaling}{
+TODO
+}
 }
 \examples{
 library(umfpackr)

@@ -15,7 +15,7 @@ using namespace Rcpp;
  */
 
 // [[Rcpp::export]]
-List umf_solve_(S4 a, NumericVector b) {
+List umf_solve_(S4 a, NumericVector b, bool rowscal) {
 
     IntegerVector dims = a.slot("Dim");
     IntegerVector Ap = a.slot("p");
@@ -28,7 +28,12 @@ List umf_solve_(S4 a, NumericVector b) {
 
     double *null = (double *) NULL;
     void *Symbolic, *Numeric ;
-    double info[UMFPACK_INFO];
+    double info[UMFPACK_INFO], control[UMFPACK_CONTROL];
+
+    umfpack_di_defaults(control);
+    if (!rowscal) {
+        control[UMFPACK_SCALE] = UMFPACK_SCALE_NONE;
+    }
 
 //
 //  LU factorisation
@@ -40,7 +45,7 @@ List umf_solve_(S4 a, NumericVector b) {
 #endif
 
     (void) umfpack_di_symbolic (n, n, INTEGER(Ap), INTEGER(Ai), REAL(Ax),
-                               &Symbolic, null, info) ;
+                               &Symbolic, control, info) ;
     if (info[UMFPACK_STATUS] != UMFPACK_OK) {
         umfpack_di_free_symbolic(&Symbolic);
         if (info[UMFPACK_STATUS] == UMFPACK_ERROR_out_of_memory) {
@@ -52,7 +57,7 @@ List umf_solve_(S4 a, NumericVector b) {
     }
 
     (void) umfpack_di_numeric (INTEGER(Ap), INTEGER(Ai), REAL(Ax), Symbolic, 
-                               &Numeric, null, info) ;
+                               &Numeric, control, info) ;
     umfpack_di_free_symbolic (&Symbolic) ;
     double stat = info[UMFPACK_STATUS]; 
     double cond = info[UMFPACK_RCOND];
@@ -81,7 +86,7 @@ List umf_solve_(S4 a, NumericVector b) {
     begin = clock();
 #endif
    (void) umfpack_di_solve (UMFPACK_A, INTEGER(Ap), INTEGER(Ai), REAL(Ax), 
-                             REAL(x), REAL(b), Numeric, null, info) ;
+                             REAL(x), REAL(b), Numeric, control, info) ;
     if (info[UMFPACK_STATUS] != UMFPACK_OK) {
         umfpack_di_free_numeric (&Numeric) ;
         if (info[UMFPACK_STATUS] == UMFPACK_ERROR_out_of_memory) {

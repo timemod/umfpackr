@@ -2,10 +2,10 @@
 % Please edit documentation in R/umf_solve_nl.R
 \name{umf_solve_nl}
 \alias{umf_solve_nl}
-\title{Solves a system of non-linear equations \eqn{F(x) = 0} using UMFPACK}
+\title{Solves a system of non-linear equations using UMFPACK}
 \usage{
-umf_solve_nl(start, fn, jac, ..., control = list(), global = c("no",
-  "cline"), scaling = c("row", "col", "none"))
+umf_solve_nl(start, fn, jac, ..., control, global = c("no", "cline"),
+  scaling = c("row", "col", "none"))
 }
 \arguments{
 \item{start}{initial guess of the solution \eqn{x}}
@@ -24,7 +24,7 @@ as a \code{dgCMatrix} object}
 (cubic line search)}
 
 \item{scaling}{Scaling method. Possible values are
-\code{"row"}. \code{"col"} and \code{"none"}. The default is \code{row}.
+\code{"row"}. \code{"col"} and \code{"none"}. The default is \code{"row"}.
 See Details.}
 }
 \value{
@@ -39,7 +39,10 @@ has been found. Otherwise it describes the reason why the iteration
 was stopped without success}
 }
 \description{
-Solves a system of non-linear equations \eqn{F(x) = 0} using UMFPACK
+This function solves a system of non-linear equations  \eqn{F(x) = 0}
+using Newton's method. UMFPACK is employed to solve the linear equations
+in each Newton iteration. Optionally a cubic line search is used
+when a Newton step does not yield a sufficient reduction of the function values.
 }
 \details{
 \subsection{Control options}{
@@ -68,8 +71,22 @@ indicating if a small correction to the Jacobian is applied when it is
 singular. The method used is similar to a Levenberg-Marquardt correction
 and is explained in Dennis and Schnabel (1996) on page 151.
 }}}
-\subsection{Scaling}{
-TODO
+\subsection{Scaling of the Jacobian}{
+For each iteration in the Newton method the linear system \eqn{J s = F(x)} is
+solved, where the Jacobiab matrix \eqn{J} are the derivatives of the equations
+with respect to the variables, and \eqn{s} the Newton step.  Scaling
+can improve the condition of the Jacobian.
+For \emph{row scaling}, the system is transformed to
+\eqn{D^{-1} J s = D^{-1} F(x)}, where \eqn{D} is a diagonal matrix with
+row scaling factors. Here  the scaling factors are the L1 norms of the rows
+of \eqn{J}. For \emph{column scaling}, the system is transformed to
+\eqn{J D^{-1} D s = F(x)}, where \eqn{D} is a diagonal matrix with column
+scaling factors, calculated from  the L1 norms of the columns of \eqn{J}.
+
+The scaling is only used to solve the non-linear equations and has no effect
+on the convergence of the Newton algorihtm. Thus the iterations
+are considered to be converged when the maximum value of the unscaled
+function values \eqn{F(x)} is smaller than \code{ftol}.
 }
 }
 \examples{
@@ -97,4 +114,20 @@ jacdsln <- function(x, c) {
 xstart <- c(2,3)
 print(umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
                   control = list(trace = TRUE)))
+}
+\references{
+Dennis, J.E. Jr and Schnabel, R.B. (1997), \emph{Numerical Methods for Unconstrained Optimization
+ and Nonlinear Equations}, Siam.
+
+Davis, T.A. (2004). A column pre-ordering strategy for the unsymmetric-pattern
+multifrontal method. \emph{ACM Trans. Math. Softw.}, \bold{30(2)}, 165–195.
+
+Davis, T.A (2004). Algorithm 832: UMFPACK, an unsymmetric-pattern multifrontal
+method. \emph{ACM Trans. Math. Softw.}, \bold{30(2)}, 196–199.
+
+Davis, T.A and Duff, I.S. (1997). An unsymmetric-pattern multifrontal method for
+sparse LU factorization. \emph{SIAM J. Matrix Anal. Applic.}, \bold{18(1)}, 140–158.
+
+Davis, T.A  and Duff, I.S (1999). A combined unifrontal/multifrontal method for
+unsymmetric sparse matrices. \emph{ACM Trans. Math. Softw.}, \bold{25(1)}, 1–19..
 }

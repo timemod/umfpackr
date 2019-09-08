@@ -2,7 +2,7 @@
 % Please edit documentation in R/umf_solve.R
 \name{umf_solve}
 \alias{umf_solve}
-\title{Solves the system of linear equations \eqn{A x = b} using UMFPACK}
+\title{Solves the system of linear equations using UMFPACK}
 \usage{
 umf_solve(a, b)
 }
@@ -16,5 +16,22 @@ umf_solve(a, b)
 the solution \eqn{x}
 }
 \description{
-Solves the system of linear equations \eqn{A x = b} using UMFPACK
+This function solved the linear equations of the form \eqn{A x = b} using
+UMFPACK.
+}
+\references{
+Dennis, J.E. Jr and Schnabel, R.B. (1997), \emph{Numerical Methods for Unconstrained Optimization
+ and Nonlinear Equations}, Siam.
+
+Davis, T.A. (2004). A column pre-ordering strategy for the unsymmetric-pattern
+multifrontal method. \emph{ACM Trans. Math. Softw.}, \bold{30(2)}, 165–195.
+
+Davis, T.A (2004). Algorithm 832: UMFPACK, an unsymmetric-pattern multifrontal
+method. \emph{ACM Trans. Math. Softw.}, \bold{30(2)}, 196–199.
+
+Davis, T.A and Duff, I.S. (1997). An unsymmetric-pattern multifrontal method for
+sparse LU factorization. \emph{SIAM J. Matrix Anal. Applic.}, \bold{18(1)}, 140–158.
+
+Davis, T.A  and Duff, I.S (1999). A combined unifrontal/multifrontal method for
+unsymmetric sparse matrices. \emph{ACM Trans. Math. Softw.}, \bold{25(1)}, 1–19..
 }

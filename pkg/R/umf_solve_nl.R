@@ -1,5 +1,9 @@
-#' Solves a system of non-linear equations \eqn{F(x) = 0} using UMFPACK
+#' Solves a system of non-linear equations using UMFPACK
 #'
+#' This function solves a system of non-linear equations  \eqn{F(x) = 0}
+#' using Newton's method. UMFPACK is employed to solve the linear equations
+#' in each Newton iteration. Optionally a cubic line search is used
+#' when a Newton step does not yield a sufficient reduction of the function values.
 #' @param start initial guess of the solution \eqn{x}
 #' @param fn the function \eqn{F}
 #' @param jac a function returning the Jacobian of the function
@@ -10,7 +14,7 @@
 #' (no global strategy, the default) and \code{"cline"} (cubic line search)
 #' (cubic line search)
 #' @param scaling Scaling method. Possible values are
-#' \code{"row"}. \code{"col"} and \code{"none"}. The default is \code{row}.
+#' \code{"row"}. \code{"col"} and \code{"none"}. The default is \code{"row"}.
 #' See Details.
 #' @return a list with the following components:
 #' \item{\code{solved}}{A logical equal to \code{TRUE} if convergence
@@ -48,10 +52,38 @@
 #' singular. The method used is similar to a Levenberg-Marquardt correction
 #' and is explained in Dennis and Schnabel (1996) on page 151.
 #'}}}
-#'\subsection{Scaling}{
-#' TODO
-#'}
+#'\subsection{Scaling of the Jacobian}{
+#' For each iteration in the Newton method the linear system \eqn{J s = F(x)} is
+#' solved, where the Jacobiab matrix \eqn{J} are the derivatives of the equations
+#' with respect to the variables, and \eqn{s} the Newton step.  Scaling
+#' can improve the condition of the Jacobian.
+#' For \emph{row scaling}, the system is transformed to
+#' \eqn{D^{-1} J s = D^{-1} F(x)}, where \eqn{D} is a diagonal matrix with
+#' row scaling factors. Here  the scaling factors are the L1 norms of the rows
+#' of \eqn{J}. For \emph{column scaling}, the system is transformed to
+#' \eqn{J D^{-1} D s = F(x)}, where \eqn{D} is a diagonal matrix with column
+#' scaling factors, calculated from  the L1 norms of the columns of \eqn{J}.
+#'
+#' The scaling is only used to solve the non-linear equations and has no effect
+#' on the convergence of the Newton algorihtm. Thus the iterations
+#' are considered to be converged when the maximum value of the unscaled
+#' function values \eqn{F(x)} is smaller than \code{ftol}.
+#' }
 #' @references
+#' Dennis, J.E. Jr and Schnabel, R.B. (1997), \emph{Numerical Methods for Unconstrained Optimization
+#'  and Nonlinear Equations}, Siam.
+#'
+#' Davis, T.A. (2004). A column pre-ordering strategy for the unsymmetric-pattern
+#' multifrontal method. \emph{ACM Trans. Math. Softw.}, \bold{30(2)}, 165–195.
+#'
+#' Davis, T.A (2004). Algorithm 832: UMFPACK, an unsymmetric-pattern multifrontal
+#' method. \emph{ACM Trans. Math. Softw.}, \bold{30(2)}, 196–199.
+#'
+#' Davis, T.A and Duff, I.S. (1997). An unsymmetric-pattern multifrontal method for
+#' sparse LU factorization. \emph{SIAM J. Matrix Anal. Applic.}, \bold{18(1)}, 140–158.
+#'
+#' Davis, T.A  and Duff, I.S (1999). A combined unifrontal/multifrontal method for
+#' unsymmetric sparse matrices. \emph{ACM Trans. Math. Softw.}, \bold{25(1)}, 1–19..
 #' @examples
 #'library(umfpackr)
 #'
@@ -81,12 +113,27 @@
 #' @importFrom Matrix norm
 #' @importFrom Matrix Diagonal
 #' @export
-umf_solve_nl <- function(start, fn, jac, ..., control = list(),
+umf_solve_nl <- function(start, fn, jac, ..., control,
                          global = c("no", "cline"),
                          scaling = c("row", "col", "none")) {
 
+  #
+  # test arguments
+  #
   global <- match.arg(global)
   scaling <- match.arg(scaling)
+  if (!is.numeric(start)) {
+    stop("Argument 'start' must be a numeric vector.")
+  }
+  if (!is.function(fn) || !is.function(jac)) {
+    stop("Argument 'fn' and 'jac' should be functions.")
+  }
+  if (!missing(control)) {
+    if  (!is.list(control) || (length(control) > 0 &&
+                               is.null(names(control)))) {
+      stop("Argument 'control' should be a named list.")
+    }
+  }
 
   message <- "???"
 
@@ -94,7 +141,9 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
                    allow_singular = FALSE,
                    trace = FALSE, silent = FALSE)
 
-  control_[names(control)] <- control
+  if (!missing(control)) {
+      control_[names(control)] <- control
+  }
 
   if (control_$silent) control_$trace <- FALSE
 
@@ -120,7 +169,11 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
 
 
   Fx <- fun(x)
-  # TODO: check length Fx: length must be equal to n
+
+  if (!is.numeric(Fx) || length(Fx) != n) {
+    stop(sprintf(paste("Function 'fn' should return a numeric vector with the",
+                       "same length as argument start (%d).\n"), n))
+  }
 
   colscal <- scaling == "col"
   rowscal <- scaling == "row"
@@ -170,7 +223,12 @@ umf_solve_nl <- function(start, fn, jac, ..., control = list(),
     # do new newton step
     j <- jacfun(x)
 
-    # TODO: check dimensions j
+    if (iter == 1) {
+      if (!inherits(j, "dgCMatrix") || nrow(j) != n || ncol(j) != n) {
+        stop(sprintf(paste("Function 'jac' should return a dgCMatrix with %d",
+                          "rows and columns.\n"), n))
+      }
+    }
 
     if (scaling == "col") {
       scale <- scale_mat_col(j, scale)

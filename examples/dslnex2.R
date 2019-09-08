@@ -14,7 +14,6 @@ jacdsln <- function(x, c) {
     Df[1,2] <- 2*x[2]
     Df[2,1] <- exp(x[1]-1)
     Df[2,2] <- 3*x[2]^2
-
     return(as(Df, "dgCMatrix"))
 }
 
@@ -28,9 +27,3 @@ ret <- umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
                     control = list(silent = TRUE))
 ))
 print(ret)
-quit()
-
-
-#ret <- nleqslv(xstart, fn = dslnex, jac = jacdsln, method = "Newton", 
-#               control = list(trace = TRUE))
-#print(ret$x)

@@ -234,11 +234,15 @@ SUITESPARSE_VERSION = 4.5.4
     # For example, uncomment this line to compile UMFPACK without CHOLMOD:
     #UMFPACK_CONFIG = -DNCHOLMOD
 
-    # We use -DNBLAS, because on some platforms (e.g. Windows or
-    # Ubuntu 16.04 LTS), the version with BLAS is about a factor of
-    # two slower. 
-    UMFPACK_CONFIG = -DNBLAS -DNCHOLMOD
-    # or use 'make UMFPACK_CONFIG=-DNCHOLMOD'
+    EXT_BLAS=$(shell Rscript -e "cat(extSoftVersion()['BLAS'])")
+    ifeq ($(EXT_BLAS),)
+    # the standard version of BLAS is used -> do not use BLAS
+    # becaus this is quite slow (slightly slower than when BLAS is 
+    # not used).
+    UMFPACK_CONFIG = -DNCHOLMOD -DNBLAS
+    else
+    UMFPACK_CONFIG = -DNCHOLMOD
+    endif
 
     #---------------------------------------------------------------------------
     # CHOLMOD configuration

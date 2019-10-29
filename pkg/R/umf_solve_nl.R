@@ -41,7 +41,7 @@
 #' iteraton is printed. The default is \code{FALSE}.}
 #' \item{\code{silent}}{A logical. If \code{TRUE}  then all output is suppressed.
 #' The default is \code{FALSE}.}
-#' \item{\code{allow_simgular}}{A logical value (default \code{FALSE})
+#' \item{\code{allow_singular}}{A logical value (default \code{FALSE})
 #' indicating if a small correction to the Jacobian is applied when it is
 #' singular or too ill-conditioned.
 #' The method used is similar to a Levenberg-Marquardt correction

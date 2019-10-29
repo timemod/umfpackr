@@ -1,7 +1,7 @@
 Package: umfpackr
 Type: Package
 Title: Sparse linear algebra with UMFPACK
-Version: 0.4
+Version: 0.5
 Author: Rob van Harrevelt [aut, cre]
 Maintainer: Rob van Harrevelt <rvanharrevelt@gmail.com>
 Description: This package contains methods for solving linear and non-linear

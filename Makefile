@@ -4,7 +4,6 @@
 
 PKGDIR=pkg
 INSTALL_FLAGS=--no-multiarch --with-keep.source
-RCHECKARG=--no-multiarch --as-cran
 
 # Package name, Version and date from DESCIPTION
 PKG=$(shell grep 'Package:' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2)
@@ -17,6 +16,13 @@ RCPP_CXXFLAGS = $(shell Rscript -e "Rcpp:::CxxFlags()")
 
 PKG_CXXFLAGS = $(RCPP_CXXFLAGS) -I pkg/src/SuiteSparse_config \
 	       -I pkg/src/UMFPACK/Include -I pkg/src/AMD/Include
+
+ifeq ($(OSTYPE), windows)
+# for unknown reason R CMD check --as-cran does not work on Windows
+RCHECKARG=--no-multiarch
+else
+RCHECKARG=--no-multiarch --as-cran
+endif
 
 help:
 	@echo
@@ -77,7 +83,7 @@ syntax:
 	$(CXX) $(CPP_FLAGS) $(PKG_CXXFLAGS) -c -fsyntax-only -Wall -pedantic $(PKGDIR)/src/*.c*
 
 cleanx:
-ifneq ($(findstring windows, $(OSNAME)), windows)
+ifneq ($(OSTYPE), windows)
 # Apple Finder rubbish
 	@find . -name '.DS_Store' -delete
 	@rm -f $(PKGTAR)

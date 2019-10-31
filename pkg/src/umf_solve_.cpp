@@ -26,7 +26,6 @@ List umf_solve_(S4 a, NumericVector b, bool rowscal) {
 
     NumericVector x(n);
 
-    double *null = (double *) NULL;
     void *Symbolic, *Numeric ;
     double info[UMFPACK_INFO], control[UMFPACK_CONTROL];
 

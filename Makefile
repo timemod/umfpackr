@@ -4,7 +4,7 @@
 
 PKGDIR=pkg
 INSTALL_FLAGS=--no-multiarch --with-keep.source
-RCHECKARG=--no-multiarch
+RCHECKARG=--no-multiarch --as-cran
 
 # Package name, Version and date from DESCIPTION
 PKG=$(shell grep 'Package:' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2)

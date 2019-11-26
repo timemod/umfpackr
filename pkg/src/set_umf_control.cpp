@@ -96,11 +96,21 @@ void set_umf_control(double control[UMFPACK_CONTROL], Rcpp::List umf_control) {
             it = control_params.find(name);
             if (it != control_params.end()) {
                 int index = it->second;
-                Rcpp::NumericVector option = umf_control[i];
-                // TODO: check that arguments that expect a logical are 0 or 1.
-                control[index]  = option[0];
+                SEXP option = umf_control[i];
+                switch( TYPEOF(option)) {
+                case REALSXP:
+                case INTSXP:
+                case LGLSXP:
+                    {
+                    Rcpp::NumericVector option = umf_control[i];
+                    control[index] = option[0];
+                    break;
+                    }
+                default:
+                    Rf_error("%s is not an numeric or logical value", name.c_str());
+                }
             } else {
-                Rf_error("%s is not a known UMFPACK parameter", param_names[i]);
+                Rf_error("%s is not an UMFPACK parameter", name.c_str());
             }
        }
     }

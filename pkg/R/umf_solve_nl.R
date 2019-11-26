@@ -16,6 +16,8 @@
 #' @param scaling Scaling method. Possible values are
 #' \code{"row"}. \code{"col"} and \code{"none"}. The default is \code{"row"}.
 #' See Details.
+#' @param umf_control A named list with control parameters passed to UMFPACK.
+#' See Details.
 #' @return a list with the following components:
 #' \item{\code{solved}}{A logical equal to \code{TRUE} if convergence
 #' of the function values has been achieved.}
@@ -68,6 +70,30 @@
 #' on the convergence of the Newton algorihtm. Thus the iterations
 #' are considered to be converged when the maximum value of the unscaled
 #' function values \eqn{F(x)} is smaller than \code{ftol}.
+#' }
+#' \subsection{UMFPACK control options}{
+#' Argument `umf_control` can be used to specify UMFPACK control parameters.
+#' Consult the documentation of UMFPACK for a description of the various control
+#' paramters. `umf_control` should be a named list; the names are the
+#' names of the UMFPACK control parameters excluding the prefix `UMFPACK`.
+#' With a few exceptions described below, the values are numerical values.
+#' For example,
+#' ```
+#' list(SYM_PIVOT_TOLERANCE = 0.01, AGGRESIVE = 1)
+#' ```
+#' The values for the control options `STRATEGY`, `ORDERING` and `SCALE`
+#' should be character. In UMFPACK the values of these parameters
+#' should be specified with named numerical constants. For example,
+#' for `UMFPACK_STRATEGY` allowed values are the constants
+#'  `UMFPACK_STRATEGY_AUTO`, `UMFPACK_STRATEGY_UNSYMMETRIC` and
+#'  `UMFPACK_STRATEGY_SYMMETRIC`. In package `umfpackr` the values should be
+#'  the name of the corresponding constant , again excluding the prefix `UMFACK_`.
+#' Exanple:
+#' ```
+#' list(STRATEGY = "STRATEGY_UNSYMMETRIC",
+#'      ORDERING = "ORDERING_METIS",
+#'      SCALE    = "SCALE_NONE")
+#' ```
 #' }
 #' @references
 #' Dennis, J.E. Jr and Schnabel, R.B. (1997), \emph{Numerical Methods for Unconstrained Optimization
@@ -135,7 +161,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
     }
   }
 
-  if (is.null(umf_control)) umf_control <- list()
+  umf_control <- check_umf_control(umf_control)
 
   message <- "???"
 
@@ -179,11 +205,12 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
 
   if (scaling == "row") {
     if (!is.null(umf_control$SCALE) && umf_control$SCALE == "SCALE_NONE") {
-      stop("Incompatible arguments scaling and umf_control")
+      stop(paste("If argument scaling == \"row\", then umfpack control SCALE",
+                 "should not be \"SCALE_NONE\"."))
     }
   } else {
     if (!is.null(umf_control$SCALE) && umf_control$SCALE != "SCALE_NONE") {
-      stop("Incompatible arguments scaling and umf_control")
+      warning("Umpack control SCALE is ignored if row scaling is disabled")
     }
     umf_control$SCALE <- "SCALE_NONE"
   }

@@ -4,7 +4,7 @@
 \alias{umf_solve}
 \title{Solves the system of linear equations using UMFPACK}
 \usage{
-umf_solve(a, b)
+umf_solve(a, b, umf_control = list())
 }
 \arguments{
 \item{a}{an object of class  \code{dgCMatrix}
@@ -21,7 +21,7 @@ UMFPACK.
 }
 \references{
 Dennis, J.E. Jr and Schnabel, R.B. (1997), \emph{Numerical Methods for Unconstrained Optimization
- and Nonlinear Equations}, Siam.
+and Nonlinear Equations}, Siam.
 
 Davis, T.A. (2004). A column pre-ordering strategy for the unsymmetric-pattern
 multifrontal method. \emph{ACM Trans. Math. Softw.}, \bold{30(2)}, 165–195.

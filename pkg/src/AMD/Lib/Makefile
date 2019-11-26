@@ -47,3 +47,4 @@ $(AR_TARGET): $(OBJ)
 
 clean:
 	- $(RM) -r $(CLEAN)
+	- $(RM) *.a

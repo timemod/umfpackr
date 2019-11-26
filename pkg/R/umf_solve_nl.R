@@ -115,8 +115,8 @@
 #' @export
 umf_solve_nl <- function(start, fn, jac, ..., control,
                          global = c("no", "cline"),
-                         scaling = c("row", "col", "none")) {
-
+                         scaling = c("row", "col", "none"),
+                         umf_control = list()) {
   #
   # test arguments
   #
@@ -134,6 +134,8 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
       stop("Argument 'control' should be a named list.")
     }
   }
+
+  if (is.null(umf_control)) umf_control <- list()
 
   message <- "???"
 
@@ -175,8 +177,18 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
                        "same length as argument start (%d).\n"), n))
   }
 
+  if (scaling == "row") {
+    if (!is.null(umf_control$SCALE) && umf_control$SCALE == "SCALE_NONE") {
+      stop("Incompatible arguments scaling and umf_control")
+    }
+  } else {
+    if (!is.null(umf_control$SCALE) && umf_control$SCALE != "SCALE_NONE") {
+      stop("Incompatible arguments scaling and umf_control")
+    }
+    umf_control$SCALE <- "SCALE_NONE"
+  }
+
   colscal <- scaling == "col"
-  rowscal <- scaling == "row"
 
   # initialize scale with zeros
   if (colscal) scale <- numeric(n)
@@ -235,7 +247,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
     }
 
     # call umf_solve_  to solve j  x = -Fx
-    sol <- umf_solve_(j, Fx, rowscal)
+    sol <- umf_solve_(j, Fx, umf_control)
 
     # use a rough estimate of the condition number of UMFPACK.
     cond <- sol$cond
@@ -257,7 +269,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
         h <- h + mu * Diagonal(n)
         b <- as.numeric(t(j) %*% Fx)
 
-        sol <- umf_solve_(h, b, rowscal)
+        sol <- umf_solve_(h, b, umf_control)
 
         if (sol$status == "singular matrix") {
           message <- sprintf(

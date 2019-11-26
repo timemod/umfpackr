@@ -24,7 +24,7 @@
 #' @export
 #' @useDynLib umfpackr
 #' @importFrom Rcpp sourceCpp
-umf_solve <- function(a, b) {
+umf_solve <- function(a, b, umf_control = list()) {
 
   if (!inherits(a, "dgCMatrix")) {
     stop("a is not an object of class dgCMatrix")
@@ -43,7 +43,9 @@ umf_solve <- function(a, b) {
                        "number of rows of a (%d)."), length(b), nrow(a)))
   }
 
-  sol <- umf_solve_(a, b, TRUE)
+  if (is.null(umf_control)) umf_control <- list()
+
+  sol <- umf_solve_(a, b, umf_control)
   if (sol$status == "singular matrix") {
     stop(sol$status)
   }

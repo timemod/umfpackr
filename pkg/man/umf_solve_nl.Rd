@@ -5,7 +5,7 @@
 \title{Solves a system of non-linear equations using UMFPACK}
 \usage{
 umf_solve_nl(start, fn, jac, ..., control, global = c("no", "cline"),
-  scaling = c("row", "col", "none"))
+  scaling = c("row", "col", "none"), umf_control = list())
 }
 \arguments{
 \item{start}{initial guess of the solution \eqn{x}}
@@ -117,7 +117,7 @@ print(umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
 }
 \references{
 Dennis, J.E. Jr and Schnabel, R.B. (1997), \emph{Numerical Methods for Unconstrained Optimization
- and Nonlinear Equations}, Siam.
+and Nonlinear Equations}, Siam.
 
 Davis, T.A. (2004). A column pre-ordering strategy for the unsymmetric-pattern
 multifrontal method. \emph{ACM Trans. Math. Softw.}, \bold{30(2)}, 165–195.

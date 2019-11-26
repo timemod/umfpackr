@@ -1,31 +1,18 @@
 # -*- Makefile -*-
-
-# check if libumfpack has been installed
-LIBUMFPACK_PRESENT = "no"
-ifneq ($(shell whereis libumfpack), libumfpack:)
-  LIBUMFPACK_PRESENT = "yes"
-endif
-
-# On Linux, check if libumfpack has been installed. In that case use the standard installed version.
-# Note that we assume that the include files are in directory /usr/include/suitesparse.
-ifeq ($(LIBUMFPACK_PRESENT),"yes")
-PKG_CPPFLAGS = -DNTIMER -I/usr/include/suitesparse
-PKG_LIBS = $(BLAS_LIBS) -lumfpack
-SUBL =
-else
+#
 SUBDIRS = SuiteSparse_config AMD UMFPACK
 SUBLIBS =  UMFPACK/Lib/libumfpack.a AMD/Lib/libamd.a \
            SuiteSparse_config/SuiteSparse_config.a
+
 PKG_CPPFLAGS = -DNTIMER -I SuiteSparse_config -I UMFPACK/Include -I AMD/Include
+## we use the BLAS and the LAPACK library:
 PKG_LIBS = $(SUBLIBS) $(BLAS_LIBS)
-SUBL = sublibs
-endif
 
 #OBJECTS = $(SOURCES_C:.c=.o)
 all: $(SHLIB)
 ## making src/*.o and in sublibs can be done simultaneously
 # for development
-$(SHLIB): $(OBJECTS) $(SUBL)
+$(SHLIB): $(OBJECTS) sublibs
 # for real:
 #$(SHLIB): $(OBJECTS) subclean sublibs
 

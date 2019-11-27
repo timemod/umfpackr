@@ -18,15 +18,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // umf_solve_
-List umf_solve_(S4 a, NumericVector b, bool rowscal);
-RcppExport SEXP _umfpackr_umf_solve_(SEXP aSEXP, SEXP bSEXP, SEXP rowscalSEXP) {
+List umf_solve_(S4 a, NumericVector b, List umf_control);
+RcppExport SEXP _umfpackr_umf_solve_(SEXP aSEXP, SEXP bSEXP, SEXP umf_controlSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< S4 >::type a(aSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type b(bSEXP);
-    Rcpp::traits::input_parameter< bool >::type rowscal(rowscalSEXP);
-    rcpp_result_gen = Rcpp::wrap(umf_solve_(a, b, rowscal));
+    Rcpp::traits::input_parameter< List >::type umf_control(umf_controlSEXP);
+    rcpp_result_gen = Rcpp::wrap(umf_solve_(a, b, umf_control));
     return rcpp_result_gen;
 END_RCPP
 }

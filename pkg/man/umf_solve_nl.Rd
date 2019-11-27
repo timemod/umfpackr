@@ -5,7 +5,7 @@
 \title{Solves a system of non-linear equations using UMFPACK}
 \usage{
 umf_solve_nl(start, fn, jac, ..., control, global = c("no", "cline"),
-  scaling = c("row", "col", "none"))
+  scaling = c("row", "col", "none"), umf_control = list())
 }
 \arguments{
 \item{start}{initial guess of the solution \eqn{x}}
@@ -25,6 +25,9 @@ as a \code{dgCMatrix} object}
 
 \item{scaling}{Scaling method. Possible values are
 \code{"row"}. \code{"col"} and \code{"none"}. The default is \code{"row"}.
+See Details.}
+
+\item{umf_control}{A named list with control parameters passed to UMFPACK.
 See Details.}
 }
 \value{
@@ -88,6 +91,28 @@ on the convergence of the Newton algorihtm. Thus the iterations
 are considered to be converged when the maximum value of the unscaled
 function values \eqn{F(x)} is smaller than \code{ftol}.
 }
+\subsection{UMFPACK control options}{
+Argument \code{umf_control} can be used to specify UMFPACK control parameters.
+Consult the documentation of UMFPACK for a description of the various control
+paramters. \code{umf_control} should be a named list; the names are the
+names of the UMFPACK control parameters excluding the prefix \code{UMFPACK}.
+With a few exceptions described below, the values are numerical values.
+For example,\preformatted{list(SYM_PIVOT_TOLERANCE = 0.01, AGGRESIVE = 1)
+}
+
+The values for the control options \code{STRATEGY}, \code{ORDERING} and \code{SCALE}
+should be character. In UMFPACK the values of these parameters
+should be specified with named numerical constants. For example,
+for \code{UMFPACK_STRATEGY} allowed values are the constants
+\code{UMFPACK_STRATEGY_AUTO}, \code{UMFPACK_STRATEGY_UNSYMMETRIC} and
+\code{UMFPACK_STRATEGY_SYMMETRIC}. In package \code{umfpackr} the values should be
+the name of the corresponding constant , again excluding the prefix \code{UMFACK_}.
+Exanple:\preformatted{list(STRATEGY = "STRATEGY_UNSYMMETRIC",
+     ORDERING = "ORDERING_METIS",
+     SCALE    = "SCALE_NONE")
+}
+
+}
 }
 \examples{
 library(umfpackr)
@@ -117,7 +142,7 @@ print(umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
 }
 \references{
 Dennis, J.E. Jr and Schnabel, R.B. (1997), \emph{Numerical Methods for Unconstrained Optimization
- and Nonlinear Equations}, Siam.
+and Nonlinear Equations}, Siam.
 
 Davis, T.A. (2004). A column pre-ordering strategy for the unsymmetric-pattern
 multifrontal method. \emph{ACM Trans. Math. Softw.}, \bold{30(2)}, 165–195.

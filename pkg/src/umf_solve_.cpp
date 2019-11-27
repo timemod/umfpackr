@@ -1,5 +1,6 @@
 #include <Rcpp.h>
-#include "umfpack.h"
+#include <umfpack.h>
+#include "set_umf_control.hpp"
 using namespace Rcpp;
 
 //#define TIMER
@@ -15,7 +16,7 @@ using namespace Rcpp;
  */
 
 // [[Rcpp::export]]
-List umf_solve_(S4 a, NumericVector b, bool rowscal) {
+List umf_solve_(S4 a, NumericVector b, List umf_control) {
 
     IntegerVector dims = a.slot("Dim");
     IntegerVector Ap = a.slot("p");
@@ -29,10 +30,7 @@ List umf_solve_(S4 a, NumericVector b, bool rowscal) {
     void *Symbolic, *Numeric ;
     double info[UMFPACK_INFO], control[UMFPACK_CONTROL];
 
-    umfpack_di_defaults(control);
-    if (!rowscal) {
-        control[UMFPACK_SCALE] = UMFPACK_SCALE_NONE;
-    }
+    set_umf_control(control, umf_control);
 
 //
 //  LU factorisation

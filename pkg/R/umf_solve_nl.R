@@ -16,6 +16,8 @@
 #' @param scaling Scaling method. Possible values are
 #' \code{"row"}. \code{"col"} and \code{"none"}. The default is \code{"row"}.
 #' See Details.
+#' @param umf_control A named list with control parameters passed to UMFPACK.
+#' See Details.
 #' @return a list with the following components:
 #' \item{\code{solved}}{A logical equal to \code{TRUE} if convergence
 #' of the function values has been achieved.}
@@ -69,6 +71,30 @@
 #' are considered to be converged when the maximum value of the unscaled
 #' function values \eqn{F(x)} is smaller than \code{ftol}.
 #' }
+#' \subsection{UMFPACK control options}{
+#' Argument `umf_control` can be used to specify UMFPACK control parameters.
+#' Consult the documentation of UMFPACK for a description of the various control
+#' paramters. `umf_control` should be a named list; the names are the
+#' names of the UMFPACK control parameters excluding the prefix `UMFPACK`.
+#' With a few exceptions described below, the values are numerical values.
+#' For example,
+#' ```
+#' list(SYM_PIVOT_TOLERANCE = 0.01, AGGRESIVE = 1)
+#' ```
+#' The values for the control options `STRATEGY`, `ORDERING` and `SCALE`
+#' should be character. In UMFPACK the values of these parameters
+#' should be specified with named numerical constants. For example,
+#' for `UMFPACK_STRATEGY` allowed values are the constants
+#'  `UMFPACK_STRATEGY_AUTO`, `UMFPACK_STRATEGY_UNSYMMETRIC` and
+#'  `UMFPACK_STRATEGY_SYMMETRIC`. In package `umfpackr` the values should be
+#'  the name of the corresponding constant , again excluding the prefix `UMFACK_`.
+#' Exanple:
+#' ```
+#' list(STRATEGY = "STRATEGY_UNSYMMETRIC",
+#'      ORDERING = "ORDERING_METIS",
+#'      SCALE    = "SCALE_NONE")
+#' ```
+#' }
 #' @references
 #' Dennis, J.E. Jr and Schnabel, R.B. (1997), \emph{Numerical Methods for Unconstrained Optimization
 #'  and Nonlinear Equations}, Siam.
@@ -115,8 +141,8 @@
 #' @export
 umf_solve_nl <- function(start, fn, jac, ..., control,
                          global = c("no", "cline"),
-                         scaling = c("row", "col", "none")) {
-
+                         scaling = c("row", "col", "none"),
+                         umf_control = list()) {
   #
   # test arguments
   #
@@ -134,6 +160,8 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
       stop("Argument 'control' should be a named list.")
     }
   }
+
+  umf_control <- check_umf_control(umf_control)
 
   message <- "???"
 
@@ -175,8 +203,19 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
                        "same length as argument start (%d).\n"), n))
   }
 
+  if (scaling == "row") {
+    if (!is.null(umf_control$SCALE) && umf_control$SCALE == "SCALE_NONE") {
+      stop(paste("If argument scaling == \"row\", then umfpack control SCALE",
+                 "should not be \"SCALE_NONE\"."))
+    }
+  } else {
+    if (!is.null(umf_control$SCALE) && umf_control$SCALE != "SCALE_NONE") {
+      warning("Umpack control SCALE is ignored if row scaling is disabled")
+    }
+    umf_control$SCALE <- "SCALE_NONE"
+  }
+
   colscal <- scaling == "col"
-  rowscal <- scaling == "row"
 
   # initialize scale with zeros
   if (colscal) scale <- numeric(n)
@@ -235,7 +274,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
     }
 
     # call umf_solve_  to solve j  x = -Fx
-    sol <- umf_solve_(j, Fx, rowscal)
+    sol <- umf_solve_(j, Fx, umf_control)
 
     # use a rough estimate of the condition number of UMFPACK.
     cond <- sol$cond
@@ -257,7 +296,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
         h <- h + mu * Diagonal(n)
         b <- as.numeric(t(j) %*% Fx)
 
-        sol <- umf_solve_(h, b, rowscal)
+        sol <- umf_solve_(h, b, umf_control)
 
         if (sol$status == "singular matrix") {
           message <- sprintf(

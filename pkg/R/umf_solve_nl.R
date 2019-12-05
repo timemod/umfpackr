@@ -120,7 +120,7 @@
 #' if (.Platform$OS.type != "windows") {
 #'    print(umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
 #'                   control = list(trace = TRUE),
-#'                   umf_control = list(SCALE = NONE,
+#'                   umf_control = list(SCALE = "MAX",
 #'                                      ORDERING = "METIS")))
 #' }
 #' @importFrom Matrix t

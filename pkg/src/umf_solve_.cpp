@@ -1,6 +1,6 @@
 #include <Rcpp.h>
 #include <umfpack.h>
-#include "set_umf_control.hpp"
+#include "set_umf_control.h"
 using namespace Rcpp;
 
 //#define TIMER

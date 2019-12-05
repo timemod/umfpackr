@@ -12,7 +12,7 @@ LazyData: true
 LinkingTo: Rcpp
 Imports: Rcpp
 Depends: methods, Matrix
-RoxygenNote: 7.0.0
+RoxygenNote: 7.0.1
 Roxygen: list(markdown = TRUE, old_usage = TRUE)
 Suggests: testthat, nleqslv, stringr
 NeedsCompilation: yes

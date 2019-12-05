@@ -17,7 +17,11 @@
 #' \code{"row"}. \code{"col"} and \code{"none"}. The default is \code{"row"}.
 #' See Details.
 #' @param umf_control A named list with control parameters passed to UMFPACK.
-#' See Details.
+#' For example, to use METIS column ordering use
+#' `umf_control = list(ORDERING = "METIS")`. Using METIS column ordering may require
+#' less memory than ordering ordering options, which may be useful for
+#' very large matrices.
+#' See for more information \code{\link{umf_control}}.
 #' @return a list with the following components:
 #' \item{\code{solved}}{A logical equal to \code{TRUE} if convergence
 #' of the function values has been achieved.}
@@ -71,33 +75,9 @@
 #' are considered to be converged when the maximum value of the unscaled
 #' function values \eqn{F(x)} is smaller than \code{ftol}.
 #' }
-#' \subsection{UMFPACK control options}{
-#' Argument `umf_control` can be used to specify UMFPACK control parameters.
-#' Consult the documentation of UMFPACK for a description of the various control
-#' paramters. `umf_control` should be a named list; the names are the
-#' names of the UMFPACK control parameters excluding the prefix `UMFPACK`.
-#' With a few exceptions described below, the values are numerical values.
-#' For example,
-#' ```
-#' list(SYM_PIVOT_TOLERANCE = 0.01, AGGRESIVE = 1)
-#' ```
-#' The values for the control options `STRATEGY`, `ORDERING` and `SCALE`
-#' should be character. In UMFPACK the values of these parameters
-#' should be specified with named numerical constants. For example,
-#' for `UMFPACK_STRATEGY` allowed values are the constants
-#'  `UMFPACK_STRATEGY_AUTO`, `UMFPACK_STRATEGY_UNSYMMETRIC` and
-#'  `UMFPACK_STRATEGY_SYMMETRIC`. In package `umfpackr` the values should be
-#'  the name of the corresponding constant , again excluding the prefix `UMFACK_`.
-#' Exanple:
-#' ```
-#' list(STRATEGY = "STRATEGY_UNSYMMETRIC",
-#'      ORDERING = "ORDERING_METIS",
-#'      SCALE    = "SCALE_NONE")
-#' ```
-#' }
 #' @references
-#' Dennis, J.E. Jr and Schnabel, R.B. (1997), \emph{Numerical Methods for Unconstrained Optimization
-#'  and Nonlinear Equations}, Siam.
+#' Dennis, J.E. Jr and Schnabel, R.B. (1997), \emph{Numerical Methods for
+#' Unconstrained Optimization and Nonlinear Equations}, Siam.
 #'
 #' Davis, T.A. (2004). A column pre-ordering strategy for the unsymmetric-pattern
 #' multifrontal method. \emph{ACM Trans. Math. Softw.}, \bold{30(2)}, 165–195.
@@ -135,9 +115,18 @@
 #'xstart <- c(2,3)
 #'print(umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
 #'                   control = list(trace = TRUE)))
+#'
+#' # now use METIs columns ordering (run this on Linux only)
+#' if (.Platform$OS.type != "windows") {
+#'    print(umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
+#'                   control = list(trace = TRUE),
+#'                   umf_control = list(SCALE = NONE,
+#'                                      ORDERING = "METIS")))
+#' }
 #' @importFrom Matrix t
 #' @importFrom Matrix norm
 #' @importFrom Matrix Diagonal
+#' @seealso \code{\link{umf_solve}}
 #' @export
 umf_solve_nl <- function(start, fn, jac, ..., control,
                          global = c("no", "cline"),
@@ -162,6 +151,20 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
   }
 
   umf_control <- check_umf_control(umf_control)
+
+  if (scaling == "row") {
+    if (!is.null(umf_control$SCALE) && umf_control$SCALE == "NONE") {
+      stop(paste("If argument scaling == \"row\", then umfpack control SCALE",
+                 "should not be \"SCALE_NONE\"."))
+    }
+  } else {
+    if (!is.null(umf_control$SCALE) && umf_control$SCALE != "NONE") {
+      warning("Umpack control SCALE is ignored if row scaling is disabled.")
+    }
+    umf_control$SCALE <- "NONE"
+  }
+
+
 
   message <- "???"
 
@@ -203,17 +206,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
                        "same length as argument start (%d).\n"), n))
   }
 
-  if (scaling == "row") {
-    if (!is.null(umf_control$SCALE) && umf_control$SCALE == "SCALE_NONE") {
-      stop(paste("If argument scaling == \"row\", then umfpack control SCALE",
-                 "should not be \"SCALE_NONE\"."))
-    }
-  } else {
-    if (!is.null(umf_control$SCALE) && umf_control$SCALE != "SCALE_NONE") {
-      warning("Umpack control SCALE is ignored if row scaling is disabled")
-    }
-    umf_control$SCALE <- "SCALE_NONE"
-  }
+
 
   colscal <- scaling == "col"
 

@@ -154,7 +154,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
 
   if (scaling == "row") {
     if (!is.null(umf_control$SCALE) && umf_control$SCALE == "NONE") {
-      stop(paste("If argument scaling == \"row\", then umfpack control SCALE",
+      stop(paste("When row scaling is applied, then umfpack control SCALE",
                  "should not be \"SCALE_NONE\"."))
     }
   } else {

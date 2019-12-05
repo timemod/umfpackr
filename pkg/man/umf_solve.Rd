@@ -13,7 +13,11 @@ umf_solve(a, b, umf_control = list())
 \item{b}{the vector \eqn{b}}
 
 \item{umf_control}{A named list with control parameters passed to UMFPACK.
-See Details.}
+For example, to use METIS column ordering use
+\code{umf_control = list(ORDERING = "METIS")}. Using METIS column ordering may require
+less memory than ordering ordering options, which may be useful for
+very large matrices.
+See for more information \code{\link{umf_control}}.}
 }
 \value{
 the solution \eqn{x}
@@ -21,30 +25,6 @@ the solution \eqn{x}
 \description{
 This function solved the linear equations of the form \eqn{A x = b} using
 UMFPACK.
-}
-\details{
-\subsection{UMFPACK control options}{
-Argument \code{umf_control} can be used to specify UMFPACK control parameters.
-Consult the documentation of UMFPACK for a description of the various control
-paramters. \code{umf_control} should be a named list; the names are the
-names of the UMFPACK control parameters excluding the prefix \code{UMFPACK}.
-With a few exceptions described below, the values are numerical values.
-For example,\preformatted{list(SYM_PIVOT_TOLERANCE = 0.01, AGGRESIVE = 1)
-}
-
-The values for the control options \code{STRATEGY}, \code{ORDERING} and \code{SCALE}
-should be character. In UMFPACK the values of these parameters
-should be specified with named numerical constants. For example,
-for \code{UMFPACK_STRATEGY} allowed values are the constants
-\code{UMFPACK_STRATEGY_AUTO}, \code{UMFPACK_STRATEGY_UNSYMMETRIC} and
-\code{UMFPACK_STRATEGY_SYMMETRIC}. In package \code{umfpackr} the values should be
-the name of the corresponding constant , again excluding the prefix \code{UMFACK_}.
-Exanple:\preformatted{list(STRATEGY = "STRATEGY_UNSYMMETRIC",
-     ORDERING = "ORDERING_METIS",
-     SCALE    = "SCALE_NONE")
-}
-
-}
 }
 \references{
 Dennis, J.E. Jr and Schnabel, R.B. (1997), \emph{Numerical Methods for Unconstrained Optimization
@@ -61,4 +41,7 @@ sparse LU factorization. \emph{SIAM J. Matrix Anal. Applic.}, \bold{18(1)}, 140â
 
 Davis, T.A  and Duff, I.S (1999). A combined unifrontal/multifrontal method for
 unsymmetric sparse matrices. \emph{ACM Trans. Math. Softw.}, \bold{25(1)}, 1â€“19..
+}
+\seealso{
+\code{\link{umf_solve_nl}} and \code{\link{umf_control}}.
 }

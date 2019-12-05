@@ -17,11 +17,11 @@ static void init_umf_control() {
     control_params["DENSE_COL"] = UMFPACK_DENSE_COL;
     control_params["PIVOT_TOLERANCE"] = UMFPACK_PIVOT_TOLERANCE;
     control_params["BLOCK_SIZE"] = UMFPACK_BLOCK_SIZE;
-    control_params["STRATEGY`"] = UMFPACK_STRATEGY;
-    control_params["ORDERING`"] = UMFPACK_ORDERING;
-    control_params["ALLOC_INIT`"] = UMFPACK_ALLOC_INIT;
-    control_params["IRSTEP`"] = UMFPACK_IRSTEP;
-    control_params["FIXQ`"] = UMFPACK_FIXQ;
+    control_params["STRATEGY"] = UMFPACK_STRATEGY;
+    control_params["ORDERING"] = UMFPACK_ORDERING;
+    control_params["ALLOC_INIT"] = UMFPACK_ALLOC_INIT;
+    control_params["IRSTEP"] = UMFPACK_IRSTEP;
+    control_params["FIXQ"] = UMFPACK_FIXQ;
     control_params["AMD_DENSE"] = UMFPACK_AMD_DENSE;
     control_params["SYM_PIVOT_TOLERANCE"] = UMFPACK_SYM_PIVOT_TOLERANCE;
     control_params["SCALE"] = UMFPACK_SCALE;
@@ -30,21 +30,21 @@ static void init_umf_control() {
     control_params["AGGRESSIVE"] = UMFPACK_AGGRESSIVE;
     control_params["SINGLETONS"] = UMFPACK_SINGLETONS;
 
-    umfpack_strategy_opts["STRATEGY_AUTO"] = UMFPACK_STRATEGY_AUTO;
-    umfpack_strategy_opts["STRATEGY_UNSYMMETRIC"] = UMFPACK_STRATEGY_UNSYMMETRIC;
-    umfpack_strategy_opts["STRATEGY_SYMMETRIC"] = UMFPACK_STRATEGY_SYMMETRIC;
+    umfpack_strategy_opts["AUTO"] = UMFPACK_STRATEGY_AUTO;
+    umfpack_strategy_opts["UNSYMMETRIC"] = UMFPACK_STRATEGY_UNSYMMETRIC;
+    umfpack_strategy_opts["SYMMETRIC"] = UMFPACK_STRATEGY_SYMMETRIC;
 
-    umfpack_ordering_opts["ORDERING_CHOLMOD"] = UMFPACK_ORDERING_CHOLMOD;
-    umfpack_ordering_opts["ORDERING_AMD"] = UMFPACK_ORDERING_AMD;
-    umfpack_ordering_opts["ORDERING_GIVEN"] = UMFPACK_ORDERING_GIVEN;
-    umfpack_ordering_opts["ORDERING_NONE"] = UMFPACK_ORDERING_NONE;
-    umfpack_ordering_opts["ORDERING_METIS"] = UMFPACK_ORDERING_METIS;
-    umfpack_ordering_opts["ORDERING_BEST"] = UMFPACK_ORDERING_BEST;
-    umfpack_ordering_opts["ORDERING_USER"] = UMFPACK_ORDERING_USER;
+    umfpack_ordering_opts["CHOLMOD"] = UMFPACK_ORDERING_CHOLMOD;
+    umfpack_ordering_opts["AMD"] = UMFPACK_ORDERING_AMD;
+    umfpack_ordering_opts["GIVEN"] = UMFPACK_ORDERING_GIVEN;
+    umfpack_ordering_opts["NONE"] = UMFPACK_ORDERING_NONE;
+    umfpack_ordering_opts["METIS"] = UMFPACK_ORDERING_METIS;
+    umfpack_ordering_opts["BEST"] = UMFPACK_ORDERING_BEST;
+    umfpack_ordering_opts["USER"] = UMFPACK_ORDERING_USER;
 
-    umfpack_scale_opts["SCALE_NONE"] = UMFPACK_SCALE_NONE;
-    umfpack_scale_opts["SCALE_SUM"] = UMFPACK_SCALE_SUM;
-    umfpack_scale_opts["SCALE_MAX"] = UMFPACK_SCALE_MAX;
+    umfpack_scale_opts["NONE"] = UMFPACK_SCALE_NONE;
+    umfpack_scale_opts["SUM"] = UMFPACK_SCALE_SUM;
+    umfpack_scale_opts["MAX"] = UMFPACK_SCALE_MAX;
 }
 
 double get_multiple_choice_option(const std::string option_name, 

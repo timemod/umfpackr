@@ -1,7 +1,6 @@
 .Rproj.user
 .Rhistory
 .RData
-pkg/inst/doc
 umfpackr.pdf
 pkg.log
 umfpackr.Rcheck

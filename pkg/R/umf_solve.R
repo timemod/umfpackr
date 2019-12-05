@@ -29,7 +29,7 @@
 #' unsymmetric sparse matrices. \emph{ACM Trans. Math. Softw.}, \bold{25(1)}, 1–19..
 #' @export
 #' @useDynLib umfpackr
-#' @seealso \code{\link{umf_solve_nl}}
+#' @seealso \code{\link{umf_solve_nl}} and \code{\link{umf_control}}.
 #' @importFrom Rcpp sourceCpp
 umf_solve <- function(a, b, umf_control = list()) {
 

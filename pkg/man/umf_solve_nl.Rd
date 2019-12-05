@@ -147,5 +147,5 @@ Davis, T.A  and Duff, I.S (1999). A combined unifrontal/multifrontal method for
 unsymmetric sparse matrices. \emph{ACM Trans. Math. Softw.}, \bold{25(1)}, 1–19..
 }
 \seealso{
-\code{\link{umf_solve}}
+\code{\link{umf_solve}}  and \code{\link{umf_control}}.
 }

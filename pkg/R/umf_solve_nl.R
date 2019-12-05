@@ -126,7 +126,7 @@
 #' @importFrom Matrix t
 #' @importFrom Matrix norm
 #' @importFrom Matrix Diagonal
-#' @seealso \code{\link{umf_solve}}
+#' @seealso \code{\link{umf_solve}}  and \code{\link{umf_control}}.
 #' @export
 umf_solve_nl <- function(start, fn, jac, ..., control,
                          global = c("no", "cline"),

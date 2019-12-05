@@ -7,7 +7,7 @@
 Functions \code{\link{umf_solve}} and \code{\link{umf_solve_nl}} have an
 argument \code{umf_control} that can be used to specify UMFPACK control parameters.
 These control parameters are described in detail in the
-\href{../doc/UMFPACK_UserGuide.pdf}{UMFPACK UserGuide}. The UserGuide described
+\href{../doc/UMFPACK_UserGuide.pdf}{UMFPACK User Guide}. This guide describes
 how the control options can be specified in C code. In the following paragraphs
 is explained how the C code can be translated to an R expression passed to
 argument \code{umf_control}.
@@ -24,7 +24,7 @@ For example, to use METIS, the specification in C code is:\preformatted{control[
 The corresponding R expression passed to argument \code{umf_control} is\preformatted{list(ORDERING = "METIS")
 }
 
-Thus in the R code the control names are without
+Thus in the R expression the control names are without
 prefix \code{UMFPACK_} and the possible values are specified with a character
 giving the name of the constant in UMFPACK excluding the prefix
 \code{UMFPACK_ORDERING_}.

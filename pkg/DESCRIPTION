@@ -15,3 +15,5 @@ Depends: methods, Matrix
 RoxygenNote: 7.0.0
 Roxygen: list(markdown = TRUE, old_usage = TRUE)
 Suggests: testthat, nleqslv, stringr
+NeedsCompilation: yes
+SystemRequirements: For Linux and other non-Windows platforms the libsuitesparse-dev library is required.

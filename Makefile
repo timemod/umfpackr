@@ -125,14 +125,15 @@ uninstall:
 	R CMD REMOVE $(PKG)
 
 clean:
-	rm -fr $(PKGDIR).Rcheck
-	rm -fr tmp
-	rm -f $(PKGTAR)
-	rm -f $(PKGDIR).pdf
-	rm -f $(PKGDIR).log
-	rm -f $(PKGDIR)/src/*.o
-	rm -f $(PKGDIR)/src/*.a
-	$(MAKE) -C $(PKGDIR)/src/SuiteSparse_config clean
-	$(MAKE) -C $(PKGDIR)/src/AMD clean
-	$(MAKE) -C $(PKGDIR)/src/UMFPACK clean
+	-rm -fr $(PKGDIR).Rcheck
+	-rm -fr tmp
+	-rm -f $(PKGTAR)
+	-rm -f $(PKGDIR).pdf
+	-rm -f $(PKGDIR).log
+	-rm -f $(PKGDIR)/src/*.o
+	-rm -f $(PKGDIR)/src/*.a
+	-rm -f $(PKGDIR)/src/*.so
+	-$(MAKE) -C $(PKGDIR)/src/SuiteSparse_config clean
+	-$(MAKE) -C $(PKGDIR)/src/AMD clean
+	-$(MAKE) -C $(PKGDIR)/src/UMFPACK clean
 

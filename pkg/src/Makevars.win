@@ -1,34 +1,17 @@
-# -*- Makefile -*-
-#
+# -*- Makefile for Windows -*-
 SUBDIRS = SuiteSparse_config AMD UMFPACK
 SUBLIBS =  UMFPACK/Lib/libumfpack.a AMD/Lib/libamd.a \
            SuiteSparse_config/SuiteSparse_config.a
 
 PKG_CPPFLAGS = -DNTIMER -I SuiteSparse_config -I UMFPACK/Include -I AMD/Include
-## we use the BLAS and the LAPACK library:
 PKG_LIBS = $(SUBLIBS) $(BLAS_LIBS)
 
-#OBJECTS = $(SOURCES_C:.c=.o)
 all: $(SHLIB)
-## making src/*.o and in sublibs can be done simultaneously
-# for development
 $(SHLIB): $(OBJECTS) sublibs
-# for real:
-#$(SHLIB): $(OBJECTS) subclean sublibs
 
 
 sublibs: 
 	@for d in $(SUBDIRS); do \
 	  (cd $${d} && $(MAKE) CC="$(CC)" \
            CPICFLAGS="$(CPICFLAGS)" AR="$(AR)" RANLIB="$(RANLIB)"); \
-	done
-
-clean: subclean
-	@-rm -rf .libs _libs
-	@-rm -f *.o $(SHLIB)
-
-subclean:
-	@-rm -f *.a
-	@for d in $(SUBDIRS); do \
-	  (cd $${d} && $(MAKE) clean) || exit 1; \
 	done

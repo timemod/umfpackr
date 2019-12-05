@@ -16,5 +16,5 @@ method is not possible.
 
 [Reference manual](umfpackr.pdf)
 
-[UMFPACK User Guide](pkg/vignettes/UMFPACK_UserGuide.pdf)
+[UMFPACK User Guide](pkg/inst/doc/UMFPACK_UserGuide.pdf)
 

@@ -62,7 +62,7 @@ In R package `umfpackr` following ordering methods can be chosen:
   COLAMD for the unsymmetric strategy. 
   * CHOLMOD. It first tries
 AMD or COLAMD (depending on what strategy is used). If that method gives low
-fill-in, it is used without trying METIS at all. Otherwise METIS is tried , and the ordering
+fill-in, it is used without trying METIS at all. Otherwise METIS is tried, and the ordering
 (AMD/COLAMD or METIS) giving the lowest fill-in is used.
   * METIS. Use METIS.
   * BEST. Try three methods (AMD/COLAMD, METIS and NESDIS) and take the best. 

@@ -46,7 +46,7 @@ test_that("result of umf_solve without cublic line search is correct", {
   xstart <- c(2, 0.5)
   if (.Platform$OS.type == "windows") {
     expect_error(umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
-                              umf_control = list(ORDERING = "METIS")),
+                              umf_control = list(ordering = "METIS")),
                  "On Windows, only the AMD ordering method possible.")
     ret <- umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
                         control = list(trace = FALSE, silent = TRUE),

@@ -17,11 +17,13 @@
 #' \code{"row"}. \code{"col"} and \code{"none"}. The default is \code{"row"}.
 #' See Details.
 #' @param umf_control A named list with control parameters passed to UMFPACK.
-#' For example, to use METIS column ordering use
-#' `umf_control = list(ORDERING = "METIS")`. Using METIS column ordering may require
-#' less memory than ordering ordering options, which may be useful for
-#' very large matrices.
-#' See for more information \code{\link{umf_control}}.
+#' Currently only a single control parameter can specified: `ordering`, which
+#' specifies the ordering method. Allowed values are `"AMD"` (the default),
+#' `"CHOLMOD"`, `"METIS"` and `"BEST"`. See the Vignette
+#' \href{../doc/UMFPACK_interface.pdf}{\emph{UMFPACK interface for R}} for more
+#' details. For example, to use METIS ordering specify
+#' `umf_control = list(ORDERING = "METIS")`. The METIS ordering method can
+#' handle larger matrices than the standard AMD method.
 #' @return a list with the following components:
 #' \item{\code{solved}}{A logical equal to \code{TRUE} if convergence
 #' of the function values has been achieved.}
@@ -120,13 +122,12 @@
 #' if (.Platform$OS.type != "windows") {
 #'    print(umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
 #'                   control = list(trace = TRUE),
-#'                   umf_control = list(SCALE = "MAX",
-#'                                      ORDERING = "METIS")))
+#'                   umf_control = list(ordering = "METIS")))
 #' }
 #' @importFrom Matrix t
 #' @importFrom Matrix norm
 #' @importFrom Matrix Diagonal
-#' @seealso \code{\link{umf_solve}}  and \code{\link{umf_control}}.
+#' @seealso \code{\link{umf_solve}}.
 #' @export
 umf_solve_nl <- function(start, fn, jac, ..., control,
                          global = c("no", "cline"),
@@ -151,20 +152,6 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
   }
 
   umf_control <- check_umf_control(umf_control)
-
-  if (scaling == "row") {
-    if (!is.null(umf_control$SCALE) && umf_control$SCALE == "NONE") {
-      stop(paste("When row scaling is applied, then umfpack control SCALE",
-                 "should not be \"SCALE_NONE\"."))
-    }
-  } else {
-    if (!is.null(umf_control$SCALE) && umf_control$SCALE != "NONE") {
-      warning("Umpack control SCALE is ignored if row scaling is disabled.")
-    }
-    umf_control$SCALE <- "NONE"
-  }
-
-
 
   message <- "???"
 
@@ -206,9 +193,8 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
                        "same length as argument start (%d).\n"), n))
   }
 
-
-
   colscal <- scaling == "col"
+  rowscal <- scaling == "row"
 
   # initialize scale with zeros
   if (colscal) scale <- numeric(n)
@@ -262,12 +248,10 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
       }
     }
 
-    if (scaling == "col") {
-      scale <- scale_mat_col(j, scale)
-    }
+    if (colscal) scale <- scale_mat_col(j, scale)
 
     # call umf_solve_  to solve j  x = -Fx
-    sol <- umf_solve_(j, Fx, umf_control)
+    sol <- umf_solve_(j, Fx, umf_control, rowscal)
 
     # use a rough estimate of the condition number of UMFPACK.
     cond <- sol$cond
@@ -289,7 +273,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
         h <- h + mu * Diagonal(n)
         b <- as.numeric(t(j) %*% Fx)
 
-        sol <- umf_solve_(h, b, umf_control)
+        sol <- umf_solve_(h, b, umf_control, rowscal)
 
         if (sol$status == "singular matrix") {
           message <- sprintf(
@@ -307,7 +291,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
     }
 
     dx <- -sol$x
-    if (scaling == "col") dx = dx / scale
+    if (colscal) dx = dx / scale
 
     if (global == "no") {
       ret <- pure_newton_step(x, dx, iter, cond, fun, control_)

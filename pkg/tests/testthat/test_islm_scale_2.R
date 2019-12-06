@@ -1,6 +1,7 @@
 library(umfpackr)
 library(testthat)
 library(nleqslv)
+library(stringr)
 
 rm(list = ls())
 

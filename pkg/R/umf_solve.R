@@ -6,11 +6,13 @@
 #' (see \code{\link[Matrix]{dgCMatrix-class}})
 #' @param b the vector \eqn{b}
 #' @param umf_control A named list with control parameters passed to UMFPACK.
-#' For example, to use METIS column ordering use
-#' `umf_control = list(ORDERING = "METIS")`. Using METIS column ordering may require
-#' less memory than ordering ordering options, which may be useful for
-#' very large matrices.
-#' See for more information \code{\link{umf_control}}.
+#' Currently only a single control parameter can specified: `ordering`, which
+#' specifies the ordering method. Allowed values are `"AMD"` (the default),
+#' `"CHOLMOD"`, `"METIS"` and `"BEST"`. See the Vignette
+#' \href{../doc/UMFPACK_interface.pdf}{\emph{UMFPACK interface for R}} for more
+#' details. For example, to use METIS ordering specify
+#' `umf_control = list(ORDERING = "METIS")`. The METIS ordering method can
+#' handle larger matrices than the standard AMD method.
 #' @return the solution \eqn{x}
 #' @references
 #' Dennis, J.E. Jr and Schnabel, R.B. (1997), \emph{Numerical Methods for Unconstrained Optimization
@@ -29,7 +31,7 @@
 #' unsymmetric sparse matrices. \emph{ACM Trans. Math. Softw.}, \bold{25(1)}, 1–19..
 #' @export
 #' @useDynLib umfpackr
-#' @seealso \code{\link{umf_solve_nl}} and \code{\link{umf_control}}.
+#' @seealso \code{\link{umf_solve_nl}}.
 #' @importFrom Rcpp sourceCpp
 umf_solve <- function(a, b, umf_control = list()) {
 
@@ -52,7 +54,7 @@ umf_solve <- function(a, b, umf_control = list()) {
 
   umf_control <- check_umf_control(umf_control)
 
-  sol <- umf_solve_(a, b, umf_control)
+  sol <- umf_solve_(a, b, umf_control, FALSE)
   if (sol$status == "singular matrix") {
     stop(sol$status)
   }

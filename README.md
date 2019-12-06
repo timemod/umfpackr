@@ -16,5 +16,8 @@ method is not possible.
 
 [Reference manual](umfpackr.pdf)
 
+[Vignette *UMFPACK Interface for R*](pkg/vignettes/UMFPACK_interface.pdf)
+
+
 [UMFPACK User Guide](pkg/inst/doc/UMFPACK_UserGuide.pdf)
 

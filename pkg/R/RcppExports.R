@@ -5,7 +5,7 @@ scale_mat_col <- function(mat, scale) {
     .Call('_umfpackr_scale_mat_col', PACKAGE = 'umfpackr', mat, scale)
 }
 
-umf_solve_ <- function(a, b, umf_control) {
-    .Call('_umfpackr_umf_solve_', PACKAGE = 'umfpackr', a, b, umf_control)
+umf_solve_ <- function(a, b, umf_control, rowscal) {
+    .Call('_umfpackr_umf_solve_', PACKAGE = 'umfpackr', a, b, umf_control, rowscal)
 }
 

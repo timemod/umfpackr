@@ -16,7 +16,7 @@ using namespace Rcpp;
  */
 
 // [[Rcpp::export]]
-List umf_solve_(S4 a, NumericVector b, List umf_control) {
+List umf_solve_(S4 a, NumericVector b, List umf_control, bool rowscal) {
 
     IntegerVector dims = a.slot("Dim");
     IntegerVector Ap = a.slot("p");
@@ -31,6 +31,7 @@ List umf_solve_(S4 a, NumericVector b, List umf_control) {
     double info[UMFPACK_INFO], control[UMFPACK_CONTROL];
 
     set_umf_control(control, umf_control);
+    if (!rowscal) control[UMFPACK_SCALE] = UMFPACK_SCALE_NONE;
 
 //
 //  LU factorisation
@@ -64,7 +65,11 @@ List umf_solve_(S4 a, NumericVector b, List umf_control) {
     } else if (stat != UMFPACK_OK) {
         umfpack_di_free_numeric(&Numeric);
         if (stat == UMFPACK_ERROR_out_of_memory) {
-            Rf_error("Not enough memory for numeric factorization");
+            if (info[UMFPACK_ORDERING_USED] == UMFPACK_ORDERING_AMD) {
+                Rf_error("Not enough memory for numeric factorization. Try METIS ordering (use argument umf_control).");
+            } else {
+                Rf_error("Not enough memory for numeric factorization");
+            }
         } else {
             Rf_error("Unknown error in numeric factorization");
         }

@@ -29,10 +29,6 @@ test_that("result of umf_solve is correct", {
   expect_true(ret$solved)
   expect_equal(ret$x, c(1, 1))
   expect_true(sum(abs(ret$fval)) < 1e-8)
-
-  expect_error(umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
-                            umf_control = list(SCALE = "NONE")),
-               "When row scaling is applied, then umfpack control SCALE should not be \"SCALE_NONE\".")
 })
 
 test_that("result of umf_solve with cublic line search is correct", {
@@ -40,15 +36,10 @@ test_that("result of umf_solve with cublic line search is correct", {
 
   ret <- umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
                       control = list(trace = FALSE, silent = TRUE),
-                      global = "cline", scaling = "row",
-                      umf_control = list(SCALE = "SUM"))
+                      global = "cline", scaling = "row")
   expect_true(ret$solved)
   expect_equal(ret$x, c(1, 1))
   expect_true(sum(abs(ret$fval)) < 1e-8)
-
-  expect_warning(umf_solve_nl(xstart, dslnex, jacdsln, c = 2, scaling = "no",
-                              umf_control = list(SCALE = "SUM")),
-                 "Umpack control SCALE is ignored if row scaling is disabled.")
 })
 
 test_that("result of umf_solve without cublic line search is correct", {
@@ -59,11 +50,11 @@ test_that("result of umf_solve without cublic line search is correct", {
                  "On Windows, only the AMD ordering method possible.")
     ret <- umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
                         control = list(trace = FALSE, silent = TRUE),
-                        global = "no", umf_control = list(ORDERING = "AMD"))
+                        global = "no", umf_control = list(ordering = "AMD"))
   } else {
     ret <- umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
                         control = list(trace = FALSE, silent = TRUE),
-                        global = "no", umf_control = list(ORDERING = "METIS"))
+                        global = "no", umf_control = list(ordering = "METIS"))
   }
   expect_false(ret$solved)
 })

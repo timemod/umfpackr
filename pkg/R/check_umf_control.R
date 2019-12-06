@@ -16,7 +16,7 @@ check_umf_control <- function(umf_control) {
   }
 
   if (.Platform$OS.type == "windows") {
-    if (!is.null(umf_control$ORDERING) && umf_control$ORDERING != "AMD") {
+    if (!is.null(umf_control$ordering) && umf_control$ordering != "AMD") {
       stop("On Windows, only the AMD ordering method possible.")
     }
   }

@@ -28,11 +28,13 @@ as a \code{dgCMatrix} object}
 See Details.}
 
 \item{umf_control}{A named list with control parameters passed to UMFPACK.
-For example, to use METIS column ordering use
-\code{umf_control = list(ORDERING = "METIS")}. Using METIS column ordering may require
-less memory than ordering ordering options, which may be useful for
-very large matrices.
-See for more information \code{\link{umf_control}}.}
+Currently only a single control parameter can specified: \code{ordering}, which
+specifies the ordering method. Allowed values are \code{"AMD"} (the default),
+\code{"CHOLMOD"}, \code{"METIS"} and \code{"BEST"}. See the Vignette
+\href{../doc/UMFPACK_interface.pdf}{\emph{UMFPACK interface for R}} for more
+details. For example, to use METIS ordering specify
+\code{umf_control = list(ORDERING = "METIS")}. The METIS ordering method can
+handle larger matrices than the standard AMD method.}
 }
 \value{
 a list with the following components:
@@ -126,8 +128,7 @@ print(umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
 if (.Platform$OS.type != "windows") {
    print(umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
                   control = list(trace = TRUE),
-                  umf_control = list(SCALE = "MAX",
-                                     ORDERING = "METIS")))
+                  umf_control = list(ordering = "METIS")))
 }
 }
 \references{
@@ -147,5 +148,5 @@ Davis, T.A  and Duff, I.S (1999). A combined unifrontal/multifrontal method for
 unsymmetric sparse matrices. \emph{ACM Trans. Math. Softw.}, \bold{25(1)}, 1–19..
 }
 \seealso{
-\code{\link{umf_solve}}  and \code{\link{umf_control}}.
+\code{\link{umf_solve}}.
 }

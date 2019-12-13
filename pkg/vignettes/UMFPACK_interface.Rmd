@@ -20,8 +20,8 @@ library(umfpackr)
 Package `umfpackr` provides an interface to UMFPACK, a sparse direct solver 
 written in  C. The package `umfpackr` contains the functions
 `umf_solve` and `umf_solve_nl` for solving 
-linear and non-linear systems of equations respectively.
-This vignette describes the UMPFACK interace implemeneted in
+linear and non-linear systems of equations, respectively.
+This vignette describes the UMPFACK interace implemented in
 `umfpackr` in detail.
 
 # System dependencies
@@ -38,13 +38,12 @@ sudo apt-get install libsuitesparse-dev
 Something similar is probably possible for other Linux platforms. Otherwise
 you have to build SuiteSparse from source.
 
-On Windows SuiteSparse is it difficult to install SuiteSparse and use
-it in R.
-Fortunately the SuiteSparse libraries UMFPACK and AMD can compiled
-with GNU Fortran. These libraries are sufficient to 
+On Windows, it difficult to install the full SuiteSparse package and use
+it in R. However, it is possible to use the UMFPACK and AMD libraries
+in an R package. These libraries are sufficient to 
 solve sparse linear
 systems using the AMD ordering method. For the Windows
-implementation of `umfpackfr`  the souce of these libraries is included
+implementation of `umfpackfr`,  the souce of these libraries is included
 in the package and it is therefore not necesarry to install SuiteSparse on Windows. 
 The drawback is that it is not possible to use the METIS
 ordering method on Windows. The METIS method can handle larger
@@ -56,7 +55,7 @@ UMFPACK can use several ordering methods. As explained in the previous section,
 on Windows only one ordering method is possible (AMD), but on other platforms
 the user can select several other ordering methods.
 
-In R package `umfpackr` following ordering methods can be chosen:
+In R package `umfpackr`, the following ordering methods can be chosen:
 
   * AMD. This is the default. AMD is used for the symmetric strategy and 
   COLAMD for the unsymmetric strategy. 
@@ -79,7 +78,7 @@ and references therein.
   
 In `umfpackr` the ordering method can be selected by specifying 
 argument `umf_control` of function `umf_solve` or `umf_solve_nl`.
-This argument should be a named list. To select the METIS
+This argument should be a named list. To select  METIS
 ordering, specify `umf_control = list(ordering = "METIS")`.
 An example were the CHOLMOD  is chosen on Linux and AMD on Windows:
 

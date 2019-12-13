@@ -15,3 +15,13 @@ sublibs:
 	  (cd $${d} && $(MAKE) CC="$(CC)" \
            CPICFLAGS="$(CPICFLAGS)" AR="$(AR)" RANLIB="$(RANLIB)"); \
 	done
+
+clean: subclean
+	@-rm -rf .libs _libs
+	@-rm -f *.o $(SHLIB)
+
+subclean:
+	@-rm -f *.a
+	@for d in $(SUBDIRS); do \
+	  (cd $${d} && $(MAKE) clean) || exit 1; \
+	done

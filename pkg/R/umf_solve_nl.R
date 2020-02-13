@@ -174,11 +174,6 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
 
   solved <- FALSE
 
-  if (control_$trace) {
-    cat("\nIteration report\n")
-    cat("----------------\n")
-  }
-
   n <- length(start)
 
   x <- start
@@ -210,6 +205,8 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
     }
 
     if (iter == 0 && control_$trace) {
+      cat("\nIteration report\n")
+      cat("----------------\n")
       if (global == "cline") {
         report_cline(iter, cond, FALSE, 1, Fx)
       } else if (global == "no") {

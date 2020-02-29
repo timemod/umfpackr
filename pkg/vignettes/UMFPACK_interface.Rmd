@@ -73,7 +73,7 @@ fill-in, it is used without trying METIS at all. Otherwise METIS is tried, and t
   necessary to the the METIS ordering (in that case METIS ordering is usually
   selected when CHOLMOD ordering is used).
   
-More details can be found in the [_UMFPACK User Guide_](UMFPACK_UserGuide.PDF) 
+More details can be found in the [_UMFPACK User Guide_](../doc_umfpack/UMFPACK_UserGuide.PDF) 
 and references therein.
   
 In `umfpackr` the ordering method can be selected by specifying 

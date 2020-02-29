@@ -19,5 +19,5 @@ method is not possible.
 [Vignette *UMFPACK Interface for R*](pkg/vignettes/UMFPACK_interface.pdf)
 
 
-[UMFPACK User Guide](pkg/inst/doc/UMFPACK_UserGuide.pdf)
+[UMFPACK User Guide](pkg/inst/doc_umfpack/UMFPACK_UserGuide.pdf)
 

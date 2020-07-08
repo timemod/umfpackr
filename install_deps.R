@@ -3,4 +3,5 @@
 if (!require(devtools)) {
     stop('devtools not installed')
 }
-devtools::install_deps('pkg')
+devtools::install_deps('pkg', upgrade = FALSE)
+

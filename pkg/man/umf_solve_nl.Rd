@@ -64,7 +64,9 @@ value is \code{1e-8}.}
 \item{\code{xtol}}{The relative step size tolerance. When the relative
 step size is smaller than \code{xtol}, then the iteration is stopped.
 The default value is \code{1e-8}.}
-\item{\code{maxiter}}{The maximum number of iterations. The default is 20.}
+\item{\code{maxiter}}{The maximum number of iterations. The default is 20
+if no global strategy is used (argument \code{global = "no"}), and 150
+if cublic line searching is used (argument \code{global = "cline"}).}
 \item{\code{trace}}{A logical. If \code{TRUE}  then the progress of the
 iteraton is printed. The default is \code{FALSE}.}
 \item{\code{silent}}{A logical. If \code{TRUE}  then all output is suppressed.

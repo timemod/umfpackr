@@ -14,7 +14,7 @@ method is not possible.
 
 ## Documentation
 
-[Reference manual](umfpackr.pdf)
+[Reference manual](pkg/vignettes/umfpackr_refman.pdf)
 
 [Vignette *UMFPACK Interface for R*](pkg/vignettes/UMFPACK_interface.pdf)
 

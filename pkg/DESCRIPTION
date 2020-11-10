@@ -14,7 +14,8 @@ Imports: Rcpp
 Depends: methods, Matrix
 RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE, old_usage = TRUE)
-Suggests: testthat, nleqslv, stringr, knitr
+Suggests: testthat, nleqslv, stringr, knitr, R.rsp
 NeedsCompilation: yes
 SystemRequirements: For Linux and other non-Windows platforms the libsuitesparse-dev library is required.
-VignetteBuilder: knitr
+VignetteBuilder: knitr,
+                 R.rsp

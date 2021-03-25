@@ -134,11 +134,21 @@ ms <- ms_scale_1 * scale
 xstart <- xstart_scale_1
 xstart[1:6] <- xstart[1:6] * scale
 
-
 test_that("scale 1e-12)", {
 
+  # first test with default value of control parameter cnd_tol
+  report_error <- capture_output(
+    result_error <- umf_solve_nl(xstart, fun, jac, control = list(trace = TRUE))
+  )
+  expect_false(result_error$solved)
+  msg <- paste("The inverse condition of the jacobian is smaller",
+               "than cnd_tol")
+  expect_true(grepl(msg, report_error))
+  expect_true(grepl(paste0("^", msg), result_error$message))
+
   report1 <- capture.output(
-    result1 <- umf_solve_nl(xstart, fun, jac, control = list(trace = TRUE))
+    result1 <- umf_solve_nl(xstart, fun, jac, control = list(trace = TRUE,
+                                                             cnd_tol = 0))
   )
 
   expect_true(result1$solved)
@@ -164,7 +174,8 @@ test_that("scale 1e-12)", {
   expect_true(all(rconds > 1e-3))
 
   report3 <- capture.output(
-    result3 <- umf_solve_nl(xstart, fun, jac, control = list(trace = TRUE),
+    result3 <- umf_solve_nl(xstart, fun, jac, control = list(trace = TRUE,
+                                                             cnd_tol = -1),
                            scaling = "no"))
   expect_true(result3$solved)
 

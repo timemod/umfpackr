@@ -6,14 +6,10 @@ PKGDIR=pkg
 INSTALL_FLAGS=--no-multiarch --with-keep.source
 
 # Package name, Version and date from DESCIPTION
-PKG=$(shell grep 'Package:' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2)
-PKGTAR=$(PKG)_$(shell grep 'Version' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2).tar.gz
-PKGDATE=$(shell grep 'Date' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2)
-TODAY=$(shell date "+%Y-%m-%d")
-
+PKG=$(shell grep Package: $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2)
+PKGTAR=$(PKG)_$(shell grep Version $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2).tar.gz
 OSTYPE=$(shell Rscript -e "cat(.Platform[['OS.type']])")
 RCPP_CXXFLAGS = $(shell Rscript -e "Rcpp:::CxxFlags()")
-
 PKG_CXXFLAGS = $(RCPP_CXXFLAGS) -I pkg/src/SuiteSparse_config \
 	       -I pkg/src/UMFPACK/Include -I pkg/src/AMD/Include
 
@@ -49,18 +45,17 @@ CXX=$(shell R CMD config CXX)
 CPP_FLAGS=$(shell R CMD config --cppflags)
 
 flags:
-	@echo "OSTYPE=$(OSTYPE)"
-	@echo "CPP_FLAGS=$(CPP_FLAGS)"
-	@echo "RCPP_CXXFLAGS=$(RCPP_CXXFLAGS)"
-	@echo "PKG_CXXFLAGS=$(PKG_CXXFLAGS)"
-	@echo "PKGDIR=$(PKGDIR)"
-	@echo "PKG=$(PKG)"
-	@echo "PKGTAR=$(PKGTAR)"
-	@echo "PKGDATE=$(PKGDATE)"
-	@echo "CC=$(CC)"
-	@echo "CPP=$(CPP)"
-	@echo "CPP_FLAGS=$(CPP_FLAGS)"
-	@echo ".libPaths():"
+	@echo OSTYPE=$(OSTYPE)
+	@echo CPP_FLAGS=$(CPP_FLAGS)
+	@echo RCPP_CXXFLAGS=$(RCPP_CXXFLAGS)
+	@echo PKG_CXXFLAGS=$(PKG_CXXFLAGS)
+	@echo PKGDIR=$(PKGDIR)
+	@echo PKG=$(PKG)
+	@echo PKGTAR=$(PKGTAR)
+	@echo CC=$(CC)
+	@echo CPP=$(CPP)
+	@echo CPP_FLAGS=$(CPP_FLAGS)
+	@echo libPaths:
 	@R --no-save --quiet --slave -e '.libPaths()'
 
 test:
@@ -74,10 +69,6 @@ check: cleanx syntax
 	R CMD build $(PKGDIR)
 	R CMD check $(RCHECKARG) $(PKGTAR)
 	@rm -f  $(PKGTAR)
-	@echo "Today                           : $(TODAY)"
-	@echo "Checked package description date: $(PKGDATE)"
-# 	@Rscript -e 'cat("Installed version date          :",packageDescription("nleqslv", fields="Date"))'
-	@echo ""
 
 syntax:
 	$(CXX) $(CPP_FLAGS) $(PKG_CXXFLAGS) -c -fsyntax-only -Wall -pedantic $(PKGDIR)/src/*.c*
@@ -97,10 +88,6 @@ mkpkg: cleanx syntax install_deps
 	R CMD build $(PKGDIR)
 	R CMD check --as-cran $(RCHECKARG) $(PKGTAR)
 	@cp -nv $(PKGTAR) archive
-	@echo "Today                           : $(TODAY)"
-	@echo "Checked package description date: $(PKGDATE)"
-# 	@Rscript -e 'cat("Installed version date          :",packageDescription("nleqslv", fields="Date"))'
-	@echo ""
 	./drat.sh --pkg=$(PKGTAR)
 
 

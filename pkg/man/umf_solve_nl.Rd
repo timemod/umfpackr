@@ -71,11 +71,44 @@ if cublic line searching is used (argument \code{global = "cline"}).}
 iteraton is printed. The default is \code{FALSE}.}
 \item{\code{silent}}{A logical. If \code{TRUE}  then all output is suppressed.
 The default is \code{FALSE}.}
+\item{\code{cnd_tol}}{The tolerance for the inverse condition of the jacobian.
+If the inverse condition is smaller than \code{cnd_tol}, the solution process
+is terminated with an error, except if control parameter \code{allow_singular} is
+set to \code{TRUE}. The default is the machine precision (on most platforms
+about \code{2e-16}). If the inverse condition is very small but nonzero
+it may be difficult to find a solution, or the solution may not be
+meaningful. However, sometimes a good solution can be found even if the
+condition is quite small. The test  for the ill-conditioning of the
+jacobian can be turned off by setting \code{cndtol} to 0 or a negative number.
+However, if the matrix is singular (the inverse condition is exactly zero),
+it is not possible to continue with the solution process
+(except if control parameter \code{allow_singular} is set to \code{TRUE}).
+The default value of \code{cnd_tol} is quite small, in some cases it can be
+appropiate to use a somewhat larger value (\code{1e-12})}
+\item{\code{cnd_method}}{A character vector specifying the method used to
+compute the inverse condition number of the jacobian. Possibile options are
+\code{"umfpack"}(the default), \code{"condest"} and \code{"kappa"}.
+For \code{"umfpack"} a rough estimate of the condition as computed by UMFPACK is
+used, using the expression \code{min(abs(diag(U)))/max(abs(diag(U)))},
+where \code{U} is the \code{U} matrix of the LU factorization of the jacobian.
+\code{"condest"} employs function \code{\link[Matrix]{condtest}} of the \code{Matrix}
+package and \code{kappa} the function \code{\link[base]{kappa}} of the \code{base} package.
+Method \code{condtest} is more accurate than the rough estimate of UMFPACK,
+but takes more time. \code{kappa} is essentially exact, but is very slow for large
+matrices because this function does not use sparse matrices.
+Method \code{"condest"} usually gives a reasonable approximation of the
+inverse condition number.
+It is recommended to normally use \code{"umfpack"}, but occasionally use \code{"condest"}
+for a more accurate check of the condition number.}
 \item{\code{allow_singular}}{A logical value (default \code{FALSE})
 indicating if a small correction to the Jacobian is applied when it is
 singular or too ill-conditioned.
 The method used is similar to a Levenberg-Marquardt correction
-and is explained in Dennis and Schnabel (1996) on page 151.}
+and is explained in Dennis and Schnabel (1996) on page 151.
+If \code{TRUE}, then the correction is applied if the inverse condition is
+exactly zero or if the inverse condition is smaller than control
+parameter \code{cndtol}.
+}
 }}
 \subsection{Scaling of the Jacobian}{
 For each iteration in the Newton method the linear system \eqn{J s = F(x)} is

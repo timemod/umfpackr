@@ -66,12 +66,12 @@
 #'  The default value of `cnd_tol` is quite small, in some cases it can be
 #'  appropiate to use a somewhat larger value (`1e-12`)}
 #' \item{\code{cnd_method}}{A character vector specifying the method used to
-#' compute the inverse condition number of the jacobian. Possibile options are
+#' estimate the inverse condition number of the jacobian. Possible options are
 #' `"umfpack"`(the default), `"condest"` and `"kappa"`.
 #' For `"umfpack"` a rough estimate of the condition as computed by UMFPACK is
 #' used, using the expression \code{min(abs(diag(U)))/max(abs(diag(U)))},
 #' where `U` is the `U` matrix of the LU factorization of the jacobian.
-#' `"condest"` employs function \code{\link[Matrix]{condtest}} of the `Matrix`
+#' `"condest"` employs function \code{\link[Matrix]{condest}} of the `Matrix`
 #' package and `kappa` the function \code{\link[base]{kappa}} of the `base` package.
 #' Method `condtest` is more accurate than the rough estimate of UMFPACK,
 #' but takes more time. `kappa` is essentially exact, but is very slow for large
@@ -203,9 +203,6 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
         stop("Allowed values for control pption 'cnd_method' are",
              " 'umfpack', 'condest' and 'kappa'.")
       }
-      if (control$cnd_method == "condest" && scaling == "row") {
-        stop("cnd_method 'condest' not yet possible for row scaling.")
-      }
     }
     if (!is.null(control$cnd_tol)) {
       if (!is.numeric(control$cnd_tol) &&
@@ -219,6 +216,9 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
 
   umf_control <- check_umf_control(umf_control)
 
+  colscal <- scaling == "col"
+  rowscal <- scaling == "row"
+
   fun <- function(x) {
     return(fn(x, ...))
   }
@@ -229,6 +229,14 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
   # function for an accurate calculation of the inverse  condition number
   # of the jacobian
   get_cond <- function(jac) {
+    if (rowscal) {
+      # rowscaling is applied internally in UMFPACK. If we want to estimate the
+      # condition number with the 'condest' or 'kappa' method, we should
+      # first apply row scaling ourselves.row scaling is applied internally in umfpack
+      # to compute the condition number we have to row scaling manually
+      rowfac <- 1/ Matrix::rowSums(abs(jac))
+      jac <- jac * rowfac
+    }
     if (control_$cnd_method == "condest") {
       cond <- 1 / condest(jac)$est
     } else if (control_$cnd_method == "kappa") {
@@ -253,8 +261,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
                        "same length as argument start (%d).\n"), n))
   }
 
-  colscal <- scaling == "col"
-  rowscal <- scaling == "row"
+
 
   # initialize scale with zeros
   if (colscal) scale <- numeric(n)

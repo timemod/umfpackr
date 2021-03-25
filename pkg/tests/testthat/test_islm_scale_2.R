@@ -109,6 +109,32 @@ test_that("scale 1e32)", {
   rconds <- read_rconds(report1)
   expect_true(all(rconds > 1e-3))
 
+  report1a_error <- capture_output(
+    result1a_error <- umf_solve_nl(xstart, fun, jac, control = list(trace = TRUE),
+                             scaling = "no"))
+  msg <- paste("The inverse condition of the jacobian is smaller",
+               "than cnd_tol")
+  expect_true(grepl(msg, report1a_error))
+  expect_true(grepl(paste0("^", msg), result1a_error$message))
+
+  report1b <- capture.output(
+    result1b <- umf_solve_nl(xstart, fun, jac,
+                             control = list(trace = TRUE,
+                                            cnd_method = "condest")))
+  expect_true(result1b$solved)
+  expect_equal(result1b$x, result_scale1$x)
+  rconds <- read_rconds(report1b)
+  expect_true(all(rconds > 1e-3))
+
+  report1c <- capture.output(
+    result1c <- umf_solve_nl(xstart, fun, jac,
+                             control = list(trace = TRUE,
+                                            cnd_method = "kappa")))
+  expect_true(result1c$solved)
+  expect_equal(result1c$x, result_scale1$x)
+  rconds <- read_rconds(report1c)
+  expect_true(all(rconds > 1e-3))
+
   report2_error <- capture_output(
     result2_error <- umf_solve_nl(xstart, fun, jac,
                                   control = list(trace = TRUE),
@@ -142,13 +168,10 @@ test_that("scale 1e32)", {
   report4_error <- capture_output(
     result4_error <- umf_solve_nl(xstart, fun, jac,
                             control = list(trace = TRUE,
-                                           allow_singular = TRUE), scaling = "no"))
+                                           allow_singular = TRUE),
+                            scaling = "no"))
   expect_false(result4_error$solved)
   msg <- "Relative step size smaller than"
   expect_true(grepl(msg, report4_error))
   expect_true(grepl(paste0("^", msg), result4_error$message))
-
 })
-
-
-

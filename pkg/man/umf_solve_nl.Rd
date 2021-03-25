@@ -86,12 +86,12 @@ it is not possible to continue with the solution process
 The default value of \code{cnd_tol} is quite small, in some cases it can be
 appropiate to use a somewhat larger value (\code{1e-12})}
 \item{\code{cnd_method}}{A character vector specifying the method used to
-compute the inverse condition number of the jacobian. Possibile options are
+estimate the inverse condition number of the jacobian. Possible options are
 \code{"umfpack"}(the default), \code{"condest"} and \code{"kappa"}.
 For \code{"umfpack"} a rough estimate of the condition as computed by UMFPACK is
 used, using the expression \code{min(abs(diag(U)))/max(abs(diag(U)))},
 where \code{U} is the \code{U} matrix of the LU factorization of the jacobian.
-\code{"condest"} employs function \code{\link[Matrix]{condtest}} of the \code{Matrix}
+\code{"condest"} employs function \code{\link[Matrix]{condest}} of the \code{Matrix}
 package and \code{kappa} the function \code{\link[base]{kappa}} of the \code{base} package.
 Method \code{condtest} is more accurate than the rough estimate of UMFPACK,
 but takes more time. \code{kappa} is essentially exact, but is very slow for large

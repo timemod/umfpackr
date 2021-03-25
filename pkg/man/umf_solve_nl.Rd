@@ -59,16 +59,21 @@ Argument \code{control} is a named list containing one or more of
 the following components:
 \describe{
 \item{\code{ftol}}{The function value tolerance. Convergence is reached
-if the largest function value is smaller than \code{ftol}. The default
-value is \code{1e-8}.}
-\item{\code{xtol}}{The relative step size tolerance. When the relative
-step size is smaller than \code{xtol}, then the iteration is stopped.
+if the largest absolute function value is smaller than \code{ftol}.
 The default value is \code{1e-8}.}
+\item{\code{xtol}}{The relative step size tolerance. When the relative
+step size of all variables is smaller than \code{xtol}, then the
+iteration process is stopped with an error.
+The default value is \code{1e-8}. The relative step size of variable
+\eqn{x_j} at iteration \eqn{i} is calculated as
+\eqn{|x_j^i - x_j^{i-1}| / \rm{max}(|x_j^i|, 1)}.
+If column scaling is applied (see argument \code{scaling}), then \eqn{x_i} is actually
+the scaled variable.}
 \item{\code{maxiter}}{The maximum number of iterations. The default is 20
 if no global strategy is used (argument \code{global = "no"}), and 150
 if cublic line searching is used (argument \code{global = "cline"}).}
 \item{\code{trace}}{A logical. If \code{TRUE}  then the progress of the
-iteraton is printed. The default is \code{FALSE}.}
+iteration is printed. The default is \code{FALSE}.}
 \item{\code{silent}}{A logical. If \code{TRUE}  then all output is suppressed.
 The default is \code{FALSE}.}
 \item{\code{cnd_tol}}{The tolerance for the inverse condition of the jacobian.
@@ -89,9 +94,10 @@ appropiate to use a somewhat larger value (\code{1e-12})}
 estimate the inverse condition number of the jacobian. Possible options are
 \code{"umfpack"}(the default), \code{"condest"} and \code{"kappa"}.
 For \code{"umfpack"} a rough estimate of the condition as computed by UMFPACK is
-used, using the expression \code{min(abs(diag(U)))/max(abs(diag(U)))},
-where \code{U} is the \code{U} matrix of the LU factorization of the jacobian.
-\code{"condest"} employs function \code{\link[Matrix]{condest}} of the \code{Matrix}
+used, using the expression
+\eqn{\rm{min}(\rm{abs}(\rm{diag}(U)))/\rm{max}(\rm{abs}(\rm{diag}(U)))},
+where \eqn{U} is the \eqn{U} matrix of the LU factorization of the jacobian.
+Method \code{"condest"} employs function \code{\link[Matrix]{condest}} of the \code{Matrix}
 package and \code{kappa} the function \code{\link[base]{kappa}} of the \code{base} package.
 Method \code{condtest} is more accurate than the rough estimate of UMFPACK,
 but takes more time. \code{kappa} is essentially exact, but is very slow for large

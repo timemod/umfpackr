@@ -25,7 +25,7 @@ handle larger matrices than the standard AMD method.}
 the solution \eqn{x}
 }
 \description{
-This function solved the linear equations of the form \eqn{A x = b} using
+This function solves the linear equations of the form \eqn{A x = b} using
 UMFPACK.
 }
 \references{

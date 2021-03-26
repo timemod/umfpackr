@@ -11,8 +11,7 @@
 #' @param ... arguments passed to \code{fn} and \code{jac}
 #' @param control a list with control parameters. See Details.
 #' @param global The global strategy. Possible values are \code{"no"}
-#' (no global strategy, the default) and \code{"cline"} (cubic line search)
-#' (cubic line search)
+#' (no global strategy, the default) and \code{"cline"} (cubic line search).
 #' @param scaling Scaling method. Possible values are
 #' \code{"row"}. \code{"col"} and \code{"none"}. The default is \code{"row"}.
 #' See Details.
@@ -29,7 +28,7 @@
 #' of the function values has been achieved.}
 #' \item{\code{iter}}{the number of iterations}
 #' \item{\code{x}}{the final values of \eqn{x}}
-#' \item{\code{fval}}{the function value }
+#' \item{\code{fval}}{the final  function values}
 #' \item{\code{message}}{A string equal to \code{"ok"} if a solution
 #' has been found. Otherwise it describes the reason why the iteration
 #' was stopped without success}
@@ -42,10 +41,10 @@
 #' if the largest absolute function value is smaller than \code{ftol}.
 #' The default value is \code{1e-8}.}
 #' \item{\code{xtol}}{The relative step size tolerance. If convergence
-#' has not been reached yet and when the relative
-#' step size of all variables is smaller than \code{xtol} then the
-#' iteration process is stopped with an error.
-#' The default value is \code{1e-8}. The relative step size of variable
+#' has not been reached yet and if the relative
+#' step size of all \code{x} values is smaller than \code{xtol} then the
+#' iteration process is terminated with an error.
+#' The default value is \code{1e-8}. The relative step size of
 #' \eqn{x[i]} is calculated as
 #' \eqn{|x[i] - x^*[i]| / \rm{max}(|x[i]|, 1)}, where \eqn{x^*[i]} is
 #' the value of \eqn{x[i]} at the previous iteration.}
@@ -80,7 +79,7 @@
 #' Method `"condest"` employs function \code{\link[Matrix]{condest}} of the `Matrix`
 #' package and `kappa` the function \code{\link[base]{kappa}} of the `base` package.
 #' Method `condtest` is more accurate than the rough estimate of UMFPACK,
-#' but takes more time. `kappa` is essentially exact, but is very slow for large
+#' but takes more time. `kappa` is exact, but is slow for large
 #' matrices because this function does not use sparse matrices.
 #' Method `"condest"` usually gives a reasonable approximation of the
 #' inverse condition number.

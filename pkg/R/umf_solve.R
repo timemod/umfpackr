@@ -1,6 +1,6 @@
 3#' Solves the system of linear equations using UMFPACK
 #'
-#' This function solved the linear equations of the form \eqn{A x = b} using
+#' This function solves the linear equations of the form \eqn{A x = b} using
 #' UMFPACK.
 #' @param a an object of class  \code{dgCMatrix}
 #' (see \code{\link[Matrix]{dgCMatrix-class}})

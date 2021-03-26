@@ -20,8 +20,7 @@ as a \code{dgCMatrix} object}
 \item{control}{a list with control parameters. See Details.}
 
 \item{global}{The global strategy. Possible values are \code{"no"}
-(no global strategy, the default) and \code{"cline"} (cubic line search)
-(cubic line search)}
+(no global strategy, the default) and \code{"cline"} (cubic line search).}
 
 \item{scaling}{Scaling method. Possible values are
 \code{"row"}. \code{"col"} and \code{"none"}. The default is \code{"row"}.
@@ -42,7 +41,7 @@ a list with the following components:
 of the function values has been achieved.}
 \item{\code{iter}}{the number of iterations}
 \item{\code{x}}{the final values of \eqn{x}}
-\item{\code{fval}}{the function value }
+\item{\code{fval}}{the final  function values}
 \item{\code{message}}{A string equal to \code{"ok"} if a solution
 has been found. Otherwise it describes the reason why the iteration
 was stopped without success}
@@ -62,7 +61,7 @@ the following components:
 if the largest absolute function value is smaller than \code{ftol}.
 The default value is \code{1e-8}.}
 \item{\code{xtol}}{The relative step size tolerance. If convergence
-has not been reached yet and when the relative
+has not been reached yet and if the relative
 step size of all variables is smaller than \code{xtol} then the
 iteration process is stopped with an error.
 The default value is \code{1e-8}. The relative step size of variable
@@ -71,7 +70,7 @@ The default value is \code{1e-8}. The relative step size of variable
 the value of \eqn{x[i]} at the previous iteration.}
 \item{\code{maxiter}}{The maximum number of iterations. The default is 20
 if no global strategy is used (argument \code{global = "no"}), and 150
-if cublic line searching is used (argument \code{global = "cline"}).}
+if cubic line searching is used (argument \code{global = "cline"}).}
 \item{\code{trace}}{A logical. If \code{TRUE}  then the progress of the
 iteration is printed. The default is \code{FALSE}.}
 \item{\code{silent}}{A logical. If \code{TRUE}  then all output is suppressed.
@@ -89,18 +88,18 @@ However, if the matrix is singular (the inverse condition is exactly zero),
 it is never possible to continue with the solution process
 (except if control parameter \code{allow_singular} is set to \code{TRUE}).
 The default value of \code{cnd_tol} is quite small, in some cases it can be
-appropiate to use a somewhat larger value (for example \code{1e-12})}
+appropriate to use a somewhat larger value (for example \code{1e-12})}
 \item{\code{cnd_method}}{A character vector specifying the method used to
 estimate the inverse condition number of the jacobian. Possible options are
 \code{"umfpack"}(the default), \code{"condest"} and \code{"kappa"}.
 For \code{"umfpack"} a rough estimate of the condition as computed by UMFPACK is
 used, using the expression
 \eqn{\rm{min}(\rm{abs}(\rm{diag}(U)))/\rm{max}(\rm{abs}(\rm{diag}(U)))},
-where \eqn{U} is the \eqn{U} matrix of the LU factorization of the jacobian.
+where \eqn{U} is the \eqn{U} matrix of the LU factorisation of the jacobian.
 Method \code{"condest"} employs function \code{\link[Matrix]{condest}} of the \code{Matrix}
 package and \code{kappa} the function \code{\link[base]{kappa}} of the \code{base} package.
 Method \code{condtest} is more accurate than the rough estimate of UMFPACK,
-but takes more time. \code{kappa} is essentially exact, but is very slow for large
+but takes more time. \code{kappa} is exact, but is slow for large
 matrices because this function does not use sparse matrices.
 Method \code{"condest"} usually gives a reasonable approximation of the
 inverse condition number.
@@ -113,12 +112,12 @@ The method used is similar to a Levenberg-Marquardt correction
 and is explained in Dennis and Schnabel (1996) on page 151.
 If \code{TRUE}, then the correction is applied if the inverse condition is
 exactly zero or if the inverse condition is smaller than control
-parameter \code{cndtol}.
+parameter \code{cnd_tol}.
 }
 }}
 \subsection{Scaling of the Jacobian}{
 For each iteration in the Newton method the linear system \eqn{J s = F(x)} is
-solved, where the Jacobiab matrix \eqn{J} are the derivatives of the equations
+solved, where the Jacobian matrix \eqn{J} are the derivatives of the equations
 with respect to the variables, and \eqn{s} the Newton step.  Scaling
 can improve the condition of the Jacobian.
 For \emph{row scaling}, the system is transformed to
@@ -172,7 +171,7 @@ if (.Platform$OS.type != "windows") {
 }
 \references{
 Dennis, J.E. Jr and Schnabel, R.B. (1997), \emph{Numerical Methods for
-Unconstrained Optimization and Nonlinear Equations}, Siam.
+Unconstrained Optimisation and Nonlinear Equations}, Siam.
 
 Davis, T.A. (2004). A column pre-ordering strategy for the unsymmetric-pattern
 multifrontal method. \emph{ACM Trans. Math. Softw.}, \bold{30(2)}, 165–195.

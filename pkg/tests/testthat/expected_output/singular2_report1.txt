@@ -4,4 +4,3 @@ Iteration report
  Iter            Jac         Largest |f|   Index largest |f|
     0                          1.000e-01                   1
 The Jacobian contains non-finite values at iteration 1.
-

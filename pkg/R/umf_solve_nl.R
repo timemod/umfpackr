@@ -400,7 +400,6 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
       cat(sprintf("Convergence after %d iterations\n", iter))
     } else {
       cat(message)
-      cat("\n")
     }
   }
 

@@ -11,8 +11,7 @@
 #' @param ... arguments passed to \code{fn} and \code{jac}
 #' @param control a list with control parameters. See Details.
 #' @param global The global strategy. Possible values are \code{"no"}
-#' (no global strategy, the default) and \code{"cline"} (cubic line search)
-#' (cubic line search)
+#' (no global strategy, the default) and \code{"cline"} (cubic line search).
 #' @param scaling Scaling method. Possible values are
 #' \code{"row"}. \code{"col"} and \code{"none"}. The default is \code{"row"}.
 #' See Details.
@@ -29,7 +28,7 @@
 #' of the function values has been achieved.}
 #' \item{\code{iter}}{the number of iterations}
 #' \item{\code{x}}{the final values of \eqn{x}}
-#' \item{\code{fval}}{the function value }
+#' \item{\code{fval}}{the final  function values}
 #' \item{\code{message}}{A string equal to \code{"ok"} if a solution
 #' has been found. Otherwise it describes the reason why the iteration
 #' was stopped without success}
@@ -39,27 +38,66 @@
 #' the following components:
 #' \describe{
 #' \item{\code{ftol}}{The function value tolerance. Convergence is reached
-#' if the largest function value is smaller than \code{ftol}. The default
-#' value is \code{1e-8}.}
-#' \item{\code{xtol}}{The relative step size tolerance. When the relative
-#' step size is smaller than \code{xtol}, then the iteration is stopped.
+#' if the largest absolute function value is smaller than \code{ftol}.
 #' The default value is \code{1e-8}.}
+#' \item{\code{xtol}}{The relative step size tolerance. If convergence
+#' has not been reached yet and if the relative
+#' step size of all \code{x} values is smaller than \code{xtol} then the
+#' iteration process is terminated with an error.
+#' The default value is \code{1e-8}. The relative step size of
+#' \eqn{x[i]} is calculated as
+#' \eqn{|x[i] - x^*[i]| / \rm{max}(|x[i]|, 1)}, where \eqn{x^*[i]} is
+#' the value of \eqn{x[i]} at the previous iteration.}
 #' \item{\code{maxiter}}{The maximum number of iterations. The default is 20
 #' if no global strategy is used (argument `global = "no"`), and 150
-#' if cublic line searching is used (argument `global = "cline"`).}
+#' if cubic line searching is used (argument `global = "cline"`).}
 #' \item{\code{trace}}{A logical. If \code{TRUE}  then the progress of the
-#' iteraton is printed. The default is \code{FALSE}.}
+#' iteration is printed. The default is \code{FALSE}.}
 #' \item{\code{silent}}{A logical. If \code{TRUE}  then all output is suppressed.
 #' The default is \code{FALSE}.}
+#' \item{\code{cnd_tol}}{The tolerance for the inverse condition of the jacobian.
+#' If the inverse condition is smaller than `cnd_tol`, the solution process
+#' is terminated with an error, except if control parameter `allow_singular` is
+#' set to `TRUE`. The default is the machine precision (on most platforms
+#' about `2e-16`). If the inverse condition is very small but nonzero
+#' it may be difficult to find a solution, or the solution may not be
+#' meaningful. However, sometimes a good solution can be found even if the
+#' condition is quite small. The test  for the ill-conditioning of the
+#' jacobian can be turned off by setting `cnd_tol` to 0 or a negative number.
+#' However, if the matrix is singular (the inverse condition is exactly zero),
+#' it is never possible to continue with the solution process
+#'  (except if control parameter `allow_singular` is set to `TRUE`).
+#'  The default value of `cnd_tol` is quite small, in some cases it can be
+#'  appropriate to use a somewhat larger value (for example `1e-12`)}
+#' \item{\code{cnd_method}}{A character vector specifying the method used to
+#' estimate the inverse condition number of the jacobian. Possible options are
+#' `"umfpack"`(the default), `"condest"` and `"kappa"`.
+#' For `"umfpack"` a rough estimate of the condition as computed by UMFPACK is
+#' used, using the expression
+#' \eqn{\rm{min}(\rm{abs}(\rm{diag}(U)))/\rm{max}(\rm{abs}(\rm{diag}(U)))},
+#' where \eqn{U} is the \eqn{U} matrix of the LU factorisation of the jacobian.
+#' Method `"condest"` employs function \code{\link[Matrix]{condest}} of the `Matrix`
+#' package and `kappa` the function \code{\link[base]{kappa}} of the `base` package.
+#' Method `condtest` is more accurate than the rough estimate of UMFPACK,
+#' but takes more time. `kappa` is exact, but is slow for large
+#' matrices because this function does not use sparse matrices.
+#' Method `"condest"` usually gives a reasonable approximation of the
+#' inverse condition number.
+#' It is recommended to normally use `"umfpack"`, but occasionally use `"condest"`
+#' for a more accurate check of the condition number.}
 #' \item{\code{allow_singular}}{A logical value (default \code{FALSE})
 #' indicating if a small correction to the Jacobian is applied when it is
 #' singular or too ill-conditioned.
 #' The method used is similar to a Levenberg-Marquardt correction
-#' and is explained in Dennis and Schnabel (1996) on page 151.}
+#' and is explained in Dennis and Schnabel (1996) on page 151.
+#' If `TRUE`, then the correction is applied if the inverse condition is
+#' exactly zero or if the inverse condition is smaller than control
+#' parameter `cnd_tol`.
+#' }
 #' }}
 #'\subsection{Scaling of the Jacobian}{
 #' For each iteration in the Newton method the linear system \eqn{J s = F(x)} is
-#' solved, where the Jacobiab matrix \eqn{J} are the derivatives of the equations
+#' solved, where the Jacobian matrix \eqn{J} are the derivatives of the equations
 #' with respect to the variables, and \eqn{s} the Newton step.  Scaling
 #' can improve the condition of the Jacobian.
 #' For \emph{row scaling}, the system is transformed to
@@ -69,14 +107,17 @@
 #' \eqn{J D^{-1} D s = F(x)}, where \eqn{D} is a diagonal matrix with column
 #' scaling factors, calculated from  the L1 norms of the columns of \eqn{J}.
 #'
-#' The scaling is only used to solve the non-linear equations and has no effect
-#' on the convergence of the Newton algorihtm. Thus the iterations
+#' The scaling is only used to solve the linear equations and has no effect
+#' on the convergence of the Newton algorithm. Thus the iterations
 #' are considered to be converged when the maximum value of the unscaled
 #' function values \eqn{F(x)} is smaller than \code{ftol}.
+#' It is therefore recommended to define a the function \eqn{F(x)} for which all
+#' function values have comparable orders of magnitude and all
+#' function arguments \eqn{x} have similar orders of magnitude.
 #' }
 #' @references
 #' Dennis, J.E. Jr and Schnabel, R.B. (1997), \emph{Numerical Methods for
-#' Unconstrained Optimization and Nonlinear Equations}, Siam.
+#' Unconstrained Optimisation and Nonlinear Equations}, Siam.
 #'
 #' Davis, T.A. (2004). A column pre-ordering strategy for the unsymmetric-pattern
 #' multifrontal method. \emph{ACM Trans. Math. Softw.}, \bold{30(2)}, 165–195.
@@ -124,6 +165,7 @@
 #' @importFrom Matrix t
 #' @importFrom Matrix norm
 #' @importFrom Matrix Diagonal
+#' @importFrom Matrix condest
 #' @seealso \code{\link{umf_solve}}.
 #' @export
 umf_solve_nl <- function(start, fn, jac, ..., control,
@@ -141,27 +183,48 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
   if (!is.function(fn) || !is.function(jac)) {
     stop("Argument 'fn' and 'jac' should be functions.")
   }
+
+  # create default control options:
+  maxiter <- if (global == "no") 20 else 150
+  control_ <- list(ftol = 1e-8, xtol = 1e-8, maxiter = maxiter,
+                   allow_singular = FALSE,
+                   cnd_tol = .Machine$double.eps,
+                   cnd_method = "umfpack",
+                   trace = FALSE, silent = FALSE)
+
   if (!missing(control)) {
     if  (!is.list(control) || (length(control) > 0 &&
                                is.null(names(control)))) {
       stop("Argument 'control' should be a named list.")
     }
+    if (length(unknown_control_options <- setdiff(names(control),
+                                                  names(control_))) > 0) {
+      stop("Unknown control options ", paste(unknown_control_options,
+                                             sep = ", "), ".")
+    }
+    if (!is.null(control$cnd_method)) {
+      if (!is.character(control$cnd_method) ||
+          length(control$cnd_method) != 1) {
+        stop("Control option 'cnd_method' should be a character of length 1")
+      }
+      if (!control$cnd_method %in% c("umfpack", "condest", "kappa")) {
+        stop("Allowed values for control option 'cnd_method' are",
+             " 'umfpack', 'condest' and 'kappa'.")
+      }
+    }
+    if (!is.null(control$cnd_tol)) {
+      if (!is.numeric(control$cnd_tol) || length(control$cnd_tol) != 1) {
+        stop("Control option 'cnd_tol' should be a numeric of length 1")
+      }
+    }
+    control_[names(control)] <- control
+    if (control_$silent) control_$trace <- FALSE
   }
 
   umf_control <- check_umf_control(umf_control)
 
-  message <- "???"
-
-  maxiter <- if (global == "no") 20 else 150
-  control_ <- list(ftol = 1e-8, xtol = 1e-8, maxiter = maxiter,
-                   allow_singular = FALSE,
-                   trace = FALSE, silent = FALSE)
-
-  if (!missing(control)) {
-      control_[names(control)] <- control
-  }
-
-  if (control_$silent) control_$trace <- FALSE
+  colscal <- scaling == "col"
+  rowscal <- scaling == "row"
 
   fun <- function(x) {
     return(fn(x, ...))
@@ -170,6 +233,28 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
     return(jac(x, ...))
   }
 
+  # Function for a more accurate calculation of the inverse condition number
+  # of the jacobian than the rough estimate provided by UMFPACK.
+  get_cond <- function(jac) {
+    if (rowscal) {
+      # Row scaling is applied internally in UMFPACK. If we want to estimate the
+      # condition number with the 'condest' or 'kappa' method, we should
+      # first apply row scaling here again.
+      scale <- 1 / Matrix::rowSums(abs(jac))
+      scale <- ifelse(is.finite(scale), scale, 1)
+      jac <- jac * scale
+    }
+    # Note: if colscal == TRUE, then jac is already scaled, so scaling
+    # is not needed.
+    if (control_$cnd_method == "condest") {
+      cond <- 1 / condest(jac)$est
+    } else if (control_$cnd_method == "kappa") {
+      cond <- 1 / kappa(jac, exact = TRUE)
+    }
+    return(cond)
+  }
+
+  message <- "???"
   solved <- FALSE
 
   n <- length(start)
@@ -178,7 +263,6 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
   cond <- NA_real_
   iter <- 0
 
-
   Fx <- fun(x)
 
   if (!is.numeric(Fx) || length(Fx) != n) {
@@ -186,10 +270,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
                        "same length as argument start (%d).\n"), n))
   }
 
-  colscal <- scaling == "col"
-  rowscal <- scaling == "row"
-
-  # initialize scale with zeros
+  # Initialize scale with zeros:
   if (colscal) scale <- numeric(n)
 
   while (TRUE) {
@@ -218,10 +299,9 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
     }
 
     if (iter > 0 && get_step_crit(dx, x) < control_$xtol) {
-        solved <- FALSE
-        message <- sprintf("Relative step size smaller than xtol (%g)\n",
-                           control_$xtol)
-        break
+      message <- sprintf("Relative step size smaller than xtol (%g)\n",
+                         control_$xtol)
+      break
     }
 
     if (iter >= control_$maxiter) {
@@ -232,8 +312,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
 
     iter <- iter + 1
 
-
-    # do new newton step
+    # Compute the jacobian:
     j <- jacfun(x)
 
     if (iter == 1) {
@@ -243,17 +322,20 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
       }
     }
 
+    # Calculate the column scale factors and scale the matrix using C++ function
+    # scale_mat_col. Note: objecy j is modified in function scale_mat_col.
     if (colscal) scale <- scale_mat_col(j, scale)
-
-    # call umf_solve_  to solve j  x = -Fx
+    # Call C++ function umf_solve_ to solve j  x = Fx
     sol <- umf_solve_(j, Fx, umf_control, rowscal)
 
-    # use a rough estimate of the condition number of UMFPACK.
-    cond <- sol$cond
+    # if cnd_method == "umfpack", use a rough estimate of the inverse condition
+    # available in the UMFPACK result, otherwise use more advanced methods
+    # defined in function get_cond.
+    cond <- if (control_$cnd_method == "umfpack") sol$cond else get_cond(j)
 
-    if (sol$status == "singular matrix") {
+    if (sol$status == "singular matrix" || cond < control_$cnd_tol ) {
 
-      if (any(!is.finite(j@x))) {
+      if (sol$status == "singular matrix" && any(!is.finite(j@x))) {
         message <- sprintf(paste("The Jacobian contains non-finite values at",
                                  "iteration %d.\n"), iter)
         break
@@ -269,20 +351,25 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
         b <- as.numeric(t(j) %*% Fx)
 
         sol <- umf_solve_(h, b, umf_control, rowscal)
-
-        if (sol$status == "singular matrix") {
-          message <- sprintf(
-                paste("The perturbed Jacobian is still singular.",
-                      "The inverse condition is %g.\n"), sol$cond)
+        cond <- if (control_$cnd_method == "umfpack") sol$cond else get_cond(h)
+        if (sol$status == "singular matrix" || cond < control_$cnd_tol) {
+          message <- sprintf(paste("The perturbed Jacobian is still singular.",
+                                   "The inverse condition is %g.\n"), cond)
           break
         }
-
-     } else {
-
-       message <- sprintf(paste("The Jacobian is singular at iteration %d.",
-                                 "The inverse condition is %g.\n"), iter, cond)
-       break
-     }
+      } else {
+        if (sol$status == "singular matrix") {
+          message <- sprintf(paste("The Jacobian is singular at iteration %d.",
+                                   "The inverse condition is %g.\n"),
+                             iter, cond)
+        } else {
+          message <- sprintf(paste("The inverse condition of the jacobian is",
+                                   "smaller than cnd_tol (%.3g) at iteration",
+                                   "%d.\nThe inverse condition is %.3g.\n"),
+                             control_$cnd_tol, iter, cond)
+        }
+        break
+      }
     }
 
     dx <- -sol$x
@@ -293,11 +380,10 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
     } else if (global == "cline") {
       g <- t(j) %*% Fx
       ret <- cline(x, Fx, g, dx, iter, cond, fun, control_)
-    }
-
-    if (is.null(ret)) {
-      message <- sprintf("No better point found at iter %d\n", iter)
-      break
+      if (is.null(ret)) {
+        message <- sprintf("No better point found at iter %d\n", iter)
+        break
+      }
     }
 
     dx <- x - ret$x_new

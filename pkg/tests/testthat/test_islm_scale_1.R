@@ -160,7 +160,9 @@ test_that("scale 1e-12)", {
   rconds <- read_rconds(report1)
   expect_true(all(rconds < 1e-32))
 
-
+  #
+  # column scaling
+  #
   report2 <- capture.output(
     result2 <- umf_solve_nl(xstart, fun, jac, control = list(trace = TRUE),
                             scaling = "col"))
@@ -172,6 +174,26 @@ test_that("scale 1e-12)", {
 
   rconds <- read_rconds(report2)
   expect_true(all(rconds > 1e-3))
+
+
+  # now with cnd_method == "kappa":
+  report2a <- capture.output(
+    result2a <- umf_solve_nl(xstart, fun, jac,
+                            control = list(trace = TRUE, cnd_method = "kappa"),
+                            scaling = "col"))
+  expect_true(result2a$solved)
+
+  expected_result <- result_scale1$x
+  expected_result[1:6] <- scale * expected_result[1:6]
+  expect_equal(result2a$x, expected_result)
+  rconds <- read_rconds(report2a)
+  expect_true(all(rconds > 1e-3))
+  cond_iter1 <- as.numeric(sub("^\\s*\\d+\\s*(\\S+).+", "\\1",
+                               report2a, perl = TRUE)[6])
+  j <- jac(xstart)
+  j <- j / rep(Matrix::colSums(abs(j)), each = nrow(j))
+  expected <- 1 / kappa(j, exact = TRUE)
+  expect_true(abs(cond_iter1 - expected) < 1e-3)
 
   report3 <- capture.output(
     result3 <- umf_solve_nl(xstart, fun, jac, control = list(trace = TRUE,
@@ -188,4 +210,35 @@ test_that("scale 1e-12)", {
 })
 
 
+test_that("errors", {
+  msg <- "Control option 'cnd_tol' should be a numeric of length 1"
+  expect_error(umf_solve_nl(xstart, fun, jac, control = list(trace = TRUE,
+                                                cnd_tol = "xxx")),
+                            msg)
+  expect_error(umf_solve_nl(xstart, fun, jac, control = list(trace = TRUE,
+                                                             cnd_tol = c(1,2))),
+               msg)
+  msg <- "Control option 'cnd_tol' should be a numeric of length 1"
+  expect_error(umf_solve_nl(xstart, fun, jac, control = list(trace = TRUE,
+                                                             cnd_tol = "xxx")),
+               msg)
 
+  msg <-  paste("Allowed values for control option 'cnd_method' are 'umfpack',",
+                "'condest' and 'kappa'\\.")
+  expect_error(umf_solve_nl(xstart, fun, jac, control = list(cnd_method = "xxx")),
+               msg)
+
+  msg <- "Control option 'cnd_method' should be a character of length 1"
+  expect_error(umf_solve_nl(xstart, fun, jac,
+                            control = list(cnd_method = c("kappa", "x"))),
+               msg)
+  expect_error(umf_solve_nl(xstart, fun, jac,
+                            control = list(cnd_method = 2)),
+               msg)
+
+  msg <- "Unknown control options xxx."
+  expect_error(umf_solve_nl(xstart, fun, jac,
+                            control = list(xxx = 2)),
+               msg)
+
+})

@@ -204,7 +204,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
                                              sep = ", "), ".")
     }
     if (!is.null(control$cnd_method)) {
-      if (!is.character(control$cnd_method) &&
+      if (!is.character(control$cnd_method) ||
           length(control$cnd_method) != 1) {
         stop("Control option 'cnd_method' should be a character of length 1")
       }
@@ -214,8 +214,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
       }
     }
     if (!is.null(control$cnd_tol)) {
-      if (!is.numeric(control$cnd_tol) &&
-          length(control$cnd_method) != 1) {
+      if (!is.numeric(control$cnd_tol) || length(control$cnd_tol) != 1) {
         stop("Control option 'cnd_tol' should be a numeric of length 1")
       }
     }
@@ -327,7 +326,6 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
     # Calculate the column scale factors and scale the matrix using C++ function
     # scale_mat_col. Note: objecy j is modified in function scale_mat_col.
     if (colscal) scale <- scale_mat_col(j, scale)
-
     # Call C++ function umf_solve_ to solve j  x = Fx
     sol <- umf_solve_(j, Fx, umf_control, rowscal)
 

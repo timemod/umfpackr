@@ -61,14 +61,14 @@ the following components:
 \item{\code{ftol}}{The function value tolerance. Convergence is reached
 if the largest absolute function value is smaller than \code{ftol}.
 The default value is \code{1e-8}.}
-\item{\code{xtol}}{The relative step size tolerance. When the relative
-step size of all variables is smaller than \code{xtol}, then the
+\item{\code{xtol}}{The relative step size tolerance. If convergence
+has not been reached yet and when the relative
+step size of all variables is smaller than \code{xtol} then the
 iteration process is stopped with an error.
 The default value is \code{1e-8}. The relative step size of variable
-\eqn{x_j} at iteration \eqn{i} is calculated as
-\eqn{|x_j^i - x_j^{i-1}| / \rm{max}(|x_j^i|, 1)}.
-If column scaling is applied (see argument \code{scaling}), then \eqn{x_i} is actually
-the scaled variable.}
+\eqn{x[i]} is calculated as
+\eqn{|x[i] - x^*[i]| / \rm{max}(|x[i]|, 1)}, where \eqn{x^*[i]} is
+the value of \eqn{x[i]} at the previous iteration.}
 \item{\code{maxiter}}{The maximum number of iterations. The default is 20
 if no global strategy is used (argument \code{global = "no"}), and 150
 if cublic line searching is used (argument \code{global = "cline"}).}
@@ -84,12 +84,12 @@ about \code{2e-16}). If the inverse condition is very small but nonzero
 it may be difficult to find a solution, or the solution may not be
 meaningful. However, sometimes a good solution can be found even if the
 condition is quite small. The test  for the ill-conditioning of the
-jacobian can be turned off by setting \code{cndtol} to 0 or a negative number.
+jacobian can be turned off by setting \code{cnd_tol} to 0 or a negative number.
 However, if the matrix is singular (the inverse condition is exactly zero),
-it is not possible to continue with the solution process
+it is never possible to continue with the solution process
 (except if control parameter \code{allow_singular} is set to \code{TRUE}).
 The default value of \code{cnd_tol} is quite small, in some cases it can be
-appropiate to use a somewhat larger value (\code{1e-12})}
+appropiate to use a somewhat larger value (for example \code{1e-12})}
 \item{\code{cnd_method}}{A character vector specifying the method used to
 estimate the inverse condition number of the jacobian. Possible options are
 \code{"umfpack"}(the default), \code{"condest"} and \code{"kappa"}.
@@ -128,10 +128,13 @@ of \eqn{J}. For \emph{column scaling}, the system is transformed to
 \eqn{J D^{-1} D s = F(x)}, where \eqn{D} is a diagonal matrix with column
 scaling factors, calculated from  the L1 norms of the columns of \eqn{J}.
 
-The scaling is only used to solve the non-linear equations and has no effect
-on the convergence of the Newton algorihtm. Thus the iterations
+The scaling is only used to solve the linear equations and has no effect
+on the convergence of the Newton algorithm. Thus the iterations
 are considered to be converged when the maximum value of the unscaled
 function values \eqn{F(x)} is smaller than \code{ftol}.
+It is therefore recommended to define a the function \eqn{F(x)} for which all
+function values have comparable orders of magnitude and all
+function arguments \eqn{x} have similar orders of magnitude.
 }
 }
 \examples{

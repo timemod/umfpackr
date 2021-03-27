@@ -62,9 +62,9 @@ if the largest absolute function value is smaller than \code{ftol}.
 The default value is \code{1e-8}.}
 \item{\code{xtol}}{The relative step size tolerance. If convergence
 has not been reached yet and if the relative
-step size of all variables is smaller than \code{xtol} then the
-iteration process is stopped with an error.
-The default value is \code{1e-8}. The relative step size of variable
+step size of all \code{x} values is smaller than \code{xtol} then the
+iteration process is terminated with an error.
+The default value is \code{1e-8}. The relative step size of
 \eqn{x[i]} is calculated as
 \eqn{|x[i] - x^*[i]| / \rm{max}(|x[i]|, 1)}, where \eqn{x^*[i]} is
 the value of \eqn{x[i]} at the previous iteration.}

@@ -35,12 +35,14 @@ is very easy:
 ```
 sudo apt-get install libsuitesparse-dev
 ```
-On Mac OS, installation is also easy with package manager HomeBrew:
+On Mac OS, installation is also easy with package manager HomeBrew 
+(HomeBrew is not installed by default, so you may have to install
+HomeBrew first):
 ```
 brew install suite-sparse
 ```
 
-If it not possible to install SuiteSparse with a standard package
+If it not possible to install SuiteSparse with a package
 manager on your platform, you have to build SuiteSparse from source.
 
 Because it is difficult to install the full SuiteSparse suite on

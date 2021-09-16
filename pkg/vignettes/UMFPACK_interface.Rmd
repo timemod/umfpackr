@@ -1,5 +1,5 @@
 ---
-title: "UMFPACK Interace for R"
+title: "UMFPACK Interface for R"
 author: "Rob van Harrevelt"
 date: "`r Sys.Date()`"
 output: pdf_document
@@ -21,7 +21,7 @@ Package `umfpackr` provides an interface to UMFPACK, a sparse direct solver
 written in  C. The package `umfpackr` contains the functions
 `umf_solve` and `umf_solve_nl` for solving 
 linear and non-linear systems of equations, respectively.
-This vignette describes the UMPFACK interace implemented in
+This vignette describes the UMPFACK interface implemented in
 `umfpackr` in detail.
 
 # System dependencies
@@ -30,24 +30,28 @@ UMFPACK is part of  [SuiteSparse](http://faculty.cse.tamu.edu/davis/suitesparse.
 a suite of libraries for sparse linear algebra.
 
 On Linux and other non-Windows platforms, `umfpackr` assumes that
-a full installation of SuiteSparse is available. On Ubuntu 18.04 installation
+a full installation of SuiteSparse is available. On Ubuntu installation
 is very easy:
 ```
 sudo apt-get install libsuitesparse-dev
 ```
-Something similar is probably possible for other Linux platforms. Otherwise
-you have to build SuiteSparse from source.
+On macOS, installation is also easy with package manager HomeBrew 
+(HomeBrew is not installed by default, so you may have to install
+HomeBrew first):
+```
+brew install suite-sparse
+```
 
-On Windows, it difficult to install the full SuiteSparse package and use
-it in R. However, it is possible to use the UMFPACK and AMD libraries
-in an R package. These libraries are sufficient to 
-solve sparse linear
-systems using the AMD ordering method. For the Windows
-implementation of `umfpackfr`,  the souce of these libraries is included
-in the package and it is therefore not necesarry to install SuiteSparse on Windows. 
-The drawback is that it is not possible to use the METIS
-ordering method on Windows. The METIS method can handle larger
-matrices than the standard AMD method.
+If it not possible to install SuiteSparse with a package
+manager on your platform, you have to build SuiteSparse from source.
+
+Because it is difficult to install the full SuiteSparse suite on
+Windows, `umfpackr` includes the source of the UMFPACK and AMD libraries
+of the SuiteSparse suite. These libraries are sufficient to 
+solve sparse linear systems using the AMD ordering method. Since the Windows
+implementation does not use the full SuiteSparse suite,  it is however not 
+possible to use the METIS ordering method on Windows. 
+The METIS method can handle larger matrices than the standard AMD method.
 
 # Ordering methods
 
@@ -66,7 +70,7 @@ fill-in, it is used without trying METIS at all. Otherwise METIS is tried, and t
   * METIS. Use METIS.
   * BEST. Try three methods (AMD/COLAMD, METIS and NESDIS) and take the best. 
   NESDIS is CHOLMOD’s nested dissection ordering, based on METIS and CCAMD/CCOLAMD. 
-  This results the highest analysis time, but the lowest numerical factorization time.
+  This results the highest analysis time, but the lowest numerical factorisation time.
   
   The AMD method is usually slightly faster than the other ordering methods,
   but METIS can handle larger matrices than AMD. Therefore is sometimes

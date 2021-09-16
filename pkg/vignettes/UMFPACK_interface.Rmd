@@ -35,7 +35,7 @@ is very easy:
 ```
 sudo apt-get install libsuitesparse-dev
 ```
-On Mac OS, installation is also easy with package manager HomeBrew 
+On macOS, installation is also easy with package manager HomeBrew 
 (HomeBrew is not installed by default, so you may have to install
 HomeBrew first):
 ```

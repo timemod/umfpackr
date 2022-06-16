@@ -12,7 +12,7 @@ $(SHLIB): $(OBJECTS) sublibs
 
 sublibs: 
 	@for d in $(SUBDIRS); do \
-	  (cd $${d} && $(MAKE) CC="$(CC)" \
+	  (cd -P $${d} && $(MAKE) CC="$(CC)" \
            CPICFLAGS="$(CPICFLAGS)" AR="$(AR)" RANLIB="$(RANLIB)"); \
 	done
 

@@ -118,9 +118,12 @@ clean:
 	-rm -f $(PKGDIR).pdf
 	-rm -f $(PKGDIR).log
 	-rm -f $(PKGDIR)/src/*.o
-	-rm -f $(PKGDIR)/src/*.a
+	-rm -f $(PKGDIR)/src/*.dll
 	-rm -f $(PKGDIR)/src/*.so
-	-$(MAKE) -C $(PKGDIR)/src/SuiteSparse_config clean
-	-$(MAKE) -C $(PKGDIR)/src/AMD clean
-	-$(MAKE) -C $(PKGDIR)/src/UMFPACK clean
+	-rm -f $(PKGDIR)/src/AMD/Lib/*.o
+	-rm -f $(PKGDIR)/src/AMD/Lib/*.a
+	-rm -f $(PKGDIR)/src/UMFPACK/Lib/*.o
+	-rm -f $(PKGDIR)/src/UMFPACK/Lib/*.a
+	-rm -f $(PKGDIR)/src/SuiteSparse_config/*.o
+	-rm -f $(PKGDIR)/src/SuiteSparse_config/*.a
 

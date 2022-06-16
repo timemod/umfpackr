@@ -11,17 +11,9 @@ $(SHLIB): $(OBJECTS) sublibs
 
 
 sublibs: 
+# argument -P of command cd is necessary if Rtools42 is used and 
+# the package is installed on the CPB file system (the m:-disk).
 	@for d in $(SUBDIRS); do \
 	  (cd -P $${d} && $(MAKE) CC="$(CC)" \
            CPICFLAGS="$(CPICFLAGS)" AR="$(AR)" RANLIB="$(RANLIB)"); \
-	done
-
-clean: subclean
-	@-rm -rf .libs _libs
-	@-rm -f *.o $(SHLIB)
-
-subclean:
-	@-rm -f *.a
-	@for d in $(SUBDIRS); do \
-	  (cd $${d} && $(MAKE) clean) || exit 1; \
 	done

@@ -15,5 +15,11 @@ check_umf_control <- function(umf_control) {
     stop("Argument umf_control should be a list of scalar variables.")
   }
 
+  if (.Platform$OS.type == "windows") {
+    if (!is.null(umf_control$ordering) && umf_control$ordering != "AMD") {
+      stop("On Windows, only the AMD ordering method possible.")
+    }
+  }
+
   return(umf_control)
 }

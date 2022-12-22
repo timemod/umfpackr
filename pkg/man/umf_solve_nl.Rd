@@ -20,15 +20,20 @@ as a \code{dgCMatrix} object}
 \item{control}{a list with control parameters. See Details.}
 
 \item{global}{The global strategy. Possible values are \code{"no"}
-(no global strategy, the default) and \code{"cline"} (cubic line search)
-(cubic line search)}
+(no global strategy, the default) and \code{"cline"} (cubic line search).}
 
 \item{scaling}{Scaling method. Possible values are
 \code{"row"}. \code{"col"} and \code{"none"}. The default is \code{"row"}.
 See Details.}
 
 \item{umf_control}{A named list with control parameters passed to UMFPACK.
-See Details.}
+Currently only a single control parameter can specified: \code{ordering}, which
+specifies the ordering method. Allowed values are \code{"AMD"} (the default),
+\code{"CHOLMOD"}, \code{"METIS"} and \code{"BEST"}. See the Vignette
+\href{../doc/UMFPACK_interface.pdf}{\emph{UMFPACK interface for R}} for more
+details. For example, to use METIS ordering specify
+\code{umf_control = list(ORDERING = "METIS")}. The METIS ordering method can
+handle larger matrices than the standard AMD method.}
 }
 \value{
 a list with the following components:
@@ -36,7 +41,7 @@ a list with the following components:
 of the function values has been achieved.}
 \item{\code{iter}}{the number of iterations}
 \item{\code{x}}{the final values of \eqn{x}}
-\item{\code{fval}}{the function value }
+\item{\code{fval}}{the final  function values}
 \item{\code{message}}{A string equal to \code{"ok"} if a solution
 has been found. Otherwise it describes the reason why the iteration
 was stopped without success}
@@ -53,30 +58,66 @@ Argument \code{control} is a named list containing one or more of
 the following components:
 \describe{
 \item{\code{ftol}}{The function value tolerance. Convergence is reached
-if the largest function value is smaller than \code{ftol}. The default
-value is \code{1e-8}.}
-\item{\code{xtol}}{The relative step size tolerance. When the relative
-step size is smaller than \code{xtol}, then the iteration is stopped.
+if the largest absolute function value is smaller than \code{ftol}.
 The default value is \code{1e-8}.}
-\item{\code{maxiter}}{The maximum number of iterations. The default is 20.}
+\item{\code{xtol}}{The relative step size tolerance. If convergence
+has not been reached yet and if the relative
+step size of all \code{x} values is smaller than \code{xtol} then the
+iteration process is terminated with an error.
+The default value is \code{1e-8}. The relative step size of
+\eqn{x[i]} is calculated as
+\eqn{|x[i] - x^*[i]| / \rm{max}(|x[i]|, 1)}, where \eqn{x^*[i]} is
+the value of \eqn{x[i]} at the previous iteration.}
+\item{\code{maxiter}}{The maximum number of iterations. The default is 20
+if no global strategy is used (argument \code{global = "no"}), and 150
+if cubic line searching is used (argument \code{global = "cline"}).}
 \item{\code{trace}}{A logical. If \code{TRUE}  then the progress of the
-iteraton is printed. The default is \code{FALSE}.}
+iteration is printed. The default is \code{FALSE}.}
 \item{\code{silent}}{A logical. If \code{TRUE}  then all output is suppressed.
 The default is \code{FALSE}.}
+\item{\code{cnd_tol}}{The tolerance for the inverse condition of the jacobian.
+If the inverse condition is smaller than \code{cnd_tol}, the solution process
+is terminated with an error, except if control parameter \code{allow_singular} is
+set to \code{TRUE}. The default is the machine precision (on most platforms
+about \code{2e-16}). If the inverse condition is very small but nonzero
+it may be difficult to find a solution, or the solution may not be
+meaningful. However, sometimes a good solution can be found even if the
+condition is quite small. The test  for the ill-conditioning of the
+jacobian can be turned off by setting \code{cnd_tol} to 0 or a negative number.
+However, if the matrix is singular (the inverse condition is exactly zero),
+it is never possible to continue with the solution process
+(except if control parameter \code{allow_singular} is set to \code{TRUE}).
+The default value of \code{cnd_tol} is quite small, in some cases it can be
+appropriate to use a somewhat larger value (for example \code{1e-12})}
+\item{\code{cnd_method}}{A character vector specifying the method used to
+estimate the inverse condition number of the jacobian. Possible options are
+\code{"umfpack"}(the default), \code{"condest"} and \code{"kappa"}.
+For \code{"umfpack"} a rough estimate of the condition as computed by UMFPACK is
+used, using the expression
+\eqn{\rm{min}(\rm{abs}(\rm{diag}(U)))/\rm{max}(\rm{abs}(\rm{diag}(U)))},
+where \eqn{U} is the \eqn{U} matrix of the LU factorisation of the jacobian.
+Method \code{"condest"} employs function \code{\link[Matrix]{condest}} of the \code{Matrix}
+package and \code{kappa} the function \code{\link[base]{kappa}} of the \code{base} package.
+Method \code{condtest} is more accurate than the rough estimate of UMFPACK,
+but takes more time. \code{kappa} is exact, but is slow for large
+matrices because this function does not use sparse matrices.
+Method \code{"condest"} usually gives a reasonable approximation of the
+inverse condition number.
+It is recommended to normally use \code{"umfpack"}, but occasionally use \code{"condest"}
+for a more accurate check of the condition number.}
 \item{\code{allow_singular}}{A logical value (default \code{FALSE})
 indicating if a small correction to the Jacobian is applied when it is
 singular or too ill-conditioned.
 The method used is similar to a Levenberg-Marquardt correction
 and is explained in Dennis and Schnabel (1996) on page 151.
+If \code{TRUE}, then the correction is applied if the inverse condition is
+exactly zero or if the inverse condition is smaller than control
+parameter \code{cnd_tol}.
 }
-\item{\code{allow_singular}}{A logical value (default \code{FALSE})
-indicating if a small correction to the Jacobian is applied when it is
-singular. The method used is similar to a Levenberg-Marquardt correction
-and is explained in Dennis and Schnabel (1996) on page 151.
-}}}
+}}
 \subsection{Scaling of the Jacobian}{
 For each iteration in the Newton method the linear system \eqn{J s = F(x)} is
-solved, where the Jacobiab matrix \eqn{J} are the derivatives of the equations
+solved, where the Jacobian matrix \eqn{J} are the derivatives of the equations
 with respect to the variables, and \eqn{s} the Newton step.  Scaling
 can improve the condition of the Jacobian.
 For \emph{row scaling}, the system is transformed to
@@ -86,32 +127,13 @@ of \eqn{J}. For \emph{column scaling}, the system is transformed to
 \eqn{J D^{-1} D s = F(x)}, where \eqn{D} is a diagonal matrix with column
 scaling factors, calculated from  the L1 norms of the columns of \eqn{J}.
 
-The scaling is only used to solve the non-linear equations and has no effect
-on the convergence of the Newton algorihtm. Thus the iterations
+The scaling is only used to solve the linear equations and has no effect
+on the convergence of the Newton algorithm. Thus the iterations
 are considered to be converged when the maximum value of the unscaled
 function values \eqn{F(x)} is smaller than \code{ftol}.
-}
-\subsection{UMFPACK control options}{
-Argument \code{umf_control} can be used to specify UMFPACK control parameters.
-Consult the documentation of UMFPACK for a description of the various control
-paramters. \code{umf_control} should be a named list; the names are the
-names of the UMFPACK control parameters excluding the prefix \code{UMFPACK}.
-With a few exceptions described below, the values are numerical values.
-For example,\preformatted{list(SYM_PIVOT_TOLERANCE = 0.01, AGGRESIVE = 1)
-}
-
-The values for the control options \code{STRATEGY}, \code{ORDERING} and \code{SCALE}
-should be character. In UMFPACK the values of these parameters
-should be specified with named numerical constants. For example,
-for \code{UMFPACK_STRATEGY} allowed values are the constants
-\code{UMFPACK_STRATEGY_AUTO}, \code{UMFPACK_STRATEGY_UNSYMMETRIC} and
-\code{UMFPACK_STRATEGY_SYMMETRIC}. In package \code{umfpackr} the values should be
-the name of the corresponding constant , again excluding the prefix \code{UMFACK_}.
-Exanple:\preformatted{list(STRATEGY = "STRATEGY_UNSYMMETRIC",
-     ORDERING = "ORDERING_METIS",
-     SCALE    = "SCALE_NONE")
-}
-
+It is therefore recommended to define a the function \eqn{F(x)} for which all
+function values have comparable orders of magnitude and all
+function arguments \eqn{x} have similar orders of magnitude.
 }
 }
 \examples{
@@ -139,10 +161,17 @@ jacdsln <- function(x, c) {
 xstart <- c(2,3)
 print(umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
                   control = list(trace = TRUE)))
+
+# now use METIs columns ordering (run this on Linux only)
+if (.Platform$OS.type != "windows") {
+   print(umf_solve_nl(xstart, dslnex, jacdsln, c = 2,
+                  control = list(trace = TRUE),
+                  umf_control = list(ordering = "METIS")))
+}
 }
 \references{
-Dennis, J.E. Jr and Schnabel, R.B. (1997), \emph{Numerical Methods for Unconstrained Optimization
-and Nonlinear Equations}, Siam.
+Dennis, J.E. Jr and Schnabel, R.B. (1997), \emph{Numerical Methods for
+Unconstrained Optimisation and Nonlinear Equations}, Siam.
 
 Davis, T.A. (2004). A column pre-ordering strategy for the unsymmetric-pattern
 multifrontal method. \emph{ACM Trans. Math. Softw.}, \bold{30(2)}, 165–195.
@@ -155,4 +184,7 @@ sparse LU factorization. \emph{SIAM J. Matrix Anal. Applic.}, \bold{18(1)}, 140�
 
 Davis, T.A  and Duff, I.S (1999). A combined unifrontal/multifrontal method for
 unsymmetric sparse matrices. \emph{ACM Trans. Math. Softw.}, \bold{25(1)}, 1–19..
+}
+\seealso{
+\code{\link{umf_solve}}.
 }

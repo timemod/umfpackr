@@ -12,39 +12,42 @@ static map<string, double> umfpack_scale_opts;
 
 static void init_umf_control() {
 
-    control_params["PRL"] = UMFPACK_PRL;
-    control_params["DENSE_ROW"] = UMFPACK_DENSE_ROW;
-    control_params["DENSE_COL"] = UMFPACK_DENSE_COL;
-    control_params["PIVOT_TOLERANCE"] = UMFPACK_PIVOT_TOLERANCE;
-    control_params["BLOCK_SIZE"] = UMFPACK_BLOCK_SIZE;
-    control_params["STRATEGY`"] = UMFPACK_STRATEGY;
-    control_params["ORDERING`"] = UMFPACK_ORDERING;
-    control_params["ALLOC_INIT`"] = UMFPACK_ALLOC_INIT;
-    control_params["IRSTEP`"] = UMFPACK_IRSTEP;
-    control_params["FIXQ`"] = UMFPACK_FIXQ;
-    control_params["AMD_DENSE"] = UMFPACK_AMD_DENSE;
-    control_params["SYM_PIVOT_TOLERANCE"] = UMFPACK_SYM_PIVOT_TOLERANCE;
-    control_params["SCALE"] = UMFPACK_SCALE;
-    control_params["FRONT_ALLOC_INIT"] = UMFPACK_FRONT_ALLOC_INIT;
-    control_params["DROPTOL"] = UMFPACK_DROPTOL;
-    control_params["AGGRESSIVE"] = UMFPACK_AGGRESSIVE;
-    control_params["SINGLETONS"] = UMFPACK_SINGLETONS;
+    control_params["ordering"] = UMFPACK_ORDERING;
 
-    umfpack_strategy_opts["STRATEGY_AUTO"] = UMFPACK_STRATEGY_AUTO;
-    umfpack_strategy_opts["STRATEGY_UNSYMMETRIC"] = UMFPACK_STRATEGY_UNSYMMETRIC;
-    umfpack_strategy_opts["STRATEGY_SYMMETRIC"] = UMFPACK_STRATEGY_SYMMETRIC;
+    /*
+    control_params["prl"] = UMFPACK_PRL;
+    control_params["dense_row"] = UMFPACK_DENSE_ROW;
+    control_params["dense_col"] = UMFPACK_DENSE_COL;
+    control_params["pivot_tolerance"] = UMFPACK_PIVOT_TOLERANCE;
+    control_params["block_size"] = UMFPACK_BLOCK_SIZE;
+    control_params["strategy"] = UMFPACK_STRATEGY;
+    control_params["alloc_init"] = UMFPACK_ALLOC_INIT;
+    control_params["irstep"] = UMFPACK_IRSTEP;
+    control_params["fixq"] = UMFPACK_FIXQ;
+    control_params["amd_dense"] = UMFPACK_AMD_DENSE;
+    control_params["sym_pivot_tolerance"] = UMFPACK_SYM_PIVOT_TOLERANCE;
+    control_params["scale"] = UMFPACK_SCALE;
+    control_params["front_alloc_init"] = UMFPACK_FRONT_ALLOC_INIT;
+    control_params["droptol"] = UMFPACK_DROPTOL;
+    control_params["aggressive"] = UMFPACK_AGGRESSIVE;
+    control_params["singletons"] = UMFPACK_SINGLETONS;
 
-    umfpack_ordering_opts["ORDERING_CHOLMOD"] = UMFPACK_ORDERING_CHOLMOD;
-    umfpack_ordering_opts["ORDERING_AMD"] = UMFPACK_ORDERING_AMD;
-    umfpack_ordering_opts["ORDERING_GIVEN"] = UMFPACK_ORDERING_GIVEN;
-    umfpack_ordering_opts["ORDERING_NONE"] = UMFPACK_ORDERING_NONE;
-    umfpack_ordering_opts["ORDERING_METIS"] = UMFPACK_ORDERING_METIS;
-    umfpack_ordering_opts["ORDERING_BEST"] = UMFPACK_ORDERING_BEST;
-    umfpack_ordering_opts["ORDERING_USER"] = UMFPACK_ORDERING_USER;
+    umfpack_strategy_opts["auto"] = UMFPACK_STRATEGY_AUTO;
+    umfpack_strategy_opts["unsymmetric"] = UMFPACK_STRATEGY_UNSYMMETRIC;
+    umfpack_strategy_opts["symmetric"] = UMFPACK_STRATEGY_SYMMETRIC;
+    */
 
-    umfpack_scale_opts["SCALE_NONE"] = UMFPACK_SCALE_NONE;
-    umfpack_scale_opts["SCALE_SUM"] = UMFPACK_SCALE_SUM;
-    umfpack_scale_opts["SCALE_MAX"] = UMFPACK_SCALE_MAX;
+    umfpack_ordering_opts["AMD"] = UMFPACK_ORDERING_AMD;
+    umfpack_ordering_opts["CHOLMOD"] = UMFPACK_ORDERING_CHOLMOD;
+    umfpack_ordering_opts["METIS"] = UMFPACK_ORDERING_METIS;
+    umfpack_ordering_opts["BEST"] = UMFPACK_ORDERING_BEST;
+
+
+    /*
+    umfpack_scale_opts["none"] = UMFPACK_SCALE_NONE;
+    umfpack_scale_opts["sum"] = UMFPACK_SCALE_SUM;
+    umfpack_scale_opts["max"] = UMFPACK_SCALE_MAX;
+    */
 }
 
 double get_multiple_choice_option(const std::string option_name, 
@@ -80,18 +83,10 @@ void set_umf_control(double control[UMFPACK_CONTROL], Rcpp::List umf_control) {
     map<string, int>::iterator it;
     for (int i = 0; i < nparam; i++) {
         std::string name = Rcpp::as<std::string>(param_names[i]);
-        if (name.compare("STRATEGY") == 0) {
-            control[UMFPACK_STRATEGY] = 
-                  get_multiple_choice_option(name, umf_control[i],
-                                             umfpack_strategy_opts);
-        } else if (name.compare("ORDERING") == 0) {
+        if (name.compare("ordering") == 0) {
             control[UMFPACK_ORDERING] = 
                   get_multiple_choice_option(name, umf_control[i],
                                              umfpack_ordering_opts);
-        } else if (name.compare("SCALE") == 0) {
-            control[UMFPACK_SCALE] = 
-                  get_multiple_choice_option(name, umf_control[i],
-                                             umfpack_scale_opts);
         } else {
             it = control_params.find(name);
             if (it != control_params.end()) {

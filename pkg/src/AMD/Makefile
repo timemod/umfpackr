@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # AMD Makefile
 #------------------------------------------------------------------------------
-
+SHELL=/usr/bin/bash
 SUITESPARSE ?= $(realpath $(CURDIR)/..)
 export SUITESPARSE
 
@@ -13,7 +13,7 @@ demos: all
 
 # Compile all C code.  Do not compile the FORTRAN versions.
 all:
-	( cd Lib    ; $(MAKE) )
+	( cd -P Lib    ; $(MAKE) )
 
 # clean, and then remove compiled programs and library archives
 clean:

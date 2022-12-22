@@ -1,7 +1,7 @@
 Package: umfpackr
 Type: Package
 Title: Sparse Linear Algebra with UMFPACK
-Version: 0.5
+Version: 0.9.0
 Author: Rob van Harrevelt [aut, cre]
 Maintainer: Rob van Harrevelt <rvanharrevelt@gmail.com>
 Description: Solve linear and non-linear
@@ -12,6 +12,10 @@ LazyData: true
 LinkingTo: Rcpp
 Imports: Rcpp
 Depends: methods, Matrix
-RoxygenNote: 7.0.0
+RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE, old_usage = TRUE)
-Suggests: testthat, nleqslv, stringr
+Suggests: testthat, nleqslv, stringr, knitr, R.rsp
+NeedsCompilation: yes
+SystemRequirements: For Linux and other non-Windows platforms the libsuitesparse-dev library is required.
+VignetteBuilder: knitr,
+                 R.rsp

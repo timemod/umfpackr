@@ -3,7 +3,6 @@ library(testthat)
 
 rm(list = ls())
 
-context("Test umf_solve with simple matrix")
 
 # create a sparse matrix
 ap <- c(0, 2, 5, 9, 10, 12)

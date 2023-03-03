@@ -4,7 +4,6 @@ library(methods)
 
 rm(list = ls())
 
-context("Test umf_solve_nl for a log function")
 
 #x <- seq(0, 4, length.out = 100)[-1]
 #plot(x, log(x), type = "l")

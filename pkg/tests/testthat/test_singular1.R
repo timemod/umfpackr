@@ -11,7 +11,6 @@ library(testthat)
 library(umfpackr)
 library(Matrix)
 
-context("Test option allow_singular for umfpack_solve_nl")
 
 rm(list = ls())
 

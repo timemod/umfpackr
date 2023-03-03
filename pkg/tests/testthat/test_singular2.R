@@ -2,7 +2,6 @@ library(testthat)
 library(umfpackr)
 library(Matrix)
 
-context("test for singular matrix (2)")
 
 rm(list = ls())
 

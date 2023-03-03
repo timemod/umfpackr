@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // scale_mat_col
 NumericVector scale_mat_col(S4 mat, NumericVector scale);
 RcppExport SEXP _umfpackr_scale_mat_col(SEXP matSEXP, SEXP scaleSEXP) {

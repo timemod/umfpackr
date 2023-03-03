@@ -5,7 +5,6 @@ library(stringr)
 
 rm(list = ls())
 
-context("islm model (row scaling)")
 
 source("tools/read_rconds.R")
 

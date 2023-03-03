@@ -2,7 +2,6 @@ library(umfpackr)
 library(testthat)
 library(methods)
 
-context("Test umf_solve_nl with dslnex mnodel")
 
 dslnex <- function(x, c) {
   y <- numeric(2)

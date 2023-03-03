@@ -11,3 +11,5 @@ tmp/
 *.o
 *.a
 archive
+refman.log
+refman.pdf

@@ -97,9 +97,9 @@ bin: install_deps
 	R CMD INSTALL $(INSTALL_FLAGS) -l ./tmp --build $(PKGDIR)
 
 document: install_deps
-	-@rm -f $(PKGDIR)/vignettes/umfpackr_refman.pdf
+	-@rm -f refman.pdf
 	R -e "devtools::document('"$(PKGDIR)"')"
-	R CMD Rd2pdf --batch $(PKGDIR) -o $(PKGDIR)/vignettes/umfpackr_refman.pdf 2>&1 refman.log
+	R CMD Rd2pdf --no-preview $(PKGDIR) -o refman.pdf 2>&1 > refman.log
 
 install: install_deps
 	-@rm -rf tmp

@@ -12,9 +12,3 @@ be installed on the system. For Ubuntu you can use `sudo apt-get install libsuit
 On Windows, package `umfpackr` uses the source code of the SuiteSparse modules `UMFPACK` and `AMD`. This means that the METIS ordering
 method is not possible.
 
-## Documentation
-
-[Reference manual](pkg/vignettes/umfpackr_refman.pdf)
-
-[Vignette *UMFPACK Interface for R*](pkg/vignettes/UMFPACK_interface.pdf)
-

@@ -17,7 +17,7 @@ ifeq ($(OSTYPE), windows)
 # for unknown reason R CMD check --as-cran does not work on Windows
 RCHECKARG=--no-multiarch
 else
-RCHECKARG=--no-multiarch --as-cran
+RCHECKARG=--no-multiarch
 endif
 
 help:

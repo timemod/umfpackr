@@ -59,7 +59,7 @@ double get_multiple_choice_option(const std::string option_name,
     if (it != options.end()) {
         return it->second;
     } else {
-       Rf_error("%s is not an UMFPACK %s option", option_string.c_str(), 
+       Rcpp::stop("%s is not an UMFPACK %s option", option_string.c_str(), 
                option_name.c_str());
     }
 }
@@ -102,10 +102,10 @@ void set_umf_control(double control[UMFPACK_CONTROL], Rcpp::List umf_control) {
                     break;
                     }
                 default:
-                    Rf_error("%s is not an numeric or logical value", name.c_str());
+                    Rcpp::stop("%s is not an numeric or logical value", name.c_str());
                 }
             } else {
-                Rf_error("%s is not an UMFPACK parameter", name.c_str());
+                Rcpp::stop("%s is not an UMFPACK parameter", name.c_str());
             }
        }
     }

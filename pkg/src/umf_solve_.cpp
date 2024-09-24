@@ -47,9 +47,9 @@ List umf_solve_(S4 a, NumericVector b, List umf_control, bool rowscal) {
     if (info[UMFPACK_STATUS] != UMFPACK_OK) {
         umfpack_di_free_symbolic(&Symbolic);
         if (info[UMFPACK_STATUS] == UMFPACK_ERROR_out_of_memory) {
-            Rf_error("Not enough memory for symbolic factorization");
+            Rcpp::stop("Not enough memory for symbolic factorization");
         } else {
-            Rf_error("Unknown error in symbolic factorization");
+            Rcpp::stop("Unknown error in symbolic factorization");
         }
         return R_NilValue;
     }
@@ -66,12 +66,12 @@ List umf_solve_(S4 a, NumericVector b, List umf_control, bool rowscal) {
         umfpack_di_free_numeric(&Numeric);
         if (stat == UMFPACK_ERROR_out_of_memory) {
             if (info[UMFPACK_ORDERING_USED] == UMFPACK_ORDERING_AMD) {
-                Rf_error("Not enough memory for numeric factorization. Try METIS ordering (use argument umf_control).");
+                Rcpp::stop("Not enough memory for numeric factorization. Try METIS ordering (use argument umf_control).");
             } else {
-                Rf_error("Not enough memory for numeric factorization");
+                Rcpp::stop("Not enough memory for numeric factorization");
             }
         } else {
-            Rf_error("Unknown error in numeric factorization");
+            Rcpp::stop("Unknown error in numeric factorization");
         }
         return R_NilValue;
     }
@@ -92,9 +92,9 @@ List umf_solve_(S4 a, NumericVector b, List umf_control, bool rowscal) {
     if (info[UMFPACK_STATUS] != UMFPACK_OK) {
         umfpack_di_free_numeric (&Numeric) ;
         if (info[UMFPACK_STATUS] == UMFPACK_ERROR_out_of_memory) {
-            Rf_error("Not enough memory to solve to linear system");
+            Rcpp::stop("Not enough memory to solve to linear system");
         } else {
-            Rf_error("Unknown error while solving the linear system");
+            Rcpp::stop("Unknown error while solving the linear system");
         }
         return R_NilValue;
     }

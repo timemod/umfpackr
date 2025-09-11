@@ -1,0 +1,58 @@
+variables:
+  BUILD_DIR: build
+
+stages:
+    - build
+    - test
+    - test_with_cpblib
+
+before_script:
+    - echo "R_LIBS_USER=~/R/cpb_r_packages/%v" > .Renviron
+    - echo "R_LIBS_SITE=''" >> .Renviron
+    # Copy the .Renviron file to the testthat directory,
+    # this makes it possible to manually run the test job as gitlab
+    # runner in case of problems:
+    - cp .Renviron pkg/tests/testthat
+    - Rscript -e "print(.libPaths())"
+
+build-job:
+  stage: build
+  script:
+    # The package is build and tested using a the local packages of gitlab-runner.
+    - Rscript ci_scripts/prepare_local_lib.R
+    - R CMD build pkg 
+    - mkdir $BUILD_DIR
+    - mv *.tar.gz $BUILD_DIR
+  artifacts:
+    paths:
+      - build
+
+Check package:
+  stage: test
+  script:
+    - R CMD check $BUILD_DIR/*.tar.gz
+
+Lint package:
+  stage: test
+  script:
+    # Install the package in the local library
+    - R CMD INSTALL $BUILD_DIR/*.tar.gz
+    - Rscript ci_scripts/lint_pkg.R
+
+Test package in cpblib:
+  stage: test_with_cpblib
+  before_script:
+    # install the package, to ensure that the C code is compiled.
+    - R CMD INSTALL pkg
+    - echo "cpblib::use_cpblib(cpb_only = TRUE)" > .Rprofile
+    - cp .Rprofile pkg/tests/testthat
+    - Rscript -e "print(.libPaths())"
+  script:
+    - Rscript test.R
+  rules:
+    # Sometimes this check should be skipped (when Mimosigereedschap
+    # needs versions of packages not in cpblib)
+    - if: '$test_within_cpblib == "skip"'
+      when: never
+    - when: on_success
+

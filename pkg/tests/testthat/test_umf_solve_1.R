@@ -18,14 +18,14 @@ test_that("result of umf_solve is correct", {
 
 test_that("singular matrix", {
   a_singular <- a
-  a_singular[ , 1] <- 0
+  a_singular[, 1] <- 0
   expect_error(umf_solve(a_singular, b), "singular matrix")
 })
 
 test_that("several errors", {
   expect_error(umf_solve(b, b), "a is not an object of class dgCMatrix")
   expect_error(umf_solve(a, cbind(b, b)),
-          "b should be a numeric vector of a matrix with 1 column")
+               "b should be a numeric vector of a matrix with 1 column")
   expect_error(umf_solve(a, b[1:2]),
-        "The length of vector b \\(2\\) is not equal to the number of rows of a \\(5\\).")
+               "The length of vector b \\(2\\) is not equal to the number of rows of a \\(5\\).")
 })

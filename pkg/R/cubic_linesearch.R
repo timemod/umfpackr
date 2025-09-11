@@ -19,7 +19,7 @@ cline <- function(x, Fx, g, dx, iter, cond, fun, control) {
     f_lambda <- get_fnorm(Fx_new)
 
     if (control$trace) {
-        report_cline(iter, cond, first, lambda, Fx_new)
+      report_cline(iter, cond, first, lambda, Fx_new)
     }
 
     f_lambda_na <- is.na(f_lambda)

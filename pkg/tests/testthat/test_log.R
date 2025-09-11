@@ -37,11 +37,11 @@ test_that("linesearching", {
   expect_warning({
     expect_output({
       ret <- umf_solve_nl(c(1.8, 1.1), f, jacf,
-                     control = list(silent = TRUE, trace = TRUE))
+                          control = list(silent = TRUE, trace = TRUE))
     }, NA)
   }, "NaNs produced")
   expect_equal(ret$message,
-           "Function value contains non-finite values (starting at index=1) at iteration 1\n")
+               "Function value contains non-finite values (starting at index=1) at iteration 1\n")
   expect_false(ret$solved)
 
   # now use linesearching
@@ -58,25 +58,20 @@ test_that("linesearching", {
 
 test_that("starting at singular point x = 2", {
 
-  ret <- umf_solve_nl(c(2, 1.1),f, jacf, control = list(silent = TRUE))
+  ret <- umf_solve_nl(c(2, 1.1), f, jacf, control = list(silent = TRUE))
   expect_equal(ret$message,
-      paste("The Jacobian is singular at iteration 1. The inverse",
-            "condition is 0.\n"))
+               paste("The Jacobian is singular at iteration 1. The inverse",
+                     "condition is 0.\n"))
   expect_false(ret$solved)
 
 
   expect_silent(
     ret <- umf_solve_nl(c(2, 1.1), f, jacf, control = list(silent = TRUE,
-                                                         trace = TRUE,
-                                                 allow_singular = TRUE))
+                                                           trace = TRUE,
+                                                           allow_singular = TRUE))
   )
 
   expect_equal(ret$message,
                paste("Relative step size smaller than xtol (1e-08)\n"))
   expect_false(ret$solved)
 })
-
-
-
-
-

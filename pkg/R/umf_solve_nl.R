@@ -194,7 +194,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
 
   if (!missing(control)) {
     if  (!is.list(control) || (length(control) > 0 &&
-                               is.null(names(control)))) {
+                                 is.null(names(control)))) {
       stop("Argument 'control' should be a named list.")
     }
     if (length(unknown_control_options <- setdiff(names(control),
@@ -204,7 +204,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
     }
     if (!is.null(control$cnd_method)) {
       if (!is.character(control$cnd_method) ||
-          length(control$cnd_method) != 1) {
+            length(control$cnd_method) != 1) {
         stop("Control option 'cnd_method' should be a character of length 1")
       }
       if (!control$cnd_method %in% c("umfpack", "condest", "kappa")) {
@@ -318,7 +318,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
     if (iter == 1) {
       if (!inherits(j, "dgCMatrix") || nrow(j) != n || ncol(j) != n) {
         stop(sprintf(paste("Function 'jac' should return a dgCMatrix with %d",
-                          "rows and columns.\n"), n))
+                           "rows and columns.\n"), n))
       }
     }
 
@@ -333,7 +333,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
     # defined in function get_cond.
     cond <- if (control_$cnd_method == "umfpack") sol$cond else get_cond(j)
 
-    if (sol$status == "singular matrix" || cond < control_$cnd_tol ) {
+    if (sol$status == "singular matrix" || cond < control_$cnd_tol) {
 
       if (sol$status == "singular matrix" && any(!is.finite(j@x))) {
         message <- sprintf(paste("The Jacobian contains non-finite values at",
@@ -373,7 +373,7 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
     }
 
     dx <- -sol$x
-    if (colscal) dx = dx / scale
+    if (colscal) dx <- dx / scale
 
     if (global == "no") {
       ret <- pure_newton_step(x, dx, iter, cond, fun, control_)
@@ -409,13 +409,14 @@ umf_solve_nl <- function(start, fn, jac, ..., control,
 
 
 handle_not_finite_fval <- function(f, iter) {
-  first_na <- Position(function(x) {x}, !is.finite(f))
+  first_na <- Position(function(x) x, !is.finite(f))
   if (iter == 0) {
     return(sprintf(paste("Initial value of function contains",
-            "non-finite values (starting at index=%d)\n"), first_na))
+                         "non-finite values (starting at index=%d)\n"),
+                   first_na))
   } else {
     return(sprintf(paste("Function value contains",
-            "non-finite values (starting at index=%d) at iteration %d\n"),
-            first_na, iter))
+                         "non-finite values (starting at index=%d) at iteration %d\n"),
+                   first_na, iter))
   }
 }

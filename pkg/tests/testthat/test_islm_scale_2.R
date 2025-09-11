@@ -30,10 +30,10 @@ m3 <- 1.5
 t0 <- -15
 t1 <- 0.22
 
-
+# nolint start
 
 fun <- function(x) {
-  x_list <- as.list(x)
+
   list2env(as.list(x), environment())
 
   res <- numeric(7)
@@ -48,7 +48,7 @@ fun <- function(x) {
 }
 
 jac <- function(x) {
-  x_list <- as.list(x)
+
   list2env(as.list(x), environment())
 
   n <- 7
@@ -83,11 +83,12 @@ jac <- function(x) {
   return(as(j, "dgCMatrix"))
 }
 
+# nolint end
 
 
 g <- 240
 ms <- 100
-xstart<- c(y = 460, yd = 371, t = 90, c = 170, i = 40, md = 100, r = 2.5)
+xstart <- c(y = 460, yd = 371, t = 90, c = 170, i = 40, md = 100, r = 2.5)
 
 scale <- 1
 result_scale1  <- umf_solve_nl(xstart, fun, jac,
@@ -102,7 +103,8 @@ scale <- 1e32
 test_that("scale 1e32)", {
 
   report1 <- capture.output(
-    result1 <- umf_solve_nl(xstart, fun, jac, control = list(trace = TRUE)))
+    result1 <- umf_solve_nl(xstart, fun, jac, control = list(trace = TRUE))
+  )
   expect_true(result1$solved)
   expect_equal(result1$x, result_scale1$x)
   rconds <- read_rconds(report1)
@@ -110,7 +112,8 @@ test_that("scale 1e32)", {
 
   report1a_error <- capture_output(
     result1a_error <- umf_solve_nl(xstart, fun, jac, control = list(trace = TRUE),
-                             scaling = "no"))
+                                   scaling = "no")
+  )
   msg <- paste("The inverse condition of the jacobian is smaller",
                "than cnd_tol")
   expect_true(grepl(msg, report1a_error))
@@ -123,14 +126,15 @@ test_that("scale 1e32)", {
   report1b <- capture.output(
     result1b <- umf_solve_nl(xstart, fun, jac,
                              control = list(trace = TRUE,
-                                            cnd_method = "condest")))
+                                            cnd_method = "condest"))
+  )
   expect_true(result1b$solved)
   expect_equal(result1b$x, result_scale1$x)
   rconds <- read_rconds(report1b)
   expect_true(all(rconds > 1e-3))
 
   cond_iter1 <- as.numeric(sub("^\\s*\\d+\\s*(\\S+).+", "\\1",
-                              report1b, perl = TRUE)[6])
+                               report1b, perl = TRUE)[6])
   set.seed(123)
   j <- jac(xstart)
   j <- j / Matrix::rowSums(abs(j))
@@ -143,7 +147,8 @@ test_that("scale 1e32)", {
   report1c <- capture.output(
     result1c <- umf_solve_nl(xstart, fun, jac,
                              control = list(trace = TRUE,
-                                            cnd_method = "kappa")))
+                                            cnd_method = "kappa"))
+  )
   expect_true(result1c$solved)
   expect_equal(result1c$x, result_scale1$x)
   rconds <- read_rconds(report1c)
@@ -172,9 +177,10 @@ test_that("scale 1e32)", {
 
   report2 <- capture.output(
     result2 <- umf_solve_nl(xstart, fun, jac,
-                           control = list(trace = TRUE,
-                                          cnd_method = "kappa",
-                                          cnd_tol = 0), scaling = "col"))
+                            control = list(trace = TRUE,
+                                           cnd_method = "kappa",
+                                           cnd_tol = 0), scaling = "col")
+  )
   expect_true(result2$solved)
   expect_equal(result2$x, result_scale1$x)
   rconds <- read_rconds(report2)
@@ -183,8 +189,9 @@ test_that("scale 1e32)", {
   # no scaling:
   report3 <- capture.output(
     result3 <- umf_solve_nl(xstart, fun, jac,
-                           control = list(trace = TRUE,
-                                          cnd_tol = -999), scaling = "no"))
+                            control = list(trace = TRUE,
+                                           cnd_tol = -999), scaling = "no")
+  )
   expect_true(result3$solved)
   expect_equal(result3$x, result_scale1$x)
   rconds <- read_rconds(report3)
@@ -193,9 +200,10 @@ test_that("scale 1e32)", {
   # allow_singular does not help here
   report4_error <- capture_output(
     result4_error <- umf_solve_nl(xstart, fun, jac,
-                            control = list(trace = TRUE,
-                                           allow_singular = TRUE),
-                            scaling = "no"))
+                                  control = list(trace = TRUE,
+                                                 allow_singular = TRUE),
+                                  scaling = "no")
+  )
   expect_false(result4_error$solved)
   msg <- "Relative step size smaller than"
   expect_true(grepl(msg, report4_error))

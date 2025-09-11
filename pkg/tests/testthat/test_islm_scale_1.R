@@ -30,10 +30,9 @@ m3 <- 1.5
 t0 <- -15
 t1 <- 0.22
 
-
+# nolint start
 
 fun <- function(x) {
-  x_list <- as.list(x)
   list2env(as.list(x), environment())
 
   res <- numeric(7)
@@ -86,6 +85,7 @@ jac <- function(x) {
 }
 
 
+# nolint end
 
 g_scale_1 <- 240
 ms_scale_1 <- 100
@@ -101,7 +101,7 @@ ms <- ms_scale_1
 xstart <- xstart_scale_1
 
 result_scale1  <- umf_solve_nl(xstart, fun, jac,
-                        control = list(trace = FALSE, silent = TRUE))
+                               control = list(trace = FALSE, silent = TRUE))
 
 test_that("check results scale 1", {
 
@@ -164,7 +164,8 @@ test_that("scale 1e-12)", {
   #
   report2 <- capture.output(
     result2 <- umf_solve_nl(xstart, fun, jac, control = list(trace = TRUE),
-                            scaling = "col"))
+                            scaling = "col")
+  )
   expect_true(result2$solved)
 
   expected_result <- result_scale1$x
@@ -178,8 +179,9 @@ test_that("scale 1e-12)", {
   # now with cnd_method == "kappa":
   report2a <- capture.output(
     result2a <- umf_solve_nl(xstart, fun, jac,
-                            control = list(trace = TRUE, cnd_method = "kappa"),
-                            scaling = "col"))
+                             control = list(trace = TRUE, cnd_method = "kappa"),
+                             scaling = "col")
+  )
   expect_true(result2a$solved)
 
   expected_result <- result_scale1$x
@@ -197,7 +199,8 @@ test_that("scale 1e-12)", {
   report3 <- capture.output(
     result3 <- umf_solve_nl(xstart, fun, jac, control = list(trace = TRUE,
                                                              cnd_tol = -1),
-                           scaling = "no"))
+                            scaling = "no")
+  )
   expect_true(result3$solved)
 
   expected_result <- result_scale1$x
@@ -212,10 +215,10 @@ test_that("scale 1e-12)", {
 test_that("errors", {
   msg <- "Control option 'cnd_tol' should be a numeric of length 1"
   expect_error(umf_solve_nl(xstart, fun, jac, control = list(trace = TRUE,
-                                                cnd_tol = "xxx")),
-                            msg)
+                                                             cnd_tol = "xxx")),
+               msg)
   expect_error(umf_solve_nl(xstart, fun, jac, control = list(trace = TRUE,
-                                                             cnd_tol = c(1,2))),
+                                                             cnd_tol = c(1, 2))),
                msg)
   msg <- "Control option 'cnd_tol' should be a numeric of length 1"
   expect_error(umf_solve_nl(xstart, fun, jac, control = list(trace = TRUE,

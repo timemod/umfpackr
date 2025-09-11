@@ -34,4 +34,3 @@ report_pure_newton <- function(iter, cond, Fx) {
     cat(sprintf("%5d%15.2e%20.3e%20d\n", iter, cond, Fx_max, i_max))
   }
 }
-

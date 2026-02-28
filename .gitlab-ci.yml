@@ -47,8 +47,6 @@ Lint package:
 
 Test package in cpblib:
   stage: test_with_cpblib
-  variables:
-    R_LIBS_USER: "$CI_PROJECT_DIR/umfpackrlib"
   before_script:
   script:
 
@@ -62,7 +60,7 @@ Test package in cpblib:
     - ls -l $R_LIBS_USER
 
     # Now use cpblib to test regts
-    - USE_CPLIB=true Rscript_$R_PROD -e 'print(Sys.getenv("R_LIBS_USER"))'
+    - export R_LIBS_USER=$CI_PROJECT_DIR/regtslib
     - USE_CPLIB=true Rscript_$R_PROD -e 'print(list.files(Sys.getenv("R_LIBS_USER")))'
     - USE_CPLIB=true Rscript_$R_PROD -e 'pkgs <- dir(Sys.getenv("R_LIBS_USER")); print(pkgs); if (!identical(pkgs, "umfpackr")) stop("Expected only umfpackr")'
     - USE_CPBLIB=true Rscript_$R_PROD -e "cat('library-paths:\n');print(.libPaths())"

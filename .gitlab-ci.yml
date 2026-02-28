@@ -58,7 +58,7 @@ Test package in cpblib:
     - mkdir -p $R_LIBS_USER
     - USE_CPBLIB=false R_$R_PROD CMD INSTALL --preclean --clean -l "$R_LIBS_USER" $BUILD_DIR/*.tar.gz
     - ls -l $R_LIBS_USER
-    - Rscript_$R_PROD -e 'pkgs <- dir(Sys.getenv("R_LIBS_USER")); if (!identical(pkgs, "umfpackr")) stop("Expected only umfpackr")'
+    - Rscript_$R_PROD -e 'pkgs <- dir(Sys.getenv("R_LIBS_USER")); print(pkgs); if (!identical(pkgs, "umfpackr")) stop("Expected only umfpackr")'
 
     # Now use cpblib to test regts
     - USE_CPBLIB=true Rscript_$R_PROD -e "cat('library-paths:\n');print(.libPaths())"

@@ -34,16 +34,14 @@ Check package:
   variables:
     USE_CPBLIB: "false"
   script:
-    #- R_$R_DEV CMD check $BUILD_DIR/*.tar.gz
-    - echo "aap"
+    - R_$R_DEV CMD check $BUILD_DIR/*.tar.gz
 
 Lint package:
   stage: test
   variables:
     USE_CPBLIB: "false"
   script:
-    #- Rscript ci_scripts/lint_pkg.R
-    - echo "aap"
+    - Rscript ci_scripts/lint_pkg.R
 
 Test package in cpblib:
   stage: test_with_cpblib
@@ -59,7 +57,7 @@ Test package in cpblib:
     - export USE_CPBLIB=false
     - Rscript_$R_PROD ci_scripts/prepare_local_lib.R
     - mkdir -p $UMFPACKR_LIB
-    - R_$R_PROD CMD INSTALL --preclean --clean -l $UMFPACKR_LIB $BUILD_DIR/*.tar.gz
+    - R_$R_PROD CMD INSTALL --preclean --clean --instal-tests -l $UMFPACKR_LIB $BUILD_DIR/*.tar.gz
     - ls -l $UMFPACKR_LIB
 
     # Now use cpblib to test regts
@@ -67,7 +65,7 @@ Test package in cpblib:
     - export USE_CPBLIB=true
     - Rscript_$R_PROD -e 'pkgs <- dir(Sys.getenv("R_LIBS_USER")); print(pkgs); if (!identical(pkgs, "umfpackr")) stop("Expected only umfpackr")'
     - Rscript_$R_PROD -e "cat('library-paths:\n');print(.libPaths())"
-    - Rscript_$R_PROD -e "testthat::test_package('umfpackr', stop_on_failure = TRUE)"
+    - Rscript_$R_PROD -e "testthat::test_package('umfpackr', report = 'check', stop_on_failure = TRUE)"
 
   rules:
     # Sometimes this check should be skipped (when Mimosigereedschap

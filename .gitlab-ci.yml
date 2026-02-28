@@ -58,9 +58,9 @@ Test package in cpblib:
     - mkdir -p $R_LIBS_USER
     - USE_CPBLIB=false R_$R_PROD CMD INSTALL --preclean --clean -l "$R_LIBS_USER" $BUILD_DIR/*.tar.gz
     - ls -l $R_LIBS_USER
-    - USE_CPLIB=false Rscript_$R_PROD -e 'pkgs <- dir(Sys.getenv("R_LIBS_USER")); print(pkgs); if (!identical(pkgs, "umfpackr")) stop("Expected only umfpackr")'
 
     # Now use cpblib to test regts
+    - USE_CPLIB=true Rscript_$R_PROD -e 'pkgs <- dir(Sys.getenv("R_LIBS_USER")); print(pkgs); if (!identical(pkgs, "umfpackr")) stop("Expected only umfpackr")'
     - USE_CPBLIB=true Rscript_$R_PROD -e "cat('library-paths:\n');print(.libPaths())"
     - USE_CPBLIB=true Rscript_$R_PROD -e "testthat::test_package('umfpackr', stop_on_failure = TRUE)"
 

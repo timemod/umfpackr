@@ -57,7 +57,7 @@ Test package in cpblib:
     - export USE_CPBLIB=false
     - Rscript_$R_PROD ci_scripts/prepare_local_lib.R
     - mkdir -p $UMFPACKR_LIB
-    - R_$R_PROD CMD INSTALL --preclean --clean --instal-tests -l $UMFPACKR_LIB $BUILD_DIR/*.tar.gz
+    - R_$R_PROD CMD INSTALL --preclean --clean --install-tests -l $UMFPACKR_LIB $BUILD_DIR/*.tar.gz
     - ls -l $UMFPACKR_LIB
 
     # Now use cpblib to test regts

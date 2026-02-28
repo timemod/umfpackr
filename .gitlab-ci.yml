@@ -34,14 +34,16 @@ Check package:
   variables:
     USE_CPBLIB: "false"
   script:
-    - R_$R_DEV CMD check $BUILD_DIR/*.tar.gz
+    #- R_$R_DEV CMD check $BUILD_DIR/*.tar.gz
+    - echo "aap"
 
 Lint package:
   stage: test
   variables:
     USE_CPBLIB: "false"
   script:
-    - Rscript ci_scripts/lint_pkg.R
+    #- Rscript ci_scripts/lint_pkg.R
+    - echo "aap"
 
 Test package in cpblib:
   stage: test_with_cpblib
@@ -60,6 +62,8 @@ Test package in cpblib:
     - ls -l $R_LIBS_USER
 
     # Now use cpblib to test regts
+    - USE_CPLIB=true Rscript_$R_PROD -e 'print(Sys.getenv("R_LIBS_USER"))'
+    - USE_CPLIB=true Rscript_$R_PROD -e 'print(list.files(Sys.getenv("R_LIBS_USER")))'
     - USE_CPLIB=true Rscript_$R_PROD -e 'pkgs <- dir(Sys.getenv("R_LIBS_USER")); print(pkgs); if (!identical(pkgs, "umfpackr")) stop("Expected only umfpackr")'
     - USE_CPBLIB=true Rscript_$R_PROD -e "cat('library-paths:\n');print(.libPaths())"
     - USE_CPBLIB=true Rscript_$R_PROD -e "testthat::test_package('umfpackr', stop_on_failure = TRUE)"

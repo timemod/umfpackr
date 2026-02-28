@@ -47,6 +47,8 @@ Lint package:
 
 Test package in cpblib:
   stage: test_with_cpblib
+  variables:
+    UMFPACKR_LIB: $CI_PROJECT_DIR/umfpackrlib 
   before_script:
   script:
 
@@ -56,11 +58,11 @@ Test package in cpblib:
     # this is required if R_PROD != R_DEV.
     - USE_CPBLIB=false Rscript_$R_PROD ci_scripts/prepare_local_lib.R
     - mkdir -p $R_LIBS_USER
-    - USE_CPBLIB=false R_$R_PROD CMD INSTALL --preclean --clean -l "$R_LIBS_USER" $BUILD_DIR/*.tar.gz
+    - USE_CPBLIB=false R_$R_PROD CMD INSTALL --preclean --clean -l "$UMFPACKR_LIB" $BUILD_DIR/*.tar.gz
     - ls -l $R_LIBS_USER
 
     # Now use cpblib to test regts
-    - export R_LIBS_USER=$CI_PROJECT_DIR/umfpackrlib
+    - export R_LIBS_USER=$UMFPACKR_LIB
     - USE_CPLIB=true Rscript_$R_PROD -e 'print(list.files(Sys.getenv("R_LIBS_USER")))'
     - USE_CPLIB=true Rscript_$R_PROD -e 'pkgs <- dir(Sys.getenv("R_LIBS_USER")); print(pkgs); if (!identical(pkgs, "umfpackr")) stop("Expected only umfpackr")'
     - USE_CPBLIB=true Rscript_$R_PROD -e "cat('library-paths:\n');print(.libPaths())"

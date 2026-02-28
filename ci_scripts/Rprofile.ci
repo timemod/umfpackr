@@ -1,0 +1,22 @@
+use_cpblib <- tolower(Sys.getenv("USE_CPBLIB", "")) %in% c("1", "true", "t", "yes", "y")
+
+if (use_cpblib) {
+
+  # cpblib should come after umfpackrlib in the lib path. regtslib only contains
+  # the newly installed version of regts.
+  cpblib::use_cpblib(cpb_first = FALSE)
+
+} else {
+
+  # Create the local library of gitlab-runner.
+  r_version <- getRversion()
+  r_version <- paste0(r_version$major, ".", r_version$minor)
+  lib_user_path <- file.path(path.expand("~"), "R", "cpb_r_packages", r_version)
+
+  if (!dir.exists(lib_user_path)) dir.create(lib_user_path, recursive = TRUE)
+
+  .libPaths(lib_user_path, include.site = FALSE)
+
+  # Set environment variable (only used for child processes)
+  Sys.setenv(R_LIBS_USER = lib_user_path)
+}

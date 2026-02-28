@@ -56,17 +56,15 @@ Test package in cpblib:
 
     # First make sure that all required packages are need for this R-version,
     # this is required if R_PROD != R_DEV.
-    - USE_CPBLIB=false Rscript_$R_PROD ci_scripts/prepare_local_lib.R
+    - export USE_CPBLIB=false
+    - Rscript_$R_PROD ci_scripts/prepare_local_lib.R
     - mkdir -p $UMFPACKR_LIB
-    - USE_CPBLIB=false R_$R_PROD CMD INSTALL --preclean --clean -l "$UMFPACKR_LIB" $BUILD_DIR/*.tar.gz
-    - ls -l $R_LIBS_USER
+    - R_$R_PROD CMD INSTALL --preclean --clean -l "$UMFPACKR_LIB" $BUILD_DIR/*.tar.gz
+    - ls -l $UMFPACKR_LIB
 
     # Now use cpblib to test regts
     - export R_LIBS_USER=$UMFPACKR_LIB
     - export USE_CPBLIB=true
-    - echo "R_LIBS_USER=$R_LIBS_USER  USE_CPBLIB=$USE_CPBLIB"
-    - Rscript_$R_PROD -e 'print(Sys.getenv("R_LIBS_USER"))'
-    - Rscript_$R_PROD -e 'print(list.files(Sys.getenv("R_LIBS_USER")))'
     - Rscript_$R_PROD -e 'pkgs <- dir(Sys.getenv("R_LIBS_USER")); print(pkgs); if (!identical(pkgs, "umfpackr")) stop("Expected only umfpackr")'
     - Rscript_$R_PROD -e "cat('library-paths:\n');print(.libPaths())"
     - Rscript_$R_PROD -e "testthat::test_package('umfpackr', stop_on_failure = TRUE)"

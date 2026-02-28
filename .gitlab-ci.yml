@@ -57,7 +57,7 @@ Test package in cpblib:
     # First make sure that all required packages are need for this R-version,
     # this is required if R_PROD != R_DEV.
     - USE_CPBLIB=false Rscript_$R_PROD ci_scripts/prepare_local_lib.R
-    - mkdir -p $R_LIBS_USER
+    - mkdir -p $UMFPACKR_LIB
     - USE_CPBLIB=false R_$R_PROD CMD INSTALL --preclean --clean -l "$UMFPACKR_LIB" $BUILD_DIR/*.tar.gz
     - ls -l $R_LIBS_USER
 

@@ -26,7 +26,7 @@ check_header() {
 if [ -n "$SUITESPARSE_INCLUDE" ]; then
   INCLUDE_DIR="$SUITESPARSE_INCLUDE"
 elif [ -n "$SUITESPARSE_PREFIX" ]; then
-  INCLUDE_DIR="$SUITESPARSE_PREFIX/include"
+  INCLUDE_DIR="$SUITESPARSE_PREFIX/include/suitesparse"
 fi
 
 if [ -n "$SUITESPARSE_LIB" ]; then

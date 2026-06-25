@@ -1,9 +1,20 @@
+# Workflow rules to prevent duplicate pipelines:
+# - Use MR pipeline when a merge request exists
+# - Use branch pipeline otherwise
+# This ensures only one pipeline runs per commit
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+
 variables:
   BUILD_DIR: build
   R_PROFILE_USER: "$CI_PROJECT_DIR/ci_scripts/Rprofile.ci"
   # define the development and production version of R
-  R_DEV: "4.5.1"
-  R_PROD: "4.5.1"
+  R_DEV: "4.5.3"
+  R_PROD: "4.5.3"
 
 stages:
     - build

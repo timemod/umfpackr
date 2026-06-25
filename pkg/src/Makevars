@@ -1,4 +1,0 @@
-# -*- Makefile -*-
-
-PKG_CPPFLAGS = -DNTIMER -I/usr/include/suitesparse
-PKG_LIBS = $(BLAS_LIBS) -lumfpack

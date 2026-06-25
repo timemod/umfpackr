@@ -29,13 +29,14 @@ This vignette describes the UMPFACK interface implemented in
 UMFPACK is part of  [SuiteSparse](http://faculty.cse.tamu.edu/davis/suitesparse.html),
 a suite of libraries for sparse linear algebra.
 
-On Linux and other non-Windows platforms, `umfpackr` assumes that
-a full installation of SuiteSparse is available. On Ubuntu installation
-is very easy:
+On **Unix platforms** (e.g. Linux or MAC OSX), `umfpackr` assumes that
+a full installation of SuiteSparse is available. For `Ubtuntu`
+it can be installed by the command
 ```
 sudo apt-get install libsuitesparse-dev
 ```
-On macOS, installation is also easy with package manager HomeBrew 
+
+On macOS, SuiteSparse  can be installed by HomeBrew 
 (HomeBrew is not installed by default, so you may have to install
 HomeBrew first):
 ```
@@ -45,6 +46,33 @@ brew install suite-sparse
 If it not possible to install SuiteSparse with a package
 manager on your platform, you have to build SuiteSparse from source.
 
+## Suitesparse location on Unix platforms
+
+On Unix platforms, the installer looks for SuiteSparse in standard locations
+`/usr/include/suitesparse`, `/usr/local/include/suitesparse`, and `/opt/homebrew/include/suitesparse`.
+
+If you installed SuiteSparse in a non-standard directory, you can explicitly
+set the paths using environment variables before installation:
+
+### Option A: SUITERSPARSE_PREFIX
+
+If SuiteSparse resides at `/my/custom/path`, where headers are in `/my/custom/path/include/suitesparse` 
+and libs in `/my/custom/path/lib`, use:
+```
+export SUITESPARSE_PREFIX=/my/custom/path
+```
+
+### Option B: Explicit include and lib paths
+
+Alternatively, specify the exact include and library directories:
+
+```
+export SUITESPARSE_INCLUDE=/path/to/suitesparse/include
+export SUITESPARSE_LIB=/path/to/suitesparse/lib
+```
+
+## Windows
+
 Because it is difficult to install the full SuiteSparse suite on
 Windows, `umfpackr` includes the source of the UMFPACK and AMD libraries
 of the SuiteSparse suite. These libraries are sufficient to 
@@ -52,6 +80,8 @@ solve sparse linear systems using the AMD ordering method. Since the Windows
 implementation does not use the full SuiteSparse suite,  it is however not 
 possible to use the METIS ordering method on Windows. 
 The METIS method can handle larger matrices than the standard AMD method.
+
+
 
 # Ordering methods
 

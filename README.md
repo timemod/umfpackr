@@ -8,6 +8,7 @@ The non-linear solvers included a simple cubic line search.
 
 On Linux and other non-Windows system, the package employs library `libsuitesparse-dev`, which should
 be installed on the system. For Ubuntu you can use `sudo apt-get install libsuitesparse-dev` to install this package.
+More details about the installation are provided in the vignette [UMFPACK Interface](pkg/vignettes/UMFPACK_interface.Rmd).
 
 On Windows, package `umfpackr` uses the source code of the SuiteSparse modules `UMFPACK` and `AMD`. This means that the METIS ordering
 method is not possible.

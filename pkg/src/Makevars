@@ -1,4 +1,56 @@
-# -*- Makefile -*-
+# src/Makevars
+# Base compiler flags
+PKG_CPPFLAGS = -DNTIMER
+PKG_LIBS = $(BLAS_LIBS)
 
-PKG_CPPFLAGS = -DNTIMER -I/usr/include/suitesparse
-PKG_LIBS = $(BLAS_LIBS) -lumfpack
+# Optional overrides (can be exported in the shell or passed via --configure-vars)
+# SUITESPARSE_PREFIX  : Prefix where include/ and lib/ are located
+# SUITESPARSE_INCLUDE : Explicit include directory (e.g., /opt/homebrew/include/suitesparse)
+# SUITESPARSE_LIB     : Explicit lib directory (e.g., /opt/homebrew/lib)
+
+ifdef SUITESPARSE_INCLUDE
+  PKG_CPPFLAGS += -I$(SUITESPARSE_INCLUDE)
+endif
+
+ifdef SUITESPARSE_LIB
+  PKG_LIBS += -L$(SUITESPARSE_LIB) -lumfpack
+endif
+
+ifdef SUITESPARSE_PREFIX
+  PKG_CPPFLAGS += -I$(SUITESPARSE_PREFIX)/include/suitesparse
+  PKG_LIBS += -L$(SUITESPARSE_PREFIX)/lib -lumfpack
+endif
+
+# If no explicit override is provided, try to detect known locations.
+ifeq ($(SUITESPARSE_INCLUDE)$(SUITESPARSE_PREFIX),)
+  UNAME_S := $(shell uname -s)
+  
+  ifeq ($(UNAME_S),Darwin)
+    # macOS: Prefer Apple Silicon Homebrew location, then Intel Homebrew, then system
+    ifneq (,$(wildcard /opt/homebrew/include/suitesparse))
+      PKG_CPPFLAGS += -I/opt/homebrew/include/suitesparse
+      PKG_LIBS += -L/opt/homebrew/lib -lumfpack
+    else
+      ifneq (,$(wildcard /usr/local/include/suitesparse))
+        PKG_CPPFLAGS += -I/usr/local/include/suitesparse
+        PKG_LIBS += -L/usr/local/lib -lumfpack
+      else
+        ifneq (,$(wildcard /usr/include/suitesparse))
+          PKG_CPPFLAGS += -I/usr/include/suitesparse
+          PKG_LIBS += -lumfpack
+        endif
+      endif
+    endif
+  else
+    # Linux and other Unix-like systems: standard /usr and /usr/local
+    ifneq (,$(wildcard /usr/include/suitesparse))
+      PKG_CPPFLAGS += -I/usr/include/suitesparse
+      PKG_LIBS += -lumfpack
+    else
+      ifneq (,$(wildcard /usr/local/include/suitesparse))
+        PKG_CPPFLAGS += -I/usr/local/include/suitesparse
+        PKG_LIBS += -L/usr/local/lib -lumfpack
+      endif
+    endif
+  endif
+endif
